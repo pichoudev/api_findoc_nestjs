@@ -203,25 +203,3 @@ Content-Type: {{contentType}}
   "purpose": "VERIFY_EMAIL"
 }
 
-### ==================== VARIABLES D'ENVIRONNEMENT ====================
-
-# Pour tester avec différents environnements:
-# @baseUrl = http://localhost:3000 (développement)
-# @baseUrl = https://api.cleaner.cm (production)
-# @baseUrl = https://staging-api.cleaner.cm (staging)
-
-### ==================== INSTRUCTIONS ====================
-
-# 1. Démarrer le serveur NestJS: npm run start:dev
-# 2. Exécuter ces requêtes avec VS Code REST Client ou Postman
-# 3. Remplacer les UUID et tokens par des valeurs réelles
-# 4. Vérifier les emails OTP dans votre boîte de réception
-# 5. Utiliser les tokens retournés pour les requêtes authentifiées
-
-### Notes importantes:
-# - Les mots de passe doivent avoir minimum 6 caractères
-# - Les rôles valides: CITIZEN, AGENT, SUPERVISOR, ADMIN
-# - Le téléphone doit être unique au format international (+237...)
-# - Un OTP est envoyé automatiquement après inscription
-# - Le compte est inactif jusqu'à vérification OTP
-# - La ville par défaut est Douala si aucun neighborhoodId spécifié
