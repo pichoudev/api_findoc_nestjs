@@ -36,11 +36,17 @@ export class AuthService {
     const access_token = this.jwtService.sign(payload);
     const refresh_token = randomBytes(40).toString('hex');
     
+    console.log(`🔄 Tentative de sauvegarde du refresh token pour l'utilisateur ${user.id}`);
+    console.log(`📝 Refresh token généré: ${refresh_token.substring(0, 10)}...`);
+    
     // Sauvegarder le refresh token dans le modèle User
-    await this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
       data: { refreshToken: refresh_token }
     });
+    
+    console.log(`✅ Refresh token sauvegardé: ${updatedUser.refreshToken ? 'OUI' : 'NON'}`);
+    console.log(`📊 Valeur dans la base: ${updatedUser.refreshToken?.substring(0, 10)}...`);
     
     return {
       access_token,
@@ -59,12 +65,20 @@ export class AuthService {
   }
 
   async refreshToken(refreshToken: string) {
+    console.log(`🔍 Recherche de l'utilisateur avec refresh token: ${refreshToken.substring(0, 10)}...`);
+    
     const user = await this.prisma.user.findFirst({
       where: { 
         refreshToken: refreshToken,
         isActive: true
       },
     });
+    
+    console.log(`👤 Utilisateur trouvé: ${user ? 'OUI' : 'NON'}`);
+    if (user) {
+      console.log(`📧 Email: ${user.email}`);
+      console.log(`🔄 Token dans la base: ${user.refreshToken?.substring(0, 10)}...`);
+    }
 
     if (!user) {
       throw new UnauthorizedException('Token de rafraîchissement invalide ou expiré');

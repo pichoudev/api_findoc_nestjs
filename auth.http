@@ -12,7 +12,7 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "capollinebanemb@gmail.com",
+  "email": "apollinebanemb@gmail.com",
   "phone": "+237698765432",
   "password": "password123",
   "confirmPassword": "password123",
@@ -113,7 +113,7 @@ Content-Type: {{contentType}}
 
 {
   "emailOrPhone": "citoyen@cleaner.cm",
-  "code": "123456",
+  "code": "104349",
   "purpose": "VERIFY_EMAIL"
 }
 
