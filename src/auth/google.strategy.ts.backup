@@ -1,0 +1,65 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { Strategy } from 'passport-google-oauth20';
+import { ConfigService } from '@nestjs/config';
+import { AuthService } from './auth.service';
+
+export interface GoogleUserProfile {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  picture: string;
+  accessToken: string;
+}
+
+@Injectable()
+export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
+  private readonly logger = new Logger(GoogleStrategy.name);
+
+  constructor(
+    private configService: ConfigService,
+    private authService: AuthService,
+  ) {
+    super({
+      clientID: configService.get<string>('GOOGLE_CLIENT_ID') || '',
+      clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET') || '',
+      callbackURL: configService.get<string>('GOOGLE_CALLBACK_URL') || 'http://localhost:3000/auth/google/callback',
+      scope: ['email', 'profile'],
+      passReqToCallback: false,
+    });
+  }
+
+  async validate(accessToken: string, refreshToken: string, profile: any, done: Function) {
+    try {
+      this.logger.log(`Tentative de connexion Google avec email: ${profile.emails?.[0]?.value}`);
+      
+      const { emails, name, photos } = profile;
+      
+      const user: GoogleUserProfile = {
+        email: emails?.[0]?.value || '',
+        firstName: name?.givenName || '',
+        lastName: name?.familyName || '',
+        phone: '', // Sera généré plus tard dans createGoogleUser
+        picture: photos?.[0]?.value || '',
+        accessToken,
+      };
+
+      // Vérifier si l'utilisateur existe déjà
+      let existingUser = await this.authService.findByEmail(user.email);
+      
+      if (!existingUser) {
+        this.logger.log(`Création d'un nouvel utilisateur Google: ${user.email}`);
+        // Créer un nouvel utilisateur si inexistant
+        const newUser = await this.authService.createGoogleUser(user);
+        return done(null, newUser);
+      }
+
+      this.logger.log(`Utilisateur Google existant connecté: ${user.email}`);
+      return done(null, existingUser);
+    } catch (error) {
+      this.logger.error(`Erreur dans la stratégie Google: ${error.message}`, error.stack);
+      return done(error, null);
+    }
+  }
+}

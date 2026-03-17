@@ -1,0 +1,227 @@
+### Cleaner App - API Auth Tests
+### Fichier de test pour les endpoints d'authentification
+### Base URL: http://localhost:3000
+
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### ==================== AUTHENTIFICATION ====================
+
+### 1. Inscription d'un nouvel utilisateur citoyen
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "citoyen@cleaner.cm",
+  "phone": "+237698765432",
+  "password": "password123",
+  "confirmPassword": "password123",
+  "firstName": "Jean",
+  "lastName": "Mbiya",
+  "role": "CITIZEN"
+}
+
+### 2. Inscription d'un agent HYSACAM
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "agent@hysacam.cm",
+  "phone": "+237612345678",
+  "password": "agentpass123",
+  "confirmPassword": "agentpass123",
+  "firstName": "Paul",
+  "lastName": "Tchouante",
+  "role": "AGENT"
+}
+
+### 3. Inscription avec quartier spécifique
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "douala@cleaner.cm",
+  "phone": "+237655555555",
+  "password": "douala123",
+  "confirmPassword": "douala123",
+  "firstName": "Marie",
+  "lastName": "Douala",
+  "neighborhoodId": "uuid-du-quartier-ici",
+  "role": "CITIZEN"
+}
+
+### 4. Inscription minimale (champs requis seulement)
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "minimal@cleaner.cm",
+  "phone": "+237600000000",
+  "password": "min123",
+  "confirmPassword": "min123"
+}
+
+### 5. Connexion utilisateur
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "citoyen@cleaner.cm",
+  "password": "password123"
+}
+
+### ==================== TOKEN MANAGEMENT ====================
+
+### 6. Rafraîchir le token d'accès
+POST {{baseUrl}}/auth/refresh
+Content-Type: {{contentType}}
+
+{
+  "refresh_token": "votre-refresh-token-ici"
+}
+
+### 7. Déconnexion
+POST {{baseUrl}}/auth/logout
+Content-Type: {{contentType}}
+Authorization: Bearer votre-access-token-ici
+
+{
+  "refresh_token": "votre-refresh-token-ici"
+}
+
+### ==================== OTP VERIFICATION ====================
+
+### 8. Envoyer OTP pour vérification email
+POST {{baseUrl}}/auth/send-otp
+Content-Type: {{contentType}}
+
+{
+  "emailOrPhone": "citoyen@cleaner.cm"
+}
+
+### 9. Envoyer OTP par SMS
+POST {{baseUrl}}/auth/send-otp
+Content-Type: {{contentType}}
+
+{
+  "emailOrPhone": "+237698765432"
+}
+
+### 10. Vérifier OTP pour activation de compte
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: {{contentType}}
+
+{
+  "emailOrPhone": "citoyen@cleaner.cm",
+  "code": "123456",
+  "purpose": "VERIFY_EMAIL"
+}
+
+### 11. Demander réinitialisation mot de passe
+POST {{baseUrl}}/auth/request-password-reset
+Content-Type: {{contentType}}
+
+{
+  "emailOrPhone": "citoyen@cleaner.cm"
+}
+
+### 12. Réinitialiser mot de passe avec OTP
+POST {{baseUrl}}/auth/reset-password
+Content-Type: {{contentType}}
+
+{
+  "emailOrPhone": "citoyen@cleaner.cm",
+  "code": "123456",
+  "newPassword": "newpassword123"
+}
+
+### ==================== GOOGLE AUTH (optionnel) ====================
+
+### 13. Authentification Google (redirection)
+GET {{baseUrl}}/auth/google
+
+### 14. Callback Google OAuth2
+GET {{baseUrl}}/auth/google/callback
+
+### ==================== PROFILE ====================
+
+### 15. Obtenir le profil utilisateur connecté
+GET {{baseUrl}}/auth/me
+Authorization: Bearer votre-access-token-ici
+
+### ==================== TESTS D'ERREURS ====================
+
+### 16. Test inscription email invalide
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "email-invalide",
+  "phone": "+237698765432",
+  "password": "password123",
+  "confirmPassword": "password123"
+}
+
+### 17. Test inscription mots de passe différents
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "test@cleaner.cm",
+  "phone": "+237698765433",
+  "password": "password123",
+  "confirmPassword": "different123"
+}
+
+### 18. Test inscription email déjà utilisé
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "citoyen@cleaner.cm",
+  "phone": "+237698765434",
+  "password": "password123",
+  "confirmPassword": "password123"
+}
+
+### 19. Test connexion identifiants invalides
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "citoyen@cleaner.cm",
+  "password": "wrongpassword"
+}
+
+### 20. Test OTP invalide
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: {{contentType}}
+
+{
+  "emailOrPhone": "citoyen@cleaner.cm",
+  "code": "000000",
+  "purpose": "VERIFY_EMAIL"
+}
+
+### ==================== VARIABLES D'ENVIRONNEMENT ====================
+
+# Pour tester avec différents environnements:
+# @baseUrl = http://localhost:3000 (développement)
+# @baseUrl = https://api.cleaner.cm (production)
+# @baseUrl = https://staging-api.cleaner.cm (staging)
+
+### ==================== INSTRUCTIONS ====================
+
+# 1. Démarrer le serveur NestJS: npm run start:dev
+# 2. Exécuter ces requêtes avec VS Code REST Client ou Postman
+# 3. Remplacer les UUID et tokens par des valeurs réelles
+# 4. Vérifier les emails OTP dans votre boîte de réception
+# 5. Utiliser les tokens retournés pour les requêtes authentifiées
+
+### Notes importantes:
+# - Les mots de passe doivent avoir minimum 6 caractères
+# - Les rôles valides: CITIZEN, AGENT, SUPERVISOR, ADMIN
+# - Le téléphone doit être unique au format international (+237...)
+# - Un OTP est envoyé automatiquement après inscription
+# - Le compte est inactif jusqu'à vérification OTP
+# - La ville par défaut est Douala si aucun neighborhoodId spécifié

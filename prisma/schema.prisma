@@ -1,0 +1,290 @@
+// This is your Prisma schema file
+// Cleaner App — Douala, Cameroun
+// Stack : NestJS + Prisma ORM + PostgreSQL 15 + PostGIS 3
+// Reference : CCT-CLN-2026-001 v1.0
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+ // url        = env("DATABASE_URL")
+  extensions = [postgis]
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ENUMERATIONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  CITIZEN
+  AGENT
+  SUPERVISOR
+  ADMIN
+}
+
+enum Region {
+  LITTORAL
+  CENTRE
+  OUEST
+  EXTREME_NORD
+  NORD
+  SUD
+  SUD_OUEST
+  NORD_OUEST
+  ADAMAOUA
+}
+
+enum BacType {
+  HOUSEHOLD
+  COMMERCIAL
+  INDUSTRIAL
+}
+
+enum BacStatus {
+  ACTIVE
+  FULL
+  DAMAGED
+  INACTIVE
+}
+
+enum ReportType {
+  FULL
+  DAMAGED
+  MISSING
+  OVERFLOWING
+}
+
+enum ReportStatus {
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum InterventionStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+  CANCELLED
+}
+
+enum NotificationType {
+  REPORT_RECEIVED
+  REPORT_ASSIGNED
+  REPORT_IN_PROGRESS
+  REPORT_INACTIVE
+  CRITICAL_ZONE
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODELS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Ville du Cameroun. Contient plusieurs quartiers.
+model City {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(100)
+  region    Region
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  neighborhoods Neighborhood[]
+
+  @@unique([name, region])
+  @@map("cities")
+}
+
+/// Quartier de Douala. Contient des bacs geolocalises.
+/// Le polygone est stocke comme GEOGRAPHY(POLYGON,4326) via PostGIS.
+model Neighborhood {
+  id        String                                  @id @default(uuid()) @db.Uuid
+  name      String                                  @db.VarChar(100)
+  cityId    String                                  @map("city_id") @db.Uuid
+  /// Contour geographique du quartier — GEOGRAPHY(POLYGON,4326)
+  polygone  Unsupported("geography(Polygon,4326)")?
+  isActive  Boolean                                 @default(true) @map("is_active")
+  createdAt DateTime                                @default(now()) @map("created_at")
+
+  // Relations
+  city  City  @relation(fields: [cityId], references: [id], onDelete: Restrict)
+  bins  Bin[]
+  users User[]
+
+  @@unique([name, cityId])
+  @@index([cityId])
+  @@map("neighborhoods")
+}
+
+/// Utilisateur de l'application (citoyen, agent, superviseur, admin).
+model User {
+  id             String   @id @default(uuid()) @db.Uuid
+  firstName      String   @map("first_name") @db.VarChar(80)
+  lastName       String   @map("last_name") @db.VarChar(80)
+  phone          String   @unique @db.VarChar(20)
+  email          String   @unique @db.VarChar(150)
+  passwordHash   String   @map("password_hash") @db.VarChar(255)
+  fcmToken       String?  @map("fcm_token") @db.Text
+  refreshToken   String?  @map("refresh_token") @db.Text
+  neighborhoodId String?  @map("neighborhood_id") @db.Uuid
+  role           UserRole @default(CITIZEN)
+  isActive       Boolean  @default(false) @map("is_active")
+  isVerified     Boolean  @default(false) @map("is_verified")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  neighborhood  Neighborhood?  @relation(fields: [neighborhoodId], references: [id])
+  reports       Report[]       @relation("reporter")
+  interventions Intervention[] @relation("agent")
+  notifications Notification[]
+  auditLogs     AuditLog[]
+  otpTokens     OtpToken[]
+
+  @@index([email])
+  @@index([phone])
+  @@index([role])
+  @@index([neighborhoodId])
+  @@map("users")
+}
+
+/// Token OTP a usage unique pour validation email et reset password.
+model OtpToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  code      String   @db.VarChar(6)
+  purpose   String   @db.VarChar(30)  // "VERIFY_EMAIL" | "RESET_PASSWORD"
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose])
+  @@map("otp_tokens")
+}
+
+/// Bac a ordures geolocalise.
+/// localisation est stocke comme GEOGRAPHY(POINT,4326) via PostGIS.
+model Bin {
+  id             String                                 @id @default(uuid()) @db.Uuid
+  refCode        String                                 @unique @map("ref_code") @db.VarChar(30)
+  /// Position GPS du bac — GEOGRAPHY(POINT,4326)
+  localisation   Unsupported("geography(Point,4326)")?
+  neighborhoodId String                                 @map("neighborhood_id") @db.Uuid
+  binType        BacType                                @map("bin_type")
+  capacityM3     Float                                  @map("capacity_m3")
+  status         BacStatus                              @default(ACTIVE)
+  isActive       Boolean                                @default(true) @map("is_active")
+  createdAt      DateTime                               @default(now()) @map("created_at")
+  updatedAt      DateTime                               @updatedAt @map("updated_at")
+
+  // Relations
+  neighborhood Neighborhood @relation(fields: [neighborhoodId], references: [id])
+  reports      Report[]
+
+  /// Index spatial GiST pour les requetes de proximite ST_DWithin
+  @@index([neighborhoodId])
+  @@index([status])
+  @@map("bins")
+}
+
+/// Signalement d'un probleme sur un bac par un citoyen.
+model Report {
+  id            String       @id @default(uuid()) @db.Uuid
+  bacId         String       @map("bac_id") @db.Uuid
+  userId        String       @map("user_id") @db.Uuid
+  reportType    ReportType   @map("report_type")
+  description   String?      @db.Text
+  referenceCode String       @unique @map("reference_code") @db.VarChar(20)
+  photoUrl      String?      @map("photo_url") @db.Text
+  status        ReportStatus @default(ASSIGNED)
+  priority      Priority     @default(MEDIUM)
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  bin          Bin           @relation(fields: [bacId], references: [id])
+  reporter     User          @relation("reporter", fields: [userId], references: [id])
+  intervention Intervention?
+
+  /// Index compose pour les requetes du tableau de bord
+  @@index([status, createdAt])
+  @@index([bacId, status])
+  @@index([userId])
+  @@index([priority])
+  /// Index partiel : signalements non resolus (requetes temps reel)
+  @@map("reports")
+}
+
+/// Intervention HYSACAM associee a un signalement.
+model Intervention {
+  id          String             @id @default(uuid()) @db.Uuid
+  reportId    String             @unique @map("report_id") @db.Uuid
+  agentId     String             @map("agent_id") @db.Uuid
+  status      InterventionStatus @default(PENDING)
+  comment     String?            @db.Text
+  assignedAt  DateTime           @default(now()) @map("assigned_at")
+  startedAt   DateTime?          @map("started_at")
+  completedAt DateTime?          @map("completed_at")
+
+  // Relations
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  agent  User   @relation("agent", fields: [agentId], references: [id])
+
+  @@index([agentId, status])
+  @@index([status])
+  @@map("interventions")
+}
+
+/// Notification push envoyee a un utilisateur via FCM.
+model Notification {
+  id         String           @id @default(uuid()) @db.Uuid
+  userId     String           @map("user_id") @db.Uuid
+  type       NotificationType
+  title      String           @db.VarChar(150)
+  body       String           @db.Text
+  entityType String?          @map("entity_type") @db.VarChar(50)
+  entityId   String?          @map("entity_id") @db.Uuid
+  isRead     Boolean          @default(false) @map("is_read")
+  sentAt     DateTime         @default(now()) @map("sent_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, sentAt])
+  @@map("notifications")
+}
+
+/// Journal d'audit de toutes les actions systeme.
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  action     String   @db.VarChar(80)
+  entityType String   @map("entity_type") @db.VarChar(50)
+  entityId   String?  @map("entity_id") @db.Uuid
+  payload    Json?    @db.JsonB
+  ipAddress  String   @map("ip_address") @db.VarChar(45)
+  userAgent  String?  @map("user_agent") @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
