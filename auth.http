@@ -12,12 +12,12 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "citoyen@cleaner.cm",
+  "email": "apollinebanemb@gmail.com",
   "phone": "+237698765432",
   "password": "password123",
   "confirmPassword": "password123",
-  "firstName": "Jean",
-  "lastName": "Mbiya",
+  "firstName": "Steph",
+  "lastName": "Pichou",
   "role": "CITIZEN"
 }
 
@@ -40,13 +40,13 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "douala@cleaner.cm",
+  "email": "apollinebanemb@gmail.com",
   "phone": "+237655555555",
   "password": "douala123",
   "confirmPassword": "douala123",
-  "firstName": "Marie",
-  "lastName": "Douala",
-  "neighborhoodId": "uuid-du-quartier-ici",
+  "firstName": "Steph",
+  "lastName": "pichou",
+  "neighborhoodId": "",
   "role": "CITIZEN"
 }
 
@@ -113,7 +113,7 @@ Content-Type: {{contentType}}
 
 {
   "emailOrPhone": "citoyen@cleaner.cm",
-  "code": "123456",
+  "code": "104349",
   "purpose": "VERIFY_EMAIL"
 }
 
@@ -147,7 +147,7 @@ GET {{baseUrl}}/auth/google/callback
 
 ### 15. Obtenir le profil utilisateur connecté
 GET {{baseUrl}}/auth/me
-Authorization: Bearer votre-access-token-ici
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmY2YzZWM5NC0yNjdhLTRkZWUtODMwNy0yOGFjMjIzNzY2NzkiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY1NTc3NzQ0MiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczNzMzMjQ0LCJleHAiOjE3NzU1NDc2NDR9.mk2Ji39ySXvD4PPcaiA4nWqq5e2yF5osaPOFNx3znlM
 
 ### ==================== TESTS D'ERREURS ====================
 

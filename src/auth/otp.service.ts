@@ -32,10 +32,10 @@ export class OtpService {
     const code = speakeasy.totp({
       secret: secret.base32,
       encoding: 'base32',
-      step: 300, // 5 minutes
+      step: 600, // 10 minutes
     });
 
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 5 minutes
 
     return {
       code,
@@ -368,7 +368,7 @@ export class OtpService {
               
               <div class="footer">
                 <div class="footer-content">
-                  <div class="footer-brand">🗑️ Cleaner App</div>
+                  <div class="footer-brand">Cleaner App</div>
                   <div class="footer-links">
                     <a href="#">À propos</a>
                     <a href="#">Services</a>
