@@ -1,0 +1,113 @@
+### Auth API avec neighborhood (string) - Préfixe /api/v1/
+
+@baseUrl = http://localhost:3000/api/v1
+@contentType = application/json
+
+### ==================== INSCRIPTION AVEC NEIGHBORHOOD ====================
+
+### 1. Inscription avec quartier (nom exact)
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "user1@cleaner.cm",
+  "phone": "+237697876543",
+  "password": "password123",
+  "confirmPassword": "password123",
+  "firstName": "Jean",
+  "lastName": "Dupont",
+  "neighborhood": "Bonabéri",
+  "role": "CITIZEN"
+}
+
+### 2. Inscription avec quartier (recherche partielle)
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "user2@cleaner.cm",
+  "phone": "+237697876544",
+  "password": "password123",
+  "confirmPassword": "password123",
+  "firstName": "Marie",
+  "lastName": "Curie",
+  "neighborhood": "Bassa",
+  "role": "CITIZEN"
+}
+
+### 3. Inscription sans quartier (assignation automatique)
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "user3@cleaner.cm",
+  "phone": "+237697876545",
+  "password": "password123",
+  "confirmPassword": "password123",
+  "firstName": "Paul",
+  "lastName": "Newman",
+  "role": "CITIZEN"
+}
+
+### 4. Connexion pour tester
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "emailOrPhone": "user1@cleaner.cm",
+  "password": "password123"
+}
+
+### 5. Obtenir le profil (vérifier les champs neighborhood)
+GET {{baseUrl}}/users/profile
+Authorization: Bearer TOKEN_FROM_LOGIN
+
+### ==================== INSTRUCTIONS ====================
+
+# 
+# 🆕 NOUVEAU CHAMP NEIGHBORHOOD:
+# 
+# CHANGEMENTS:
+# - Ajout de la colonne "neighborhood" (string) dans la table User
+# - Le DTO RegisterDto utilise maintenant "neighborhood" au lieu de "neighborhoodId"
+# - Recherche automatique du quartier par nom (insensible à la casse)
+# - Si quartier trouvé, neighborhoodId est assigné automatiquement
+# - Si non trouvé, quartier par défaut de Douala est assigné
+#
+# FORMAT DU CHAMP:
+# - Type: String (max 100 caractères)
+# - Optionnel: Oui
+# - Recherche: Insensible à la casse et partielle
+#
+# EXEMPLES:
+# - "Bonabéri" → Recherche "Bonabéri"
+# - "bassa" → Recherche "Bassa" (insensible à la casse)
+# - "" → Assignation automatique d'un quartier par défaut
+#
+# RÉPONSE ATTENDUE:
+# {
+#   "user": {
+#     "id": "uuid",
+#     "email": "user1@cleaner.cm",
+#     "firstName": "Jean",
+#     "lastName": "Dupont",
+#     "role": "CITIZEN",
+#     "neighborhood": "Bonabéri",  // ✅ Nouveau champ
+#     "neighborhoodId": "uuid",   // ✅ Assigné automatiquement
+#     "neighborhoodRelation": {   // ✅ Relation complète
+#       "id": "uuid",
+#       "name": "Bonabéri",
+#       "city": {
+#         "id": "uuid",
+#         "name": "Douala",
+#         "region": "LITTORAL"
+#       }
+#     }
+#   }
+# }
+#
+# AVANTAGES:
+# - Plus simple pour les utilisateurs (nom du quartier au lieu d'UUID)
+# - Recherche flexible (insensible à la casse)
+# - Compatibilité maintenue avec neighborhoodId
+# - Fallback automatique sur quartier par défaut

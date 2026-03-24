@@ -136,6 +136,7 @@ model User {
   fcmToken       String?  @map("fcm_token") @db.Text
   refreshToken   String?  @map("refresh_token") @db.Text
   neighborhoodId String?  @map("neighborhood_id") @db.Uuid
+  neighborhood   String?  @db.VarChar(100)  // Nouveau champ texte pour le quartier
   role           UserRole @default(CITIZEN)
   isActive       Boolean  @default(false) @map("is_active")
   isVerified     Boolean  @default(false) @map("is_verified")
@@ -143,7 +144,7 @@ model User {
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   // Relations
-  neighborhood  Neighborhood?  @relation(fields: [neighborhoodId], references: [id])
+  neighborhoodRelation  Neighborhood?  @relation(fields: [neighborhoodId], references: [id])
   reports       Report[]       @relation("reporter")
   interventions Intervention[] @relation("agent")
   notifications Notification[]
