@@ -5,8 +5,14 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { AppModule } from './app.module';
 
+import sharp from 'sharp';
+sharp.cache(false);
+sharp.concurrency(1);
+
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule ,{
+    bufferLogs: true
+  });
 
   // Validation globale
   app.useGlobalPipes(new ValidationPipe({
