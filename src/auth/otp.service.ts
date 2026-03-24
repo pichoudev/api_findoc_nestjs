@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as speakeasy from 'speakeasy';
 import * as nodemailer from 'nodemailer';
@@ -6,8 +6,10 @@ import * as nodemailer from 'nodemailer';
 @Injectable()
 export class OtpService {
   private transporter: nodemailer.Transporter;
+  private readonly logger: Logger;
 
   constructor(private configService: ConfigService) {
+    this.logger = new Logger('OtpService');
     this.transporter = nodemailer.createTransport({
       host: this.configService.get<string>('MAIL_HOST') || 'smtp.gmail.com',
       port: this.configService.get<number>('MAIL_PORT') || 587,
@@ -46,10 +48,11 @@ export class OtpService {
 
   async sendOtpEmail(email: string, code: string): Promise<void> {
     try {
-      console.log(`Envoi du code OTP ${code} à ${email}`);
-      console.log(`Configuration SMTP: ${this.configService.get('MAIL_HOST')}:${this.configService.get('MAIL_PORT')}`);
+      this.logger.log(`Envoi du code OTP ${code} à ${email}`);
+      this.logger.log(`Configuration SMTP: ${this.configService.get('MAIL_HOST')}:${this.configService.get('MAIL_PORT')}`);
 
-      await this.transporter.sendMail({
+      // 🕐 Timeout de 30 secondes pour l'envoi email
+      const emailPromise = this.transporter.sendMail({
         from: `"${this.configService.get<string>('MAIL_FROM_NAME', 'Cleaner App')}" <${this.configService.get<string>('MAIL_FROM_ADDRESS')}>`,
         to: email,
         subject: 'Code de vérification — Cleaner App',
@@ -310,9 +313,14 @@ export class OtpService {
         `,
       });
 
-      console.log('Email OTP envoyé avec succès');
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout envoi email')), 30000);
+      });
+
+      await Promise.race([emailPromise, timeoutPromise]);
+      this.logger.log('Email OTP envoyé avec succès');
     } catch (error) {
-      console.error("Erreur lors de l'envoi de l'email OTP:", error.message);
+      this.logger.error(`Erreur lors de l'envoi de l'email OTP: ${error.message}`, error.stack);
       throw new Error(`Erreur lors de l'envoi de l'email OTP: ${error.message}`);
     }
   }
@@ -384,11 +392,14 @@ export class OtpService {
   }
 
   async sendSmsOtp(phone: string, code: string): Promise<void> {
-    console.log(`Envoi SMS OTP vers ${phone}: ${code}`);
+    this.logger.log(`Envoi SMS OTP vers ${phone}: ${code}`);
     // TODO: Implémenter avec un service SMS réel (ex: Twilio)
   }
 
+  // 🚨 Cette méthode est dépréciée - utiliser auth.service.sendOtp à la place
   async sendOtp(emailOrPhone: string): Promise<{ message: string }> {
+    this.logger.warn('⚠️ sendOtp() dans otp.service.ts est déprécié. Utiliser auth.service.sendOtp()');
+    
     const { code, secret, expiresAt } = this.generateOtp();
 
     if (!global.otpStore) {

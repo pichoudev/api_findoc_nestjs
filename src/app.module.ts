@@ -15,12 +15,14 @@ import { AuditModule } from './audit/audit.module';
 import { ReportsModule } from './reports/reports.module';
 import { InterventionsModule } from './interventions/interventions.module';
 import { NotificationModule } from './notifications/notification.module';
+import { LoggerModule } from './common/logger.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    LoggerModule,
     PrismaModule,
     AuthModule,
     UsersModule,

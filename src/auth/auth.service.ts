@@ -1,17 +1,24 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { OtpService } from './otp.service';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
+import { ProductionLogger } from '../common/logger';
 import { randomBytes } from 'crypto';
 
 @Injectable()
 export class AuthService {
+  private readonly logger: Logger;
+
   constructor(
+    private readonly configService: ConfigService,
     private prisma: PrismaService,
     private jwtService: JwtService,
     private otpService: OtpService,
-  ) {}
+  ) {
+    this.logger = new Logger('AuthService');
+  }
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.prisma.user.findUnique({
@@ -279,49 +286,53 @@ export class AuthService {
   }
 
   async sendOtp(emailOrPhone: string, purpose: string = 'VERIFY_EMAIL') {
-    console.log('=== DÉBUT SEND OTP ===');
-    console.log(`Email/Phone: ${emailOrPhone}`);
-    console.log(`Purpose: ${purpose}`);
+    this.logger.log(`=== DÉBUT SEND OTP ===`);
+    this.logger.log(`Email/Phone: ${emailOrPhone}`);
+    this.logger.log(`Purpose: ${purpose}`);
     
     const isEmail = emailOrPhone.includes('@');
-    console.log(`Is Email: ${isEmail}`);
+    this.logger.log(`Is Email: ${isEmail}`);
     
     let user;
     if (isEmail) {
-      console.log('Recherche par email...');
+      this.logger.log('Recherche par email...');
       user = await this.findByEmail(emailOrPhone);
     } else {
-      console.log('Recherche par téléphone...');
+      this.logger.log('Recherche par téléphone...');
       user = await this.findByPhone(emailOrPhone);
     }
     
-    console.log(`User found: ${user ? 'YES' : 'NO'}`);
+    this.logger.log(`User found: ${user ? 'YES' : 'NO'}`);
     
+    // 🛡️ SÉCURITÉ: Ne pas révéler si l'utilisateur existe (comme requestPasswordReset)
     if (!user) {
-      console.log('❌ Utilisateur non trouvé');
-      throw new UnauthorizedException('Utilisateur non trouvé');
+      this.logger.warn('Utilisateur non trouvé - retour silencieux pour sécurité');
+      return {
+        message: 'Si cet utilisateur existe, un code de vérification a été envoyé',
+        expiresIn: 600,
+      };
     }
 
-    console.log(`User ID: ${user.id}`);
-    
-    // Générer et stocker l'OTP dans la base de données
-    const { code, secret, expiresAt } = this.otpService.generateOtp();
-    console.log(`OTP généré: ${code}`);
-    console.log(`Expires à: ${expiresAt}`);
+    this.logger.log(`User ID: ${user.id}`);
     
     try {
+      // Générer et stocker l'OTP dans la base de données
+      const { code, secret, expiresAt } = this.otpService.generateOtp();
+      this.logger.log(`OTP généré: ${code}`);
+      this.logger.log(`Expires à: ${expiresAt}`);
+      
       // Supprimer les anciens OTP pour cet utilisateur et ce purpose
-      console.log('Suppression des anciens OTP...');
+      this.logger.log('Suppression des anciens OTP...');
       const deleteResult = await this.prisma.otpToken.deleteMany({
         where: {
           userId: user.id,
           purpose: purpose
         }
       });
-      console.log(`Anciens OTP supprimés: ${deleteResult.count}`);
+      this.logger.log(`Anciens OTP supprimés: ${deleteResult.count}`);
       
       // Créer le nouvel OTP
-      console.log('Création du nouvel OTP...');
+      this.logger.log('Création du nouvel OTP...');
       const newOtp = await this.prisma.otpToken.create({
         data: {
           userId: user.id,
@@ -330,28 +341,36 @@ export class AuthService {
           expiresAt: expiresAt
         }
       });
-      console.log(`Nouvel OTP créé avec ID: ${newOtp.id}`);
+      this.logger.log(`Nouvel OTP créé avec ID: ${newOtp.id}`);
 
-      // Envoyer l'OTP
-      console.log('Envoi de l\'OTP...');
-      if (isEmail) {
-        await this.otpService.sendOtpEmail(emailOrPhone, code);
-        console.log('✅ OTP envoyé par email');
-      } else {
-        await this.otpService.sendSmsOtp(emailOrPhone, code);
-        console.log('✅ OTP envoyé par SMS');
-      }
+      // Envoyer l'OTP avec timeout
+      this.logger.log('Envoi de l\'OTP...');
+      const emailPromise = this.otpService.sendOtpEmail(emailOrPhone, code);
+      
+      // 🕐 Timeout de 30 secondes pour l'envoi email
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout envoi email')), 30000);
+      });
+      
+      await Promise.race([emailPromise, timeoutPromise]);
+      this.logger.log('✅ OTP envoyé par email');
 
-      console.log('=== FIN SEND OTP ===');
+      this.logger.log('=== FIN SEND OTP ===');
       return {
         message: 'Code OTP envoyé avec succès',
         expiresIn: 600, // 10 minutes
       };
     } catch (error) {
-      console.error('❌ Erreur dans sendOtp:', {
-        message: error.message,
-        stack: error.stack
-      });
+      this.logger.error(`❌ Erreur dans sendOtp: ${error.message}`, error.stack);
+      
+      // 🛡️ En cas d'erreur SMTP, retourner un message générique
+      if (error.message.includes('Timeout') || error.message.includes('SMTP')) {
+        return {
+          message: 'Code OTP généré mais erreur lors de l\'envoi. Veuillez réessayer.',
+          expiresIn: 600,
+        };
+      }
+      
       throw error;
     }
   }

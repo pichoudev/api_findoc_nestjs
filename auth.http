@@ -67,7 +67,7 @@ Content-Type: {{contentType}}
 
 {
   "email": "apollinebanemb@gmail.com",
-  "password": "password123"
+  "password": "douala123"
 }
 
 ### ==================== TOKEN MANAGEMENT ====================
@@ -122,7 +122,7 @@ POST {{baseUrl}}/auth/request-password-reset
 Content-Type: {{contentType}}
 
 {
-  "emailOrPhone": "citoyen@cleaner.cm"
+  "emailOrPhone": "apollinebanemb@gmail.com"
 }
 
 ### 12. Réinitialiser mot de passe avec OTP
