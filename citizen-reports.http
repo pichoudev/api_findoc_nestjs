@@ -1,0 +1,57 @@
+### Tests des endpoints citoyens pour les reports
+
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### 1. Mes signalements (citoyen connecté)
+GET {{baseUrl}}/reports/my-reports
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczOTkyODA4LCJleHAiOjE3NzU4MDcyMDh9.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### 2. Mes statistiques (citoyen connecté)
+GET {{baseUrl}}/reports/my-stats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczOTkyODA4LCJleHAiOjE3NzU4MDcyMDh9.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### 3. Signalements d'un citoyen spécifique (agent/admin)
+GET {{baseUrl}}/reports/citizen/1069f081-86e0-4f09-8585-2b4a7426a34f
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczOTkyODA4LCJleHAiOjE3NzU4MDcyMDh9.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### 4. Statistiques d'un citoyen spécifique (agent/admin)
+GET {{baseUrl}}/reports/citizen/1069f081-86e0-4f09-8585-2b4a7426a34f/stats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczOTkyODA4LCJleHAiOjE3NzU4MDcyMDh9.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### 5. Statistiques générales (agent/admin)
+GET {{baseUrl}}/reports/stats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzM5OTI4MDgsImV4cCI6MTc3NTgwNzIwOH0.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### Instructions:
+# 
+# ENDPOINTS POUR LES CITOYENS:
+# 
+# 1. GET /reports/my-reports
+#    - Retourne tous les signalements du citoyen connecté
+#    - Inclut les détails complets (bac, quartier, ville, etc.)
+# 
+# 2. GET /reports/my-stats
+#    - Statistiques personnelles du citoyen connecté
+#    - Infos: total, par statut, par type, par priorité
+#    - Taux de complétion calculé automatiquement
+#    - 10 signalements les plus récents
+# 
+# ENDPOINTS POUR AGENTS/ADMINS:
+# 
+# 3. GET /reports/citizen/:userId
+#    - Tous les signalements d'un citoyen spécifique
+#    - Utile pour le suivi des citoyens actifs
+# 
+# 4. GET /reports/citizen/:userId/stats
+#    - Statistiques détaillées d'un citoyen spécifique
+#    - Informations sur le citoyen + ses stats complètes
+# 
+# 5. GET /reports/stats
+#    - Statistiques globales de toute la plateforme
+#    - Vue d'ensemble pour les agents et admins
+#
+# SÉCURITÉ:
+# - Les citoyens ne voient que leurs propres données
+# - Les agents/admins peuvent voir toutes les données
+# - Toutes les requêtes nécessitent une authentification JWT

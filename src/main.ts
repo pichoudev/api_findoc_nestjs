@@ -15,7 +15,7 @@ async function bootstrap() {
     transform: true,
   }));
 
-  // Servir les fichiers statiques (uploads)
+  // Servir les fichiers statiques (uploads depuis dist)
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads',
   });
@@ -33,8 +33,12 @@ async function bootstrap() {
   // CORS
   app.enableCors();
 
+  // Préfixe global pour toutes les routes
+  app.setGlobalPrefix('api/v1');
+
   await app.listen(process.env.PORT ?? 3000);
   console.log(`Application is running on: ${await app.getUrl()}`);
+  console.log(`API endpoints available at: ${await app.getUrl()}/api/v1/`);
   console.log(`Swagger documentation available at: ${await app.getUrl()}/api`);
 }
 bootstrap();

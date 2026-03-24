@@ -11,13 +11,13 @@ export class OtpService {
     this.transporter = nodemailer.createTransport({
       host: this.configService.get<string>('MAIL_HOST') || 'smtp.gmail.com',
       port: this.configService.get<number>('MAIL_PORT') || 587,
-      secure: false, // true pour 465, false pour autres ports
+      secure: false,
       auth: {
         user: this.configService.get<string>('MAIL_USERNAME'),
         pass: this.configService.get<string>('MAIL_PASSWORD'),
       },
       tls: {
-        rejectUnauthorized: false, // Accepter les certificats auto-signés
+        rejectUnauthorized: false,
       },
     });
   }
@@ -32,10 +32,10 @@ export class OtpService {
     const code = speakeasy.totp({
       secret: secret.base32,
       encoding: 'base32',
-      step: 600, // 10 minutes
+      step: 600,
     });
 
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 5 minutes
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     return {
       code,
@@ -46,351 +46,273 @@ export class OtpService {
 
   async sendOtpEmail(email: string, code: string): Promise<void> {
     try {
-      // Toujours envoyer l'email (même en développement) pour tester la configuration SMTP
-      console.log(`� Envoi du code OTP ${code} à ${email}`);
-      console.log(`� Configuration SMTP: ${this.configService.get('MAIL_HOST')}:${this.configService.get('MAIL_PORT')}`);
-      
+      console.log(`Envoi du code OTP ${code} à ${email}`);
+      console.log(`Configuration SMTP: ${this.configService.get('MAIL_HOST')}:${this.configService.get('MAIL_PORT')}`);
+
       await this.transporter.sendMail({
         from: `"${this.configService.get<string>('MAIL_FROM_NAME', 'Cleaner App')}" <${this.configService.get<string>('MAIL_FROM_ADDRESS')}>`,
         to: email,
-        subject: '🔐 Code de vérification - Cleaner App',
+        subject: 'Code de vérification — Cleaner App',
         html: `
           <!DOCTYPE html>
-          <html>
+          <html lang="fr">
           <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Code de vérification - Cleaner App</title>
+            <title>Code de vérification — Cleaner App</title>
             <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+
               body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                margin: 0;
-                padding: 0;
-                background-color: #f5f7fa;
-                color: #333;
+                background-color: #f4f4f4;
+                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-size: 15px;
+                color: #1a1a1a;
+                -webkit-font-smoothing: antialiased;
               }
+
+              .wrapper {
+                width: 100%;
+                padding: 48px 16px;
+                background-color: #f4f4f4;
+              }
+
               .container {
-                max-width: 600px;
+                max-width: 560px;
                 margin: 0 auto;
-                background-color: white;
-                border-radius: 12px;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                background-color: #ffffff;
+                border-radius: 4px;
                 overflow: hidden;
               }
+
+              /* ── Header ── */
               .header {
-                background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
-                color: white;
-                padding: 40px 30px;
-                text-align: center;
-                position: relative;
+                background-color: #0a3d62;
+                padding: 36px 40px;
               }
-              .header::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="10" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="20" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="70" cy="25" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="15" r="1.5" fill="rgba(255,255,255,0.1)"/></svg>');
-              }
-              .logo {
-                font-size: 48px;
-                margin-bottom: 10px;
-                display: block;
-              }
-              .title {
-                font-size: 28px;
+
+              .header-brand {
+                font-size: 13px;
                 font-weight: 600;
-                margin: 0;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                color: #ffffff;
+                letter-spacing: 2px;
+                text-transform: uppercase;
               }
-              .subtitle {
-                font-size: 16px;
-                opacity: 0.9;
-                margin: 5px 0 0 0;
-                font-weight: 300;
+
+              .header-tagline {
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.55);
+                margin-top: 4px;
+                letter-spacing: 0.5px;
               }
-              .content {
-                padding: 40px 30px;
+
+              /* ── Body ── */
+              .body {
+                padding: 44px 40px;
               }
-              .section-title {
-                font-size: 24px;
+
+              .greeting {
+                font-size: 22px;
                 font-weight: 600;
-                color: #333;
-                margin-bottom: 15px;
-                text-align: center;
+                color: #0a3d62;
+                margin-bottom: 14px;
+                line-height: 1.3;
               }
-              .section-text {
-                font-size: 16px;
-                line-height: 1.6;
-                color: #666;
-                margin-bottom: 30px;
-                text-align: center;
-              }
-              .code-container {
-                background: linear-gradient(135deg, #f8f9ff 0%, #e8f0ff 100%);
-                border: 2px solid #0066cc;
-                border-radius: 12px;
-                padding: 30px;
-                text-align: center;
-                margin: 30px 0;
-                position: relative;
-                overflow: hidden;
-              }
-              .code-container::before {
-                content: '';
-                position: absolute;
-                top: -50%;
-                left: -50%;
-                width: 200%;
-                height: 200%;
-                background: linear-gradient(45deg, transparent, rgba(0, 102, 204, 0.05), transparent);
-                animation: shimmer 3s infinite;
-              }
-              @keyframes shimmer {
-                0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-                100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-              }
-              .code-label {
+
+              .intro {
                 font-size: 14px;
-                color: #666;
-                margin-bottom: 10px;
+                color: #555555;
+                line-height: 1.75;
+                margin-bottom: 36px;
+              }
+
+              /* ── Code block ── */
+              .code-block {
+                border: 1px solid #e0e0e0;
+                border-radius: 4px;
+                padding: 32px 24px;
+                text-align: center;
+                margin-bottom: 36px;
+                background-color: #fafafa;
+              }
+
+              .code-label {
+                font-size: 11px;
+                font-weight: 600;
+                color: #999999;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                margin-bottom: 18px;
+              }
+
+              .code-value {
+                font-size: 38px;
+                font-weight: 700;
+                color: #0a3d62;
+                letter-spacing: 10px;
+                font-family: 'Courier New', 'Lucida Console', monospace;
+                line-height: 1;
+              }
+
+              .code-expiry {
+                font-size: 12px;
+                color: #999999;
+                margin-top: 18px;
+              }
+
+              .code-expiry strong {
+                color: #c0392b;
+                font-weight: 600;
+              }
+
+              /* ── Divider ── */
+              .divider {
+                height: 1px;
+                background-color: #eeeeee;
+                margin: 32px 0;
+              }
+
+              /* ── Security note ── */
+              .security {
+                border-left: 3px solid #0a3d62;
+                padding: 14px 18px;
+                background-color: #f0f5f9;
+                border-radius: 0 4px 4px 0;
+                margin-bottom: 32px;
+              }
+
+              .security-title {
+                font-size: 12px;
+                font-weight: 700;
+                color: #0a3d62;
                 text-transform: uppercase;
                 letter-spacing: 1px;
-                font-weight: 600;
+                margin-bottom: 8px;
               }
-              .code {
-                font-size: 36px;
+
+              .security ul {
+                list-style: none;
+                padding: 0;
+              }
+
+              .security ul li {
+                font-size: 13px;
+                color: #555555;
+                line-height: 1.7;
+                padding-left: 14px;
+                position: relative;
+              }
+
+              .security ul li::before {
+                content: '—';
+                position: absolute;
+                left: 0;
+                color: #0a3d62;
                 font-weight: 700;
-                color: #0066cc;
-                letter-spacing: 8px;
-                margin: 15px 0;
-                font-family: 'Courier New', monospace;
-                text-shadow: 0 2px 4px rgba(0, 102, 204, 0.2);
               }
-              .expiry {
-                font-size: 14px;
-                color: #ff6b6b;
-                margin-top: 15px;
+
+              /* ── Disclaimer ── */
+              .disclaimer {
+                font-size: 13px;
+                color: #888888;
+                line-height: 1.7;
+              }
+
+              /* ── Footer ── */
+              .footer {
+                background-color: #f9f9f9;
+                border-top: 1px solid #eeeeee;
+                padding: 28px 40px;
+              }
+
+              .footer-support {
+                font-size: 13px;
+                color: #777777;
+                line-height: 1.7;
+                margin-bottom: 16px;
+              }
+
+              .footer-support a {
+                color: #0a3d62;
+                text-decoration: none;
                 font-weight: 500;
               }
-              .features {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 20px;
-                margin: 30px 0;
+
+              .footer-copy {
+                font-size: 11px;
+                color: #bbbbbb;
+                letter-spacing: 0.3px;
               }
-              .feature {
-                text-align: center;
-                padding: 20px;
-                background-color: #f8f9fa;
-                border-radius: 8px;
-                border: 1px solid #e9ecef;
-              }
-              .feature-icon {
-                font-size: 24px;
-                margin-bottom: 10px;
-                display: block;
-              }
-              .feature-title {
-                font-size: 14px;
-                font-weight: 600;
-                color: #333;
-                margin-bottom: 5px;
-              }
-              .feature-text {
-                font-size: 12px;
-                color: #666;
-                line-height: 1.4;
-              }
-              .security-note {
-                background-color: #fff3cd;
-                border-left: 4px solid #ffc107;
-                padding: 15px;
-                margin: 20px 0;
-                border-radius: 4px;
-              }
-              .security-note-title {
-                font-weight: 600;
-                color: #856404;
-                margin-bottom: 5px;
-                font-size: 14px;
-              }
-              .security-note-text {
-                color: #856404;
-                font-size: 13px;
-                line-height: 1.4;
-              }
-              .footer {
-                background-color: #2c3e50;
-                color: white;
-                padding: 30px;
-                text-align: center;
-                font-size: 14px;
-              }
-              .footer-content {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-              }
-              .footer-brand {
-                font-weight: 600;
-                font-size: 16px;
-              }
-              .footer-links {
-                display: flex;
-                gap: 20px;
-                font-size: 12px;
-              }
-              .footer-links a {
-                color: #95a5a6;
-                text-decoration: none;
-              }
-              .footer-links a:hover {
-                color: white;
-              }
-              .footer-copyright {
-                border-top: 1px solid #34495e;
-                padding-top: 20px;
-                font-size: 12px;
-                opacity: 0.8;
-              }
-              .support-info {
-                background-color: #e8f5e8;
-                border-radius: 8px;
-                padding: 15px;
-                margin: 20px 0;
-                text-align: center;
-              }
-              .support-info-title {
-                font-weight: 600;
-                color: #27ae60;
-                margin-bottom: 5px;
-                font-size: 14px;
-              }
-              .support-info-text {
-                color: #27ae60;
-                font-size: 13px;
-              }
+
               @media (max-width: 600px) {
-                .container {
-                  margin: 10px;
-                  border-radius: 8px;
-                }
-                .header {
-                  padding: 30px 20px;
-                }
-                .content {
-                  padding: 30px 20px;
-                }
-                .features {
-                  grid-template-columns: 1fr;
-                  gap: 15px;
-                }
-                .footer-content {
-                  flex-direction: column;
-                  gap: 15px;
-                }
-                .code {
-                  font-size: 28px;
-                  letter-spacing: 6px;
-                }
+                .body { padding: 32px 24px; }
+                .footer { padding: 24px; }
+                .header { padding: 28px 24px; }
+                .code-value { font-size: 30px; letter-spacing: 6px; }
               }
             </style>
           </head>
           <body>
-            <div class="container">
-              <div class="header">
-                <span class="logo">🗑️</span>
-                <h1 class="title">Cleaner App</h1>
-                <p class="subtitle">Plateforme de gestion des déchets - Douala</p>
-              </div>
-              
-              <div class="content">
-                <h2 class="section-title">🔐 Code de vérification</h2>
-                <p class="section-text">
-                  Bonjour et bienvenue dans Cleaner App !<br>
-                  Pour finaliser votre inscription et accéder à votre compte, veuillez utiliser le code de vérification ci-dessous :
-                </p>
-                
-                <div class="code-container">
-                  <div class="code-label">VOTRE CODE DE VÉRIFICATION</div>
-                  <div class="code">${code}</div>
-                  <div class="expiry">⏰ Ce code expirera dans 5 minutes</div>
+            <div class="wrapper">
+              <div class="container">
+
+                <div class="header">
+                  <div class="header-brand">Cleaner App</div>
+                  <div class="header-tagline">Gestion des déchets — Douala</div>
                 </div>
-                
-                <div class="features">
-                  <div class="feature">
-                    <span class="feature-icon">🔒</span>
-                    <div class="feature-title">Sécurité</div>
-                    <div class="feature-text">Votre code est unique et sécurisé</div>
+
+                <div class="body">
+                  <p class="greeting">Code de vérification</p>
+                  <p class="intro">
+                    Bienvenue sur Cleaner App. Pour finaliser votre inscription et activer votre compte, veuillez saisir le code ci-dessous dans l'application.
+                  </p>
+
+                  <div class="code-block">
+                    <div class="code-label">Votre code</div>
+                    <div class="code-value">${code}</div>
+                    <div class="code-expiry">
+                      Expire dans <strong>10 minutes</strong>
+                    </div>
                   </div>
-                  <div class="feature">
-                    <span class="feature-icon">⚡</span>
-                    <div class="feature-title">Rapide</div>
-                    <div class="feature-text">Activation instantanée de votre compte</div>
+
+                  <div class="security">
+                    <div class="security-title">Sécurité</div>
+                    <ul>
+                      <li>Ne communiquez jamais ce code à un tiers</li>
+                      <li>Notre équipe ne vous demandera jamais ce code par téléphone</li>
+                      <li>Ce code est à usage unique</li>
+                    </ul>
                   </div>
-                  <div class="feature">
-                    <span class="feature-icon">🌍</span>
-                    <div class="feature-title">Écologique</div>
-                    <div class="feature-text">Contribuez à un Douala plus propre</div>
-                  </div>
-                  <div class="feature">
-                    <span class="feature-icon">📱</span>
-                    <div class="feature-title">Mobile</div>
-                    <div class="feature-text">Accès depuis n'importe où</div>
-                  </div>
+
+                  <div class="divider"></div>
+
+                  <p class="disclaimer">
+                    Si vous n'avez pas demandé ce code, vous pouvez ignorer cet email en toute sécurité. Aucune action ne sera effectuée sur votre compte.
+                  </p>
                 </div>
-                
-                <div class="security-note">
-                  <div class="security-note-title">🛡️ Important : Sécurité</div>
-                  <div class="security-note-text">
-                    - Ne partagez jamais ce code avec d'autres personnes<br>
-                    - Notre équipe ne vous demandera jamais ce code par téléphone<br>
-                    - Ce code ne peut être utilisé qu'une seule fois
-                  </div>
+
+                <div class="footer">
+                  <p class="footer-support">
+                    Une question ? Contactez notre support à l'adresse
+                    <a href="mailto:support@cleaner.cm">support@cleaner.cm</a>
+                    ou au <a href="tel:+237123456789">+237 123 456 789</a>.
+                  </p>
+                  <p class="footer-copy">
+                    &copy; 2026 Cleaner App — Tous droits réservés.<br>
+                    Plateforme de gestion des déchets pour la ville de Douala.
+                  </p>
                 </div>
-                
-                <div class="support-info">
-                  <div class="support-info-title">💬 Besoin d'aide ?</div>
-                  <div class="support-info-text">
-                    Contactez notre support : support@cleaner.cm<br>
-                    Ou appelez-nous au : +237 123 456 789
-                  </div>
-                </div>
-                
-                <p class="section-text" style="margin-top: 30px;">
-                  Si vous n'avez pas demandé ce code, veuillez ignorer cet email.<br>
-                  Merci de faire confiance à Cleaner App pour une ville plus propre !
-                </p>
-              </div>
-              
-              <div class="footer">
-                <div class="footer-content">
-                  <div class="footer-brand">Cleaner App</div>
-                  <div class="footer-links">
-                    <a href="#">À propos</a>
-                    <a href="#">Services</a>
-                    <a href="#">Contact</a>
-                    <a href="#">Mentions légales</a>
-                  </div>
-                </div>
-                <div class="footer-copyright">
-                  © 2026 Cleaner App. Tous droits réservés.<br>
-                  Plateforme de gestion des déchets pour la ville de Douala<br>
-                  Faisons de Douala une ville plus propre, ensemble ! 🌱
-                </div>
+
               </div>
             </div>
           </body>
           </html>
         `,
       });
-      
-      console.log('✅ Email OTP envoyé avec succès');
+
+      console.log('Email OTP envoyé avec succès');
     } catch (error) {
-      console.error('❌ Erreur lors de l\'envoi de l\'email OTP:', error.message);
+      console.error("Erreur lors de l'envoi de l'email OTP:", error.message);
       throw new Error(`Erreur lors de l'envoi de l'email OTP: ${error.message}`);
     }
   }
@@ -400,24 +322,79 @@ export class OtpService {
       secret,
       encoding: 'base32',
       token,
-      window: 2, // Permet une fenêtre de temps de 2 steps (10 minutes)
+      window: 2,
     });
   }
 
+  async validateOtpWithAttempts(
+    emailOrPhone: string,
+    token: string,
+  ): Promise<{ success: boolean; message: string; remainingAttempts?: number }> {
+    console.log(`Validation OTP pour ${emailOrPhone} avec code: ${token}`);
+
+    if (!global.otpStore) {
+      return { success: false, message: 'Aucun code OTP trouvé pour cet utilisateur' };
+    }
+
+    const otpData = global.otpStore.get(emailOrPhone);
+
+    if (!otpData) {
+      return { success: false, message: 'Aucun code OTP trouvé pour cet utilisateur' };
+    }
+
+    if (new Date() > otpData.expiresAt) {
+      global.otpStore.delete(emailOrPhone);
+      return { success: false, message: 'Code OTP expiré' };
+    }
+
+    const maxAttempts = 3;
+
+    if (otpData.attempts >= maxAttempts) {
+      global.otpStore.delete(emailOrPhone);
+      return {
+        success: false,
+        message: 'Nombre maximum de tentatives atteint. Veuillez demander un nouveau code.',
+      };
+    }
+
+    otpData.attempts++;
+
+    const isValid = this.verifyOtp(otpData.secret, token);
+
+    if (isValid) {
+      global.otpStore.delete(emailOrPhone);
+      return { success: true, message: 'Code OTP validé avec succès' };
+    }
+
+    const remainingAttempts = maxAttempts - otpData.attempts;
+
+    if (remainingAttempts <= 0) {
+      global.otpStore.delete(emailOrPhone);
+      return {
+        success: false,
+        message: 'Nombre maximum de tentatives atteint. Veuillez demander un nouveau code.',
+      };
+    }
+
+    return {
+      success: false,
+      message: `Code incorrect. ${remainingAttempts} tentative${remainingAttempts > 1 ? 's' : ''} restante${remainingAttempts > 1 ? 's' : ''}`,
+      remainingAttempts,
+    };
+  }
+
   async sendSmsOtp(phone: string, code: string): Promise<void> {
-    // Implémentation SMS (optionnel - nécessite un service SMS comme Twilio)
     console.log(`Envoi SMS OTP vers ${phone}: ${code}`);
-    // TODO: Implémenter avec un service SMS réel
+    // TODO: Implémenter avec un service SMS réel (ex: Twilio)
   }
 
   async sendOtp(emailOrPhone: string): Promise<{ message: string }> {
     const { code, secret, expiresAt } = this.generateOtp();
-    
-    // Stocker l'OTP dans le store global
+
     if (!global.otpStore) {
       global.otpStore = new Map();
     }
-    
+
     global.otpStore.set(emailOrPhone, {
       secret,
       code,
@@ -425,9 +402,8 @@ export class OtpService {
       attempts: 0,
     });
 
-    // Détecter si c'est un email ou un téléphone
     const isEmail = emailOrPhone.includes('@');
-    
+
     if (isEmail) {
       await this.sendOtpEmail(emailOrPhone, code);
       return { message: 'Code OTP envoyé par email' };

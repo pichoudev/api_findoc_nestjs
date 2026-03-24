@@ -1,8 +1,8 @@
 ### Cleaner App - API Auth Tests
 ### Fichier de test pour les endpoints d'authentification
-### Base URL: http://localhost:3000
+### Base URL: http://localhost:3000/api/v1
 
-@baseUrl = http://localhost:3000
+@baseUrl = http://localhost:3000/api/v1
 @contentType = application/json
 
 ### ==================== AUTHENTIFICATION ====================
@@ -66,7 +66,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "citoyen@cleaner.cm",
+  "email": "apollinebanemb@gmail.com",
   "password": "password123"
 }
 
@@ -96,7 +96,7 @@ POST {{baseUrl}}/auth/send-otp
 Content-Type: {{contentType}}
 
 {
-  "emailOrPhone": "citoyen@cleaner.cm"
+  "emailOrPhone": "apollinebanemb@gmail.com"
 }
 
 ### 9. Envoyer OTP par SMS
@@ -104,7 +104,7 @@ POST {{baseUrl}}/auth/send-otp
 Content-Type: {{contentType}}
 
 {
-  "emailOrPhone": "+237698765432"
+  "emailOrPhone": "+237655777442"
 }
 
 ### 10. Vérifier OTP pour activation de compte
@@ -202,4 +202,3 @@ Content-Type: {{contentType}}
   "code": "000000",
   "purpose": "VERIFY_EMAIL"
 }
-

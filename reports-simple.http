@@ -1,0 +1,72 @@
+### Reports API avec préfixe /api/v1/
+
+@baseUrl = http://localhost:3000/api/v1
+@contentType = application/json
+
+### 1. Créer un signalement SANS photo (plus simple)
+POST {{baseUrl}}/reports
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzc0MDE5NDg3LCJleHAiOjE3NzU4MzM4ODd9.h7Czt4MMyQgYG-Q0sOMTdu-DejyQNSrqfHLYRfIUDe8
+
+{
+  "bacId": "votre-uuid-bac-ici",
+  "reportType": "FULL",
+  "description": "Le bac est plein et déborde",
+  "priority": "HIGH"
+}
+
+### 2. Créer un signalement AVEC photo (format correct)
+POST {{baseUrl}}/reports
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczOTkyODA4LCJleHAiOjE3NzU4MDcyMDh9.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="bacId"
+
+2eab5b2a-0b1a-402b-971d-fe4385eb1ba5
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="reportType"
+
+FULL
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="description"
+
+Le bac est complètement plein et déborde depuis 2 jours
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="priority"
+
+HIGH
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="photo"; filename="test-image.jpg"
+Content-Type: image/jpeg
+
+< ./ProgrammerBlankPoster.jpeg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 3. Lister mes signalements
+GET {{baseUrl}}/reports/my-reports
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczOTkyODA4LCJleHAiOjE3NzU4MDcyMDh9.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### 4. Lister tous les signalements (admin/agent)
+GET {{baseUrl}}/reports?page=1&limit=10
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczOTkyODA4LCJleHAiOjE3NzU4MDcyMDh9.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### 5. Statistiques des signalements
+GET {{baseUrl}}/reports/stats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczOTkyODA4LCJleHAiOjE3NzU4MDcyMDh9.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### Instructions d'utilisation:
+# 
+# ÉTAPE 1: Commencez par le test SANS photo (requête #1)
+# - Changez "votre-uuid-bac-ici" par un vrai UUID de bac existant
+# - Exécutez la requête
+# 
+# ÉTAPE 2: Testez AVEC photo (requête #2)
+# - Assurez-vous que le fichier test-image.jpg existe dans le dossier racine
+# - Ou remplacez "./test-image.jpg" par le chemin d'une vraie image
+# 
+# ÉTAPE 3: Vérifiez les résultats avec les requêtes #3, #4, #5
+#
+# NOTE: Le format multipart/form-data est nécessaire pour les uploads de fichiers
+# Chaque champ est séparé par une "boundary" (----WebKitFormBoundary...)
+# Les champs texte sont simples, les fichiers utilisent < ./chemin/fichier

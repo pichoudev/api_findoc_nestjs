@@ -1,0 +1,120 @@
+### Variables
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### ========================================
+### MODULE NEIGHBORHOODS - CRUD COMPLET
+### ========================================
+
+### 1. Créer un nouveau quartier
+POST {{baseUrl}}/neighborhoods
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_admin_ici
+
+{
+  "name": "Bonaberi",
+  "cityId": "uuid-ville-douala-ici",
+  "description": "Quartier populaire au nord de Douala",
+  "isActive": true
+}
+
+### 2. Créer un autre quartier
+POST {{baseUrl}}/neighborhoods
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_admin_ici
+
+{
+  "name": "Akwa",
+  "cityId": "uuid-ville-douala-ici",
+  "description": "Centre ville de Douala",
+  "isActive": true
+}
+
+### 3. Lister tous les quartiers avec pagination
+GET {{baseUrl}}/neighborhoods?page=1&limit=10&isActive=true
+Authorization: Bearer votre_token_ici
+
+### 4. Obtenir les statistiques des quartiers
+GET {{baseUrl}}/neighborhoods/stats
+Authorization: Bearer votre_token_admin_ici
+
+### 5. Obtenir les quartiers d'une ville spécifique
+GET {{baseUrl}}/neighborhoods/city/uuid-ville-douala-ici
+Authorization: Bearer votre_token_ici
+
+### 6. Obtenir un quartier par ID
+GET {{baseUrl}}/neighborhoods/uuid-quartier-ici
+Authorization: Bearer votre_token_ici
+
+### 7. Mettre à jour un quartier
+PATCH {{baseUrl}}/neighborhoods/uuid-quartier-ici
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_admin_ici
+
+{
+  "name": "Bonaberi Nord",
+  "description": "Quartier populaire au nord de Douala",
+  "isActive": true
+}
+
+### 8. Activer un quartier
+PATCH {{baseUrl}}/neighborhoods/uuid-quartier-ici/activate
+Authorization: Bearer votre_token_admin_ici
+
+### 9. Désactiver un quartier
+PATCH {{baseUrl}}/neighborhoods/uuid-quartier-ici/deactivate
+Authorization: Bearer votre_token_admin_ici
+
+### 10. Supprimer un quartier (ADMIN uniquement)
+DELETE {{baseUrl}}/neighborhoods/uuid-quartier-ici
+Authorization: Bearer votre_token_admin_ici
+
+### ========================================
+### FILTRES AVANCÉS
+### ========================================
+
+### Filtrer par ville
+GET {{baseUrl}}/neighborhoods?cityId=uuid-ville-douala-ici&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Filtrer par statut actif
+GET {{baseUrl}}/neighborhoods?isActive=true&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Rechercher par nom de quartier
+GET {{baseUrl}}/neighborhoods?search=bonaberi&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Combinaison de filtres
+GET {{baseUrl}}/neighborhoods?cityId=uuid-ville-douala-ici&isActive=true&search=bonaberi&page=1&limit=10
+Authorization: Bearer votre_token_ici
+
+### ========================================
+### TESTS D'ERREURS
+### ========================================
+
+### Créer un quartier avec un nom existant dans la même ville
+POST {{baseUrl}}/neighborhoods
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_admin_ici
+
+{
+  "name": "Bonaberi",
+  "cityId": "uuid-ville-douala-ici",
+  "description": "Quartier dupliqué"
+}
+
+### Créer un quartier avec une ville inexistante
+POST {{baseUrl}}/neighborhoods
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_admin_ici
+
+{
+  "name": "Nouveau Quartier",
+  "cityId": "uuid-ville-inexistante-ici",
+  "description": "Test d'erreur"
+}
+
+### Supprimer un quartier avec des dépendances
+DELETE {{baseUrl}}/neighborhoods/uuid-quartier-avec-dependances-ici
+Authorization: Bearer votre_token_admin_ici
