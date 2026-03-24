@@ -46,7 +46,7 @@ Content-Type: {{contentType}}
   "confirmPassword": "douala123",
   "firstName": "Steph",
   "lastName": "pichou",
-  "neighborhoodId": "",
+  "neighborhood": "",
   "role": "CITIZEN"
 }
 

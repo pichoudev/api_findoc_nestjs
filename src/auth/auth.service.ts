@@ -115,11 +115,12 @@ export class AuthService {
         phone: true,
         role: true,
         neighborhoodId: true,
+        neighborhood: true,
         isActive: true,
         isVerified: true,
         createdAt: true,
         updatedAt: true,
-        neighborhood: {
+        neighborhoodRelation: {
           select: {
             id: true,
             name: true,
@@ -171,9 +172,25 @@ export class AuthService {
       throw new UnauthorizedException('Rôle invalide. Choisissez: CITIZEN, AGENT, SUPERVISOR, ADMIN');
     }
 
-    // Si aucun neighborhoodId n'est fourni, assigner un quartier par défaut à Douala
-    let neighborhoodId = createUserDto.neighborhoodId;
-    if (!neighborhoodId) {
+    // Si aucun neighborhood n'est fourni, assigner un quartier par défaut à Douala
+    let neighborhoodName = createUserDto.neighborhood;
+    let neighborhoodId = null;
+    
+    if (neighborhoodName) {
+      // Chercher le quartier par nom
+      const neighborhood = await this.prisma.neighborhood.findFirst({
+        where: {
+          name: {
+            contains: neighborhoodName,
+            mode: 'insensitive'
+          }
+        }
+      });
+      
+      if (neighborhood) {
+        neighborhoodId = neighborhood.id;
+      }
+    } else {
       // Chercher un quartier par défaut à Douala
       const defaultNeighborhood = await this.prisma.neighborhood.findFirst({
         where: {
@@ -186,15 +203,7 @@ export class AuthService {
       
       if (defaultNeighborhood) {
         neighborhoodId = defaultNeighborhood.id;
-      }
-    } else {
-      // Vérifier si le neighborhoodId fourni existe
-      const neighborhood = await this.prisma.neighborhood.findUnique({
-        where: { id: neighborhoodId },
-      });
-      
-      if (!neighborhood) {
-        throw new UnauthorizedException('Quartier non trouvé');
+        neighborhoodName = defaultNeighborhood.name;
       }
     }
 
@@ -215,6 +224,7 @@ export class AuthService {
         isActive: false, // Nécessite une verification OTP/email
         isVerified: false,
         neighborhoodId: neighborhoodId,
+        neighborhood: neighborhoodName,
       },
     });
 

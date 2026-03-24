@@ -41,9 +41,8 @@ export class RegisterDto {
   @Validate(MatchPasswords, ['password'])
   confirmPassword: string;
 
-  @ApiPropertyOptional({ description: 'ID du quartier (optionnel)' })
+  @ApiPropertyOptional({ description: 'Nom du quartier (optionnel)' })
   @IsString()
   @IsOptional()
-  @IsUUID()
-  neighborhoodId?: string;
+  neighborhood?: string;
 }
