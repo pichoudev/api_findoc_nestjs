@@ -112,8 +112,8 @@ POST {{baseUrl}}/auth/verify-otp
 Content-Type: {{contentType}}
 
 {
-  "emailOrPhone": "citoyen@cleaner.cm",
-  "code": "104349",
+  "emailOrPhone": "apollinebanemb@gmail.com",
+  "code": "788232",
   "purpose": "VERIFY_EMAIL"
 }
 

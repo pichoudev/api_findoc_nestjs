@@ -279,51 +279,81 @@ export class AuthService {
   }
 
   async sendOtp(emailOrPhone: string, purpose: string = 'VERIFY_EMAIL') {
+    console.log('=== DÉBUT SEND OTP ===');
+    console.log(`Email/Phone: ${emailOrPhone}`);
+    console.log(`Purpose: ${purpose}`);
+    
     const isEmail = emailOrPhone.includes('@');
+    console.log(`Is Email: ${isEmail}`);
     
     let user;
     if (isEmail) {
+      console.log('Recherche par email...');
       user = await this.findByEmail(emailOrPhone);
     } else {
+      console.log('Recherche par téléphone...');
       user = await this.findByPhone(emailOrPhone);
     }
     
+    console.log(`User found: ${user ? 'YES' : 'NO'}`);
+    
     if (!user) {
+      console.log('❌ Utilisateur non trouvé');
       throw new UnauthorizedException('Utilisateur non trouvé');
     }
 
+    console.log(`User ID: ${user.id}`);
+    
     // Générer et stocker l'OTP dans la base de données
     const { code, secret, expiresAt } = this.otpService.generateOtp();
+    console.log(`OTP généré: ${code}`);
+    console.log(`Expires à: ${expiresAt}`);
     
-    // Supprimer les anciens OTP pour cet utilisateur et ce purpose
-    await this.prisma.otpToken.deleteMany({
-      where: {
-        userId: user.id,
-        purpose: purpose
-      }
-    });
-    
-    // Créer le nouvel OTP
-    await this.prisma.otpToken.create({
-      data: {
-        userId: user.id,
-        code: code,
-        purpose: purpose,
-        expiresAt: expiresAt
-      }
-    });
+    try {
+      // Supprimer les anciens OTP pour cet utilisateur et ce purpose
+      console.log('Suppression des anciens OTP...');
+      const deleteResult = await this.prisma.otpToken.deleteMany({
+        where: {
+          userId: user.id,
+          purpose: purpose
+        }
+      });
+      console.log(`Anciens OTP supprimés: ${deleteResult.count}`);
+      
+      // Créer le nouvel OTP
+      console.log('Création du nouvel OTP...');
+      const newOtp = await this.prisma.otpToken.create({
+        data: {
+          userId: user.id,
+          code: code,
+          purpose: purpose,
+          expiresAt: expiresAt
+        }
+      });
+      console.log(`Nouvel OTP créé avec ID: ${newOtp.id}`);
 
-    // Envoyer l'OTP
-    if (isEmail) {
-      await this.otpService.sendOtpEmail(emailOrPhone, code);
-    } else {
-      await this.otpService.sendSmsOtp(emailOrPhone, code);
+      // Envoyer l'OTP
+      console.log('Envoi de l\'OTP...');
+      if (isEmail) {
+        await this.otpService.sendOtpEmail(emailOrPhone, code);
+        console.log('✅ OTP envoyé par email');
+      } else {
+        await this.otpService.sendSmsOtp(emailOrPhone, code);
+        console.log('✅ OTP envoyé par SMS');
+      }
+
+      console.log('=== FIN SEND OTP ===');
+      return {
+        message: 'Code OTP envoyé avec succès',
+        expiresIn: 600, // 10 minutes
+      };
+    } catch (error) {
+      console.error('❌ Erreur dans sendOtp:', {
+        message: error.message,
+        stack: error.stack
+      });
+      throw error;
     }
-
-    return {
-      message: 'Code OTP envoyé avec succès',
-      expiresIn: 300, // 5 minutes
-    };
   }
 
   async verifyOtp(emailOrPhone: string, code: string, purpose: string = 'VERIFY_EMAIL') {

@@ -120,7 +120,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Code OTP envoyé' })
   @ApiResponse({ status: 400, description: 'Erreur lors de l\'envoi' })
   async sendOtp(@Body() sendOtpDto: SendOtpDto) {
-    return this.authService.sendOtp(sendOtpDto.emailOrPhone);
+    return this.authService.sendOtp(sendOtpDto.emailOrPhone, sendOtpDto.purpose || 'VERIFY_EMAIL');
   }
 
   @Public()
@@ -129,19 +129,21 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Code OTP valide' })
   @ApiResponse({ status: 400, description: 'Code OTP invalide' })
   async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
-    // Utiliser la nouvelle méthode avec limitation des tentatives
-    const result = await this.otpService.validateOtpWithAttempts(verifyOtpDto.emailOrPhone, verifyOtpDto.code);
-    
-    if (!result.success) {
+    try {
+      // Utiliser directement la méthode de auth.service qui gère la base de données
+      const result = await this.authService.verifyOtp(verifyOtpDto.emailOrPhone, verifyOtpDto.code, verifyOtpDto.purpose);
+      
+      return {
+        success: true,
+        message: result.message,
+        isValid: result.isValid
+      };
+    } catch (error) {
       return {
         success: false,
-        message: result.message,
-        remainingAttempts: result.remainingAttempts
+        message: error.message
       };
     }
-    
-    // Si le code est valide, continuer avec la vérification standard
-    return this.authService.verifyOtp(verifyOtpDto.emailOrPhone, verifyOtpDto.code, verifyOtpDto.purpose);
   }
 
   @Public()
