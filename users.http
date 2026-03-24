@@ -1,0 +1,105 @@
+### Variables
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### ========================================
+### MODULE USERS - CRUD COMPLET
+### ========================================
+
+### 1. Créer un utilisateur (ADMIN/SUPERVISOR uniquement)
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_admin_ici
+
+{
+  "firstName": "Jean",
+  "lastName": "Mbiya",
+  "email": "jean.mbiya@example.com",
+  "phone": "+237698765432",
+  "password": "password123",
+  "role": "CITIZEN",
+  "neighborhoodId": "uuid-du-quartier-ici"
+}
+
+### 2. Lister tous les utilisateurs avec pagination
+GET {{baseUrl}}/users?page=1&limit=10&role=CITIZEN&isActive=true
+Authorization: Bearer votre_token_ici
+
+### 3. Obtenir les statistiques des utilisateurs
+GET {{baseUrl}}/users/stats
+Authorization: Bearer votre_token_admin_ici
+
+### 4. Obtenir le profil de l'utilisateur connecté
+GET {{baseUrl}}/users/profile
+Authorization: Bearer votre_token_ici
+
+### 5. Obtenir un utilisateur par ID
+GET {{baseUrl}}/users/uuid-utilisateur-ici
+Authorization: Bearer votre_token_ici
+
+### 6. Mettre à jour un utilisateur
+PATCH {{baseUrl}}/users/uuid-utilisateur-ici
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_admin_ici
+
+{
+  "firstName": "Jean Pierre",
+  "lastName": "Mbiya",
+  "role": "AGENT",
+  "isActive": true
+}
+
+### 7. Mettre à jour le mot de passe
+PATCH {{baseUrl}}/users/uuid-utilisateur-ici/password
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_ici
+
+{
+  "oldPassword": "password123",
+  "newPassword": "newpassword123"
+}
+
+### 8. Mettre à jour le rôle d'un utilisateur (ADMIN uniquement)
+PATCH {{baseUrl}}/users/uuid-utilisateur-ici/role
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_admin_ici
+
+{
+  "role": "SUPERVISOR"
+}
+
+### 9. Activer un utilisateur
+PATCH {{baseUrl}}/users/uuid-utilisateur-ici/activate
+Authorization: Bearer votre_token_admin_ici
+
+### 10. Désactiver un utilisateur
+PATCH {{baseUrl}}/users/uuid-utilisateur-ici/deactivate
+Authorization: Bearer votre_token_admin_ici
+
+### 11. Supprimer un utilisateur (ADMIN uniquement)
+DELETE {{baseUrl}}/users/uuid-utilisateur-ici
+Authorization: Bearer votre_token_admin_ici
+
+### ========================================
+### FILTRES AVANCÉS
+### ========================================
+
+### Filtrer par rôle
+GET {{baseUrl}}/users?role=AGENT&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Filtrer par statut actif
+GET {{baseUrl}}/users?isActive=true&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Filtrer par quartier
+GET {{baseUrl}}/users?neighborhoodId=uuid-quartier-ici&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Rechercher par nom ou email
+GET {{baseUrl}}/users?search=jean&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Combinaison de filtres
+GET {{baseUrl}}/users?role=CITIZEN&isActive=true&search=mbiya&page=1&limit=10
+Authorization: Bearer votre_token_ici

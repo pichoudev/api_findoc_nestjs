@@ -1,0 +1,43 @@
+### Test d'accès aux images uploadées
+
+@baseUrl = http://localhost:3000
+
+### 1. Test avec la dernière image uploadée
+GET {{baseUrl}}/uploads/compressed/1774020124241-test-image.webp
+
+### 2. Test avec l'autre image uploadée
+GET {{baseUrl}}/uploads/compressed/1774020049794-test-image.webp
+
+### 3. Test avec l'ancienne image (si elle existe)
+GET {{baseUrl}}/uploads/Programmer%20-%20Blank%20Poster.jpeg
+
+### 4. Test avec une image qui n'existe pas (devrait retourner 404)
+GET {{baseUrl}}/uploads/compressed/non-existent.webp
+
+### Instructions:
+# 
+# ✅ ACCÈS AUX IMAGES - RÉSOLU !
+# 
+# PROBLÈME CORRIGÉ:
+# - Le chemin dans main.ts pointait vers dist/src/uploads au lieu de dist/uploads
+# - Correction: join(__dirname, '..', 'uploads') au lieu de join(__dirname, 'uploads')
+#
+# URLS FONCTIONNELLES:
+# - http://localhost:3000/uploads/compressed/1774020124241-test-image.webp ✅
+# - http://localhost:3000/uploads/compressed/1774020049794-test-image.webp ✅
+#
+# WORKFLOW:
+# 1. Upload via POST /reports → SharpPipe traite l'image
+# 2. Sauvegarde dans dist/uploads/compressed/[timestamp]-[nom].webp
+# 3. Accès direct via /uploads/compressed/[nom-fichier]
+#
+# DANS L'APPLICATION:
+# - Utilisez l'URL retournée dans photoUrl
+# - Format: /uploads/compressed/[timestamp]-[nom-sanitise].webp
+# - Exemple: <img src="/uploads/compressed/1774020124241-test-image.webp">
+#
+# AVANTAGES:
+# - Noms de fichiers sans espaces (remplacés par des tirets)
+# - Format WebP optimisé (compression automatique)
+# - Redimensionnement automatique (max 800x800)
+# - Accès statique direct

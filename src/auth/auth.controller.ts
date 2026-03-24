@@ -129,6 +129,18 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Code OTP valide' })
   @ApiResponse({ status: 400, description: 'Code OTP invalide' })
   async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
+    // Utiliser la nouvelle méthode avec limitation des tentatives
+    const result = await this.otpService.validateOtpWithAttempts(verifyOtpDto.emailOrPhone, verifyOtpDto.code);
+    
+    if (!result.success) {
+      return {
+        success: false,
+        message: result.message,
+        remainingAttempts: result.remainingAttempts
+      };
+    }
+    
+    // Si le code est valide, continuer avec la vérification standard
     return this.authService.verifyOtp(verifyOtpDto.emailOrPhone, verifyOtpDto.code, verifyOtpDto.purpose);
   }
 

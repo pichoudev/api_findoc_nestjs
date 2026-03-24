@@ -1,0 +1,108 @@
+### Interventions API avec préfixe /api/v1/
+
+@baseUrl = http://localhost:3000/api/v1
+@contentType = application/json
+
+### 1. Créer une intervention (supervisor/admin)
+POST {{baseUrl}}/interventions
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzM5OTI4MDgsImV4cCI6MTc3NTgwNzIwOH0.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+{
+  "reportId": "0433bb58-16dd-4252-a742-e4cabf9808bf",
+  "agentId": "1069f081-86e0-4f09-8585-2b4a7426a34f",
+  "comment": "Intervention planifiée pour demain matin"
+}
+
+### 2. Lister toutes les interventions (agent/supervisor/admin)
+GET {{baseUrl}}/interventions?page=1&limit=10
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzM5OTI4MDgsImV4cCI6MTc3NTgwNzIwOH0.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### 3. Mes interventions (agent connecté)
+GET {{baseUrl}}/interventions/my-interventions
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzM5OTI4MDgsImV4cCI6MTc3NTgwNzIwOH0.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### 4. Interventions d'un signalement
+GET {{baseUrl}}/interventions/report/0433bb58-16dd-4252-a742-e4cabf9808bf
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzM5OTI4MDgsImV4cCI6MTc3NTgwNzIwOH0.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### 5. Interventions d'un agent (supervisor/admin)
+GET {{baseUrl}}/interventions/agent/1069f081-86e0-4f09-8585-2b4a7426a34f
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzM5OTI4MDgsImV4cCI6MTc3NTgwNzIwOH0.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### 6. Détails d'une intervention
+GET {{baseUrl}}/interventions/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzM5OTI4MDgsImV4cCI6MTc3NTgwNzIwOH0.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### 7. Mettre à jour une intervention
+PATCH {{baseUrl}}/interventions/550e8400-e29b-41d4-a716-446655440000
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzM5OTI4MDgsImV4cCI6MTc3NTgwNzIwOH0.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+{
+  "status": "IN_PROGRESS",
+  "comment": "Intervention commencée à 10h30",
+  "startedAt": "2026-03-20T10:30:00Z"
+}
+
+### 8. Mettre à jour le statut d'une intervention
+PATCH {{baseUrl}}/interventions/550e8400-e29b-41d4-a716-446655440000/status
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzM5OTI4MDgsImV4cCI6MTc3NTgwNzIwOH0.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+{
+  "status": "RESOLVED",
+  "comment": "Bac vidé et nettoyé avec succès"
+}
+
+### 9. Assigner une intervention à un agent (supervisor/admin)
+POST {{baseUrl}}/interventions/report/0433bb58-16dd-4252-a742-e4cabf9808bf/assign
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzM5OTI4MDgsImV4cCI6MTc3NTgwNzIwOH0.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+{
+  "agentId": "1069f081-86e0-4f09-8585-2b4a7426a34f",
+  "comment": "Assignation urgente - priorité haute"
+}
+
+### 10. Statistiques des interventions (supervisor/admin)
+GET {{baseUrl}}/interventions/stats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzM5OTI4MDgsImV4cCI6MTc3NTgwNzIwOH0.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### 11. Filtrer les interventions
+GET {{baseUrl}}/interventions?status=PENDING&dateFrom=2026-03-20&dateTo=2026-03-31&search=bac&page=1&limit=5
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzM5OTI4MDgsImV4cCI6MTc3NTgwNzIwOH0.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### 12. Supprimer une intervention (supervisor/admin)
+DELETE {{baseUrl}}/interventions/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzM5OTI4MDgsImV4cCI6MTc3NTgwNzIwOH0.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+### Instructions:
+# 
+# ENDPOINTS INTERVENTIONS:
+# 
+# POUR SUPERVISORS/ADMINS:
+# 1. POST /interventions - Créer une intervention
+# 2. GET /interventions - Lister toutes les interventions
+# 3. GET /interventions/stats - Statistiques globales
+# 4. GET /interventions/report/:reportId - Interventions d'un signalement
+# 5. GET /interventions/agent/:agentId - Interventions d'un agent
+# 6. POST /interventions/report/:reportId/assign - Assigner une intervention
+# 7. DELETE /interventions/:id - Supprimer une intervention
+#
+# POUR TOUS (AGENTS/SUPERVISORS/ADMINS):
+# 8. GET /interventions/my-interventions - Mes interventions
+# 9. GET /interventions/:id - Détails d'une intervention
+# 10. PATCH /interventions/:id - Mettre à jour une intervention
+# 11. PATCH /interventions/:id/status - Mettre à jour le statut
+#
+# STATUTS POSSIBLES:
+# - PENDING: En attente
+# - IN_PROGRESS: En cours
+# - RESOLVED: Résolu
+# - CANCELLED: Annulé
+#
+# SÉCURITÉ:
+# - Les agents voient leurs interventions et celles des autres
+# - Les supervisors/admins ont tous les droits
+# - Toutes les requêtes nécessitent une authentification JWT
