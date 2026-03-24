@@ -174,7 +174,7 @@ export class AuthService {
 
     // Si aucun neighborhood n'est fourni, assigner un quartier par défaut à Douala
     let neighborhoodName = createUserDto.neighborhood;
-    let neighborhoodId = null;
+    let neighborhoodId: string | null = null;
     
     if (neighborhoodName) {
       // Chercher le quartier par nom
