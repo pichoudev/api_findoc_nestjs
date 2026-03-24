@@ -1,0 +1,110 @@
+### 🔍 Diagnostic SMTP Avancé
+
+@baseUrl = http://localhost:3000/api/v1
+@contentType = application/json
+
+### 1. Vérifier la configuration SMTP
+GET {{baseUrl}}/debug/mail-config
+
+### 2. Tester la connexion SMTP
+POST {{baseUrl}}/debug/test-smtp-connection
+
+### 3. Tester envoi email simple
+POST {{baseUrl}}/debug/test-email-simple
+
+### 4. Test OTP complet (timeout 60 secondes)
+POST {{baseUrl}}/debug/test-otp-full
+
+### 5. Vérifier les paramètres Gmail
+GET {{baseUrl}}/debug/check-gmail-settings
+
+### ==================== INSTRUCTIONS ====================
+
+# 🚨 Diagnostic SMTP complet
+
+## Étapes à suivre :
+
+### 1. Démarrez le serveur
+```bash
+npm run start:dev
+```
+
+### 2. Testez chaque endpoint dans l'ordre
+
+#### **Étape 1: Configuration**
+```bash
+curl -X GET http://localhost:3000/api/v1/debug/mail-config
+```
+Vérifiez que toutes les variables sont présentes.
+
+#### **Étape 2: Connexion SMTP**
+```bash
+curl -X POST http://localhost:3000/api/v1/debug/test-smtp-connection
+```
+Si échec ici → problème de connexion de base.
+
+#### **Étape 3: Email simple**
+```bash
+curl -X POST http://localhost:3000/api/v1/debug/test-email-simple
+```
+Si succès ici → connexion OK, problème dans le template OTP.
+
+#### **Étape 4: OTP complet**
+```bash
+curl -X POST http://localhost:3000/api/v1/debug/test-otp-full
+```
+Si timeout ici → problème template HTML ou taille email.
+
+#### **Étape 5: Paramètres Gmail**
+```bash
+curl -X GET http://localhost:3000/api/v1/debug/check-gmail-settings
+```
+Vérifiez les recommandations spécifiques Gmail.
+
+## 🔧 Problèmes courants et solutions
+
+### **❌ "Invalid login"**
+- **Cause**: App Password incorrect
+- **Solution**: Générez un nouveau App Password Gmail (16 caractères)
+
+### **❌ "Connection timeout"**
+- **Cause**: Firewall ou port bloqué
+- **Solution**: Essayez port 465 avec `secure: true`
+
+### **❌ "Message too large"**
+- **Cause**: Template HTML trop volumineux
+- **Solution**: Réduire la taille du template
+
+### **❌ "Gmail blocked"**
+- **Cause**: Compte Gmail bloque les apps
+- **Solution**: Activez "Less secure app access" OU utilisez 2FA + App Password
+
+## 🎯 Test final
+
+Après diagnostic, testez avec :
+```bash
+curl -X POST http://localhost:3000/api/v1/auth/send-otp \
+  -H "Content-Type: application/json" \
+  -d '{"emailOrPhone": "votre-email@gmail.com", "purpose": "VERIFY_EMAIL"}'
+```
+
+## 📊 Résultats attendus
+
+### **✅ Succès complet**
+```json
+{
+  "success": true,
+  "message": "Code OTP envoyé avec succès",
+  "expiresIn": 600
+}
+```
+
+### **⚠️ Timeout diagnostiqué**
+```json
+{
+  "success": false,
+  "message": "Timeout après 60 secondes"
+}
+```
+
+**Utilisez ces endpoints pour identifier exactement où est le problème SMTP !** 🔍

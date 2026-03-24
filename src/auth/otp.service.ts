@@ -10,10 +10,18 @@ export class OtpService {
 
   constructor(private configService: ConfigService) {
     this.logger = new Logger('OtpService');
+    
+    // 🔄 Configuration différente pour production
+    const isProduction = process.env.NODE_ENV === 'production';
+    const port = isProduction ? 465 : 587;
+    const secure = isProduction ? true : false;
+    
+    this.logger.log(`Configuration SMTP: ${isProduction ? 'PRODUCTION' : 'LOCAL'} - Port ${port}`);
+    
     this.transporter = nodemailer.createTransport({
       host: this.configService.get<string>('MAIL_HOST') || 'smtp.gmail.com',
-      port: this.configService.get<number>('MAIL_PORT') || 587,
-      secure: false,
+      port: this.configService.get<number>('MAIL_PORT') || port,
+      secure: secure,
       auth: {
         user: this.configService.get<string>('MAIL_USERNAME'),
         pass: this.configService.get<string>('MAIL_PASSWORD'),
@@ -21,6 +29,10 @@ export class OtpService {
       tls: {
         rejectUnauthorized: false,
       },
+      // 🕐 Timeout plus long en production
+      connectionTimeout: isProduction ? 60000 : 30000,
+      greetingTimeout: isProduction ? 30000 : 10000,
+      socketTimeout: isProduction ? 60000 : 30000,
     });
   }
 
@@ -51,7 +63,13 @@ export class OtpService {
       this.logger.log(`Envoi du code OTP ${code} à ${email}`);
       this.logger.log(`Configuration SMTP: ${this.configService.get('MAIL_HOST')}:${this.configService.get('MAIL_PORT')}`);
 
-      // 🕐 Timeout de 30 secondes pour l'envoi email
+      // 🕐 Timeout différent selon l'environnement
+      const isProduction = process.env.NODE_ENV === 'production';
+      const timeoutMs = isProduction ? 60000 : 30000; // 60s production, 30s local
+      
+      this.logger.log(`Timeout configuré: ${timeoutMs}ms (${isProduction ? 'PRODUCTION' : 'LOCAL'})`);
+
+      // 🕐 Timeout de 30/60 secondes pour l'envoi email
       const emailPromise = this.transporter.sendMail({
         from: `"${this.configService.get<string>('MAIL_FROM_NAME', 'Cleaner App')}" <${this.configService.get<string>('MAIL_FROM_ADDRESS')}>`,
         to: email,
@@ -314,7 +332,7 @@ export class OtpService {
       });
 
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Timeout envoi email')), 30000);
+        setTimeout(() => reject(new Error(`Timeout envoi email après ${timeoutMs}ms`)), timeoutMs);
       });
 
       await Promise.race([emailPromise, timeoutPromise]);
