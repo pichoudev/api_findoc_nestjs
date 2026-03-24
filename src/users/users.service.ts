@@ -49,7 +49,7 @@ export class UsersService {
         neighborhoodId,
       },
       include: {
-        neighborhood: {
+        neighborhoodRelation: {
           include: {
             city: true
           }
@@ -106,7 +106,7 @@ export class UsersService {
           isVerified: true,
           createdAt: true,
           updatedAt: true,
-          neighborhood: {
+          neighborhoodRelation: {
             select: {
               id: true,
               name: true,
@@ -143,7 +143,7 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({
       where: { id },
       include: {
-        neighborhood: {
+        neighborhoodRelation: {
           include: {
             city: true
           }
@@ -164,7 +164,7 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({
       where: { email },
       include: {
-        neighborhood: {
+        neighborhoodRelation: {
           include: {
             city: true
           }
@@ -236,7 +236,7 @@ export class UsersService {
         neighborhoodId,
       },
       include: {
-        neighborhood: {
+        neighborhoodRelation: {
           include: {
             city: true
           }
@@ -310,7 +310,7 @@ export class UsersService {
       where: { id },
       data: { role: role as any }, // Cast pour éviter l'erreur de type
       include: {
-        neighborhood: {
+        neighborhoodRelation: {
           include: {
             city: true
           }
@@ -336,7 +336,7 @@ export class UsersService {
       where: { id },
       data: { isActive },
       include: {
-        neighborhood: {
+        neighborhoodRelation: {
           include: {
             city: true
           }
