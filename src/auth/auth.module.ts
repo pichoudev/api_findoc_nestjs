@@ -9,6 +9,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { OtpService } from './otp.service';
 import { PrismaModule } from '../prisma/prisma.module';
+import { DebugController } from '../../debug.controller';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { PrismaModule } from '../prisma/prisma.module';
       inject: [ConfigService],
     }),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, DebugController],
   providers: [AuthService, OtpService, JwtStrategy, GoogleStrategy, JwtAuthGuard],
   exports: [AuthService, JwtModule, JwtAuthGuard],
 })

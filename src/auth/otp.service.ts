@@ -36,6 +36,21 @@ export class OtpService {
     });
   }
 
+  // 🔍 Méthodes publiques pour le diagnostic
+  async verifyConnection(): Promise<boolean> {
+    return await this.transporter.verify();
+  }
+
+  async sendSimpleEmail(to: string, subject: string, content: string): Promise<any> {
+    return await this.transporter.sendMail({
+      from: `"${this.configService.get<string>('MAIL_FROM_NAME', 'Cleaner App')}" <${this.configService.get<string>('MAIL_FROM_ADDRESS', 'noreply@cleaner.cm')}>`,
+      to,
+      subject,
+      text: content,
+      html: `<p>${content}</p>`,
+    });
+  }
+
   generateOtp(): { code: string; secret: string; expiresAt: Date } {
     const secret = speakeasy.generateSecret({
       name: 'Cleaner App',

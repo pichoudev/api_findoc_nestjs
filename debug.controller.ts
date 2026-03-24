@@ -1,6 +1,6 @@
 import { Controller, Get, Post } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { OtpService } from '../auth/otp.service';
+import { OtpService } from './src/auth/otp.service';
 
 @Controller('debug')
 export class DebugController {
@@ -28,7 +28,7 @@ export class DebugController {
       console.log('🔍 Test de connexion SMTP...');
       
       // Test de vérification de la connexion
-      const verifyResult = await this.otpService.transporter.verify();
+      const verifyResult = await this.otpService.verifyConnection();
       console.log('✅ Connexion SMTP vérifiée:', verifyResult);
       
       return { 
@@ -58,13 +58,19 @@ export class DebugController {
     try {
       console.log('📧 Test envoi email simple...');
       
-      const result = await this.otpService.transporter.sendMail({
-        from: `"${this.configService.get('MAIL_FROM_NAME', 'Cleaner App')}" <${this.configService.get('MAIL_FROM_ADDRESS')}>`,
-        to: this.configService.get('MAIL_USERNAME'), // Envoyer à soi-même
-        subject: '🧪 Test SMTP - Cleaner App',
-        text: 'Ceci est un test de configuration SMTP.',
-        html: '<p>Ceci est un <strong>test</strong> de configuration SMTP.</p>',
-      });
+      const username = this.configService.get('MAIL_USERNAME');
+      if (!username) {
+        return {
+          success: false,
+          message: 'MAIL_USERNAME non configuré'
+        };
+      }
+      
+      const result = await this.otpService.sendSimpleEmail(
+        username, // Envoyer à soi-même
+        '🧪 Test SMTP - Cleaner App',
+        'Ceci est un test de configuration SMTP.'
+      );
       
       console.log('✅ Email simple envoyé:', result.messageId);
       
@@ -97,16 +103,17 @@ export class DebugController {
       console.log('🔐 Test complet OTP...');
       
       const testEmail = this.configService.get('MAIL_USERNAME');
+      if (!testEmail) {
+        return {
+          success: false,
+          message: 'MAIL_USERNAME non configuré'
+        };
+      }
+      
       const testCode = '123456';
       
       // Test avec timeout plus long pour le diagnostic
-      const emailPromise = this.otpService.sendOtpEmail(testEmail, testCode);
-      
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Timeout après 60 secondes')), 60000);
-      });
-      
-      const result = await Promise.race([emailPromise, timeoutPromise]);
+      await this.otpService.sendOtpEmail(testEmail, testCode);
       
       console.log('✅ Test OTP complet réussi');
       
