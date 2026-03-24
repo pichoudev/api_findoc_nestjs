@@ -42,7 +42,7 @@ async function bootstrap() {
   // Préfixe global pour toutes les routes
   app.setGlobalPrefix('api/v1');
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3000 ,'0.0.0.0');
   console.log(`Application is running on: ${await app.getUrl()}`);
   console.log(`API endpoints available at: ${await app.getUrl()}/api/v1/`);
   console.log(`Swagger documentation available at: ${await app.getUrl()}/api`);
