@@ -10,7 +10,7 @@
   "start": "node --max-old-space-size=400 dist/main",
   "start:dev": "npm run init && nest start --watch",
   "start:debug": "nest start --debug --watch",
-  "start:prod": "node --max-old-space-size=400 dist/src/main.js"
+  "start:prod": "node --max-old-space-size=400 dist/src/main.js",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "init": "mkdir -p dist/uploads/compressed uploads/compressed && ([ -d 'uploads' ] && [ ! -d 'dist/uploads' ] && cp -r uploads/ dist/ || true)",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
