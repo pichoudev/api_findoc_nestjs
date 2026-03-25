@@ -1,0 +1,35 @@
+@baseUrl = http://localhost:3000/api/v1
+
+### 🧪 TESTS BREVO SMTP - Cleaner App
+
+### 1. Vérifier la configuration SMTP
+GET {{baseUrl}}/debug/mail-config
+
+### 2. Tester la connexion SMTP Brevo
+POST {{baseUrl}}/debug/test-smtp-connection
+
+### 3. Envoyer un email test simple avec Brevo
+POST {{baseUrl}}/debug/test-email-brevo
+Content-Type: application/json
+
+{
+  "to": "apollinebanemb@gmail.com",
+  "subject": "🧪 Test Brevo - Cleaner App",
+  "message": "Ceci est un test de configuration SMTP avec Brevo. Si vous recevez cet email, la configuration est correcte !"
+}
+
+### 4. Envoyer un email test avec paramètres personnalisés
+POST {{baseUrl}}/debug/test-email-brevo
+Content-Type: application/json
+
+{
+  "to": "apollinebanemb@gmail.com",
+  "subject": "✅ Test personnalisé Brevo",
+  "message": "Test d'envoi d'email avec Brevo vers une adresse différente. Configuration SMTP: smtp-relay.brevo.com:587"
+}
+
+### 5. Test rapide (utilise les valeurs par défaut)
+POST {{baseUrl}}/debug/test-email-brevo
+Content-Type: application/json
+
+{}

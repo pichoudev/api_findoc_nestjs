@@ -22,6 +22,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^2.3.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
@@ -41,7 +42,7 @@
     "class-validator": "^0.14.3",
     "dotenv": "^17.3.1",
     "multer": "^2.1.1",
-    "nodemailer": "^8.0.1",
+    "nodemailer": "^8.0.3",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",

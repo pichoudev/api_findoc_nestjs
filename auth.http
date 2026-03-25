@@ -42,11 +42,11 @@ Content-Type: {{contentType}}
 {
   "email": "apollinebanemb@gmail.com",
   "phone": "+237655555555",
-  "password": "douala123",
-  "confirmPassword": "douala123",
+  "password": "doual123",
+  "confirmPassword": "doual123",
   "firstName": "Steph",
   "lastName": "pichou",
-  "neighborhood": "pk8",
+  "neighborhood": "Akwa",
   "role": "CITIZEN"
 }
 
