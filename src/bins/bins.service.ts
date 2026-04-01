@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBinDto, UpdateBinDto, FilterBinsDto } from './dto/bin.dto';
+import { BacType, BacStatus, ReportStatus } from '@prisma/client';
 
 @Injectable()
 export class BinsService {
@@ -16,7 +17,8 @@ export class BinsService {
       locationDescription, 
       status, 
       capacity, 
-      fillLevel 
+      fillLevel, 
+      statusReport 
     } = createBinDto;
 
     // Vérifier si le quartier existe
@@ -46,7 +48,8 @@ export class BinsService {
         binType: type,
         neighborhoodId,
         capacityM3: capacity || 1.0,
-        status: status || 'ACTIVE',
+        status: status || BacStatus.ACTIF,
+        ...(statusReport && { statusReport }),
       },
       include: {
         neighborhood: {
@@ -85,6 +88,7 @@ export class BinsService {
     const {
       type,
       status,
+      statusReport,
       neighborhoodId,
       cityId,
       fillLevelAbove,
@@ -100,6 +104,7 @@ export class BinsService {
 
     if (type) where.binType = type;
     if (status) where.status = status;
+    if (statusReport) where.statusReport = statusReport;
     if (neighborhoodId) where.neighborhoodId = neighborhoodId;
     
     if (cityId) {
@@ -217,7 +222,8 @@ export class BinsService {
       locationDescription, 
       status, 
       capacity, 
-      fillLevel 
+      fillLevel, 
+      statusReport 
     } = updateBinDto;
 
     // Vérifier si le bac existe
@@ -261,7 +267,8 @@ export class BinsService {
         binType: type,
         neighborhoodId,
         capacityM3: capacity,
-        status: status as any, // Cast pour éviter l'erreur de type
+        status: status as any,
+        ...(statusReport && { statusReport }), // Cast pour éviter l'erreur de type
       },
       include: {
         neighborhood: {
@@ -393,8 +400,8 @@ export class BinsService {
 
   async getFullBins() {
     const bins = await this.prisma.bin.findMany({
-      where: {
-        status: 'FULL'
+      where: { 
+        status: BacStatus.ACTIF 
       },
       include: {
         neighborhood: {
@@ -426,9 +433,9 @@ export class BinsService {
       binsByStatus
     ] = await Promise.all([
       this.prisma.bin.count(),
-      this.prisma.bin.count({ where: { status: 'ACTIVE' } }),
-      this.prisma.bin.count({ where: { status: 'FULL' } }),
-      this.prisma.bin.count({ where: { status: 'DAMAGED' } }),
+      this.prisma.bin.count({ where: { status: BacStatus.ACTIF } }),
+      this.prisma.bin.count({ where: { status: BacStatus.DEBORDANT } }),
+      this.prisma.bin.count({ where: { status: BacStatus.ENDOMMAGE } }),
       this.prisma.bin.groupBy({
         by: ['binType'],
         _count: {

@@ -319,7 +319,7 @@ export class AuthService {
       // Générer et stocker l'OTP dans la base de données
       const code = await this.otpService.generateOtp();
       const expiresAt = new Date();
-      expiresAt.setMinutes(expiresAt.getMinutes() + 10);
+      expiresAt.setMinutes(expiresAt.getMinutes() + 5);
       this.logger.log(`OTP généré: ${code}`);
       this.logger.log(`Expires à: ${expiresAt}`);
       

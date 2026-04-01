@@ -10,6 +10,7 @@ import { ReportType, ReportStatus, Priority } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import { NotificationService } from '../notifications/notification.service';
 import { NotificationEventType } from '../notifications/types/notification.types';
+import { Request } from 'express';
 
 @Injectable()
 export class ReportsService {
@@ -52,8 +53,31 @@ export class ReportsService {
   } as const;
 
   // ─── CREATE REPORT ─────────────────────────────────────────────────────────────
-  async create(createReportDto: CreateReportDto, userId: string, photoUrl?: string) {
-    const { bacId, reportType, description, priority = Priority.MEDIUM } = createReportDto;
+  async create(createReportDto: CreateReportDto, userId: string, photoUrl?: string, req?: Request) {
+    const { bacId, reportType, description, priority = Priority.MEDIUM, locationUser } = createReportDto;
+
+    // Récupérer l'IP depuis la requête
+    let clientIp: string | null = null;
+    if (req) {
+      // Essayer différents en-têtes pour l'IP (proxies, load balancers, etc.)
+      const forwardedFor = req.headers['x-forwarded-for'] as string;
+      const realIp = req.headers['x-real-ip'] as string;
+      const connectionIp = req.connection?.remoteAddress;
+      const socketIp = req.socket?.remoteAddress;
+      const reqIp = req.ip;
+      
+      clientIp = forwardedFor || realIp || connectionIp || socketIp || reqIp || null;
+      
+      // Si c'est une liste d'IPs (x-forwarded-for), prendre la première
+      if (clientIp && clientIp.includes(',')) {
+        clientIp = clientIp.split(',')[0].trim();
+      }
+      
+      // Nettoyer l'IP (enlever ::ffff: pour IPv6)
+      if (clientIp && clientIp.startsWith('::ffff:')) {
+        clientIp = clientIp.substring(7);
+      }
+    }
 
     // Vérifier que le bac existe
     const bin = await this.prisma.bin.findUnique({
@@ -75,31 +99,44 @@ export class ReportsService {
     const referenceCode = await this.generateReferenceCode();
 
     try {
-      const report = await this.prisma.report.create({
-        data: {
-          bacId,
-          userId,
-          reportType,
-          description,
-          referenceCode,
-          photoUrl,
-          status: ReportStatus.ASSIGNED,
-          priority,
-        },
-        include: this.reportInclude,
+      const result = await this.prisma.$transaction(async (tx) => {
+        // Créer le signalement
+        const report = await tx.report.create({
+          data: {
+            bacId,
+            userId,
+            reportType,
+            description,
+            referenceCode,
+            photoUrl,
+            status: ReportStatus.RECU,
+            priority,
+            adresseIp: clientIp || undefined,
+            locationUser: locationUser || undefined,
+          },
+          include: this.reportInclude,
+        });
+
+        // Mettre à jour le statusReport du bac
+        await tx.bin.update({
+          where: { id: bacId },
+          data: { statusReport: ReportStatus.RECU },
+        });
+
+        return report;
       });
 
       // Émettre un événement de notification
       this.notificationService.emitEvent(NotificationEventType.REPORT_CREATED, {
-        reportId: report.id,
+        reportId: result.id,
         reporterId: userId,
-        referenceCode: report.referenceCode,
-        reportType: report.reportType,
-        priority: report.priority,
-        bacId: report.bacId,
+        referenceCode: result.referenceCode,
+        reportType: result.reportType,
+        priority: result.priority,
+        bacId: result.bacId,
       });
 
-      return report;
+      return result;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
@@ -177,7 +214,7 @@ export class ReportsService {
 
   // ─── UPDATE ────────────────────────────────────────────────────────────────
   async update(id: string, updateReportDto: UpdateReportDto, photoUrl?: string) {
-    const { reportType, description, status, priority } = updateReportDto;
+    const { reportType, description, status, priority, locationUser } = updateReportDto;
 
     const existingReport = await this.prisma.report.findUnique({
       where: { id },
@@ -187,16 +224,30 @@ export class ReportsService {
     }
 
     try {
-      const report = await this.prisma.report.update({
-        where: { id },
-        data: {
-          ...(reportType && { reportType }),
-          ...(description !== undefined && { description }),
-          ...(status && { status }),
-          ...(priority && { priority }),
-          ...(photoUrl && { photoUrl }),
-        },
-        include: this.reportInclude,
+      const report = await this.prisma.$transaction(async (tx) => {
+        // Mettre à jour le signalement
+        const updatedReport = await tx.report.update({
+          where: { id },
+          data: {
+            ...(reportType && { reportType }),
+            ...(description !== undefined && { description }),
+            ...(status && { status }),
+            ...(priority && { priority }),
+            ...(locationUser !== undefined && { locationUser }),
+            ...(photoUrl && { photoUrl }),
+          },
+          include: this.reportInclude,
+        });
+
+        // Si le statut a changé, synchroniser le statusReport du bac
+        if (status) {
+          await tx.bin.update({
+            where: { id: updatedReport.bacId },
+            data: { statusReport: status },
+          });
+        }
+
+        return updatedReport;
       });
 
       return report;
@@ -276,10 +327,21 @@ export class ReportsService {
       throw new NotFoundException('Signalement non trouvé');
     }
 
-    const updatedReport = await this.prisma.report.update({
-      where: { id },
-      data: { status },
-      include: this.reportInclude,
+    const updatedReport = await this.prisma.$transaction(async (tx) => {
+      // Mettre à jour le statut du signalement
+      const report = await tx.report.update({
+        where: { id },
+        data: { status },
+        include: this.reportInclude,
+      });
+
+      // Synchroniser le statusReport du bac
+      await tx.bin.update({
+        where: { id: report.bacId },
+        data: { statusReport: status },
+      });
+
+      return report;
     });
 
     // Émettre un événement de notification pour le changement de statut
@@ -292,7 +354,7 @@ export class ReportsService {
     });
 
     // Si le statut est COMPLETED, émettre un événement spécifique
-    if (status === ReportStatus.COMPLETED) {
+    if (status === ReportStatus.TERMINE) {
       this.notificationService.emitEvent(NotificationEventType.REPORT_COMPLETED, {
         reportId: updatedReport.id,
         reporterId: updatedReport.userId,
@@ -325,10 +387,10 @@ export class ReportsService {
       recentReports,
     ] = await Promise.all([
       this.prisma.report.count({ where: { userId } }),
-      this.prisma.report.count({ where: { userId, status: ReportStatus.ASSIGNED } }),
-      this.prisma.report.count({ where: { userId, status: ReportStatus.IN_PROGRESS } }),
-      this.prisma.report.count({ where: { userId, status: ReportStatus.COMPLETED } }),
-      this.prisma.report.count({ where: { userId, status: ReportStatus.CANCELLED } }),
+      this.prisma.report.count({ where: { userId, status: ReportStatus.ASSIGNE } }),
+      this.prisma.report.count({ where: { userId, status: ReportStatus.EN_COURS } }),
+      this.prisma.report.count({ where: { userId, status: ReportStatus.TERMINE } }),
+      this.prisma.report.count({ where: { userId, status: ReportStatus.ANNULE } }),
       this.prisma.report.groupBy({ 
         by: ['reportType'], 
         _count: { reportType: true },
@@ -398,10 +460,10 @@ export class ReportsService {
       recentReports,
     ] = await Promise.all([
       this.prisma.report.count(),
-      this.prisma.report.count({ where: { status: ReportStatus.ASSIGNED } }),
-      this.prisma.report.count({ where: { status: ReportStatus.IN_PROGRESS } }),
-      this.prisma.report.count({ where: { status: ReportStatus.COMPLETED } }),
-      this.prisma.report.count({ where: { status: ReportStatus.CANCELLED } }),
+      this.prisma.report.count({ where: { status: ReportStatus.ASSIGNE } }),
+      this.prisma.report.count({ where: { status: ReportStatus.EN_COURS } }),
+      this.prisma.report.count({ where: { status: ReportStatus.TERMINE } }),
+      this.prisma.report.count({ where: { status: ReportStatus.ANNULE } }),
       this.prisma.report.groupBy({ by: ['reportType'], _count: { reportType: true } }),
       this.prisma.report.groupBy({ by: ['status'], _count: { status: true } }),
       this.prisma.report.groupBy({ by: ['priority'], _count: { priority: true } }),
@@ -450,5 +512,38 @@ export class ReportsService {
     
     const sequence = (count + 1).toString().padStart(3, '0');
     return `${prefix}-${year}-${sequence}`;
+  }
+
+  // ─── SYNC BIN STATUS REPORT ─────────────────────────────────────────────────────
+  /**
+   * Synchronise le statusReport d'un bac avec le statut le plus récent de ses signalements
+   */
+  async syncBinStatusReport(bacId: string): Promise<void> {
+    // Récupérer le signalement le plus récent pour ce bac
+    const latestReport = await this.prisma.report.findFirst({
+      where: { bacId },
+      orderBy: { createdAt: 'desc' },
+      select: { status: true }
+    });
+
+    if (latestReport) {
+      await this.prisma.bin.update({
+        where: { id: bacId },
+        data: { statusReport: latestReport.status }
+      });
+    }
+  }
+
+  /**
+   * Synchronise tous les statusReport des bacs avec leurs signalements les plus récents
+   */
+  async syncAllBinStatusReports(): Promise<void> {
+    const bins = await this.prisma.bin.findMany({
+      select: { id: true }
+    });
+
+    await Promise.all(
+      bins.map(bin => this.syncBinStatusReport(bin.id))
+    );
   }
 }

@@ -63,7 +63,7 @@ export class ReportsController {
     console.log('ReportsController - User ID extracted:', userId);
 
     try {
-      const result = await this.reportsService.create(createReportDto, userId, photoUrl);
+      const result = await this.reportsService.create(createReportDto, userId, photoUrl, req);
       console.log('ReportsController - Report created successfully');
       return result;
     } catch (error) {
@@ -228,5 +228,34 @@ export class ReportsController {
   @ApiResponse({ status: 409, description: 'Impossible de supprimer - intervention existante' })
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.reportsService.remove(id);
+  }
+
+  // ─── SYNC ENDPOINTS ────────────────────────────────────────────────────────
+  @Post('sync/:bacId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPERVISOR', 'ADMIN')
+  @ApiOperation({ 
+    summary: 'Synchroniser le statusReport d\'un bac',
+    description: 'Synchronise le statusReport d\'un bac avec le statut le plus récent de ses signalements'
+  })
+  @ApiParam({ name: 'bacId', description: 'ID du bac' })
+  @ApiResponse({ status: 200, description: 'StatusReport synchronisé avec succès' })
+  @ApiResponse({ status: 404, description: 'Bac non trouvé' })
+  async syncBinStatusReport(@Param('bacId', ParseUUIDPipe) bacId: string) {
+    await this.reportsService.syncBinStatusReport(bacId);
+    return { message: 'StatusReport synchronisé avec succès' };
+  }
+
+  @Post('sync-all')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPERVISOR', 'ADMIN')
+  @ApiOperation({ 
+    summary: 'Synchroniser tous les statusReport',
+    description: 'Synchronise tous les statusReport des bacs avec leurs signalements les plus récents'
+  })
+  @ApiResponse({ status: 200, description: 'Tous les statusReport synchronisés avec succès' })
+  async syncAllBinStatusReports() {
+    await this.reportsService.syncAllBinStatusReports();
+    return { message: 'Tous les statusReport synchronisés avec succès' };
   }
 }

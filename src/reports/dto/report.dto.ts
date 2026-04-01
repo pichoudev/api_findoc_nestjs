@@ -14,7 +14,7 @@ export class CreateReportDto {
   @ApiProperty({ 
     description: 'Type de signalement',
     enum: ReportType,
-    example: ReportType.FULL
+    example: ReportType.PLEIN
   })
   @IsEnum(ReportType)
   @IsNotEmpty()
@@ -37,6 +37,15 @@ export class CreateReportDto {
   photo?: Express.Multer.File;
 
   @ApiPropertyOptional({ 
+    description: 'Emplacement de la personne qui signale (format JSON)',
+    example: '{"lat": 4.0583, "lng": 9.7043}',
+    type: 'string'
+  })
+  @IsString()
+  @IsOptional()
+  locationUser?: string;
+
+  @ApiProperty({ 
     description: 'Priorité du signalement',
     enum: Priority,
     example: Priority.MEDIUM,
@@ -51,7 +60,7 @@ export class UpdateReportDto {
   @ApiPropertyOptional({ 
     description: 'Type de signalement',
     enum: ReportType,
-    example: ReportType.DAMAGED
+    example: ReportType.ENDOMMAGE
   })
   @IsEnum(ReportType)
   @IsOptional()
@@ -74,9 +83,18 @@ export class UpdateReportDto {
   photo?: Express.Multer.File;
 
   @ApiPropertyOptional({ 
+    description: 'Emplacement de la personne qui signale (format JSON)',
+    example: '{"lat": 4.0583, "lng": 9.7043}',
+    type: 'string'
+  })
+  @IsString()
+  @IsOptional()
+  locationUser?: string;
+
+  @ApiPropertyOptional({ 
     description: 'Statut du signalement',
     enum: ReportStatus,
-    example: ReportStatus.IN_PROGRESS
+    example: ReportStatus.EN_COURS
   })
   @IsEnum(ReportStatus)
   @IsOptional()

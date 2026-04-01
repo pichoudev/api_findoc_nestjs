@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateInterventionDto, UpdateInterventionDto, FilterInterventionsDto, AssignInterventionDto } from './dto/intervention.dto';
-import { InterventionStatus } from '@prisma/client';
+import { InterventionStatus, ReportStatus } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import { NotificationService } from '../notifications/notification.service';
 import { NotificationEventType } from '../notifications/types/notification.types';
@@ -99,7 +99,7 @@ export class InterventionsService {
       // Mettre à jour le statut du signalement
       await this.prisma.report.update({
         where: { id: reportId },
-        data: { status: 'ASSIGNED' },
+        data: { status: ReportStatus.ASSIGNE },
       });
 
       // Émettre des événements de notification
@@ -228,7 +228,7 @@ export class InterventionsService {
       if (status === InterventionStatus.RESOLVED && completedAt) {
         await this.prisma.report.update({
           where: { id: existingIntervention.reportId },
-          data: { status: 'COMPLETED' },
+          data: { status: ReportStatus.TERMINE },
         });
       }
 
@@ -348,7 +348,7 @@ export class InterventionsService {
     // Mettre à jour le statut du signalement
     await this.prisma.report.update({
       where: { id: reportId },
-      data: { status: 'ASSIGNED' },
+      data: { status: ReportStatus.ASSIGNE },
     });
 
     return intervention;
@@ -407,7 +407,7 @@ export class InterventionsService {
     if (status === InterventionStatus.RESOLVED) {
       await this.prisma.report.update({
         where: { id: intervention.reportId },
-        data: { status: 'COMPLETED' },
+        data: { status: ReportStatus.TERMINE },
       });
     }
 

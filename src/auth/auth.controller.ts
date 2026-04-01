@@ -2,10 +2,13 @@ import { Controller, Post, Body, Get, UnauthorizedException, HttpCode, HttpStatu
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { OtpService } from './otp.service';
+import { AccountVerificationService } from './account-verification.service';
+import { PasswordResetService } from './password-reset.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { SendOtpDto, VerifyOtpDto } from './dto/otp.dto';
-import { RequestPasswordResetDto, ResetPasswordDto } from './dto/reset-password.dto';
+import { RequestPasswordResetDto as OldRequestPasswordResetDto, ResetPasswordDto as OldResetPasswordDto } from './dto/reset-password.dto';
 import { Public } from './public.decorator';
 import { CurrentUser } from './current-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
@@ -24,7 +27,13 @@ interface GoogleUserProfile {
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService, private otpService: OtpService) {}
+  constructor(
+    private authService: AuthService, 
+    private otpService: OtpService,
+    private accountVerificationService: AccountVerificationService,
+    private passwordResetService: PasswordResetService,
+    private prisma: PrismaService
+  ) {}
 
   @Public()
   @Post('login')
@@ -120,7 +129,33 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Code OTP envoyé' })
   @ApiResponse({ status: 400, description: 'Erreur lors de l\'envoi' })
   async sendOtp(@Body() sendOtpDto: SendOtpDto) {
-    return this.authService.sendOtp(sendOtpDto.emailOrPhone, sendOtpDto.purpose || 'VERIFY_EMAIL');
+    const { emailOrPhone, purpose = 'VERIFY_EMAIL' } = sendOtpDto;
+    
+    // Déterminer si c'est un email ou un téléphone
+    const isEmail = emailOrPhone.includes('@');
+    const method = isEmail ? 'EMAIL' : 'SMS';
+    
+    // Générer un code de 6 chiffres
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    if (purpose === 'VERIFY_EMAIL') {
+      // Utiliser le service de vérification de compte
+      await this.accountVerificationService.sendVerificationCode(emailOrPhone, code, method);
+      return {
+        message: 'Code de vérification envoyé avec succès',
+        expiresIn: '15 minutes'
+      };
+    } else if (purpose === 'RESET_PASSWORD') {
+      // Utiliser le service de réinitialisation de mot de passe
+      await this.passwordResetService.sendPasswordResetCode(emailOrPhone, code, method);
+      return {
+        message: 'Code de réinitialisation envoyé avec succès',
+        expiresIn: '10 minutes'
+      };
+    } else {
+      // Utiliser l'ancien service pour les autres purposes
+      return this.authService.sendOtp(emailOrPhone, purpose);
+    }
   }
 
   @Public()
@@ -130,14 +165,105 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Code OTP invalide' })
   async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
     try {
-      // Utiliser directement la méthode de auth.service qui gère la base de données
-      const result = await this.authService.verifyOtp(verifyOtpDto.emailOrPhone, verifyOtpDto.code, verifyOtpDto.purpose);
+      const { emailOrPhone, code, purpose } = verifyOtpDto;
       
-      return {
-        success: true,
-        message: result.message,
-        isValid: result.isValid
-      };
+      if (purpose === 'VERIFY_EMAIL') {
+        // Utiliser le service de vérification de compte
+        const isValid = await this.accountVerificationService.verifyCode(emailOrPhone, code, purpose);
+        
+        // Vérifier si le token existe encore pour déterminer le message approprié
+        const user = await this.prisma.user.findFirst({
+          where: {
+            OR: [
+              { email: emailOrPhone },
+              { phone: emailOrPhone },
+            ],
+          },
+        });
+
+        if (user) {
+          const token = await this.prisma.otpToken.findFirst({
+            where: {
+              userId: user.id,
+              purpose,
+              expiresAt: { gt: new Date() },
+            },
+          });
+
+          if (!token && !isValid) {
+            return {
+              success: false,
+              message: 'Token supprimé après 3 tentatives échouées. Veuillez demander un nouveau code.',
+              requiresNewCode: true
+            };
+          } else if (token && token.attemptsCount > 0 && !isValid) {
+            const remainingAttempts = 3 - token.attemptsCount;
+            return {
+              success: false,
+              message: `Code incorrect. Il vous reste ${remainingAttempts} tentative${remainingAttempts > 1 ? 's' : ''}.`,
+              remainingAttempts
+            };
+          }
+        }
+        
+        return {
+          success: true,
+          message: isValid ? 'Compte vérifié avec succès' : 'Code de vérification invalide ou expiré',
+          isValid
+        };
+      } else if (purpose === 'RESET_PASSWORD') {
+        // Utiliser le service de réinitialisation de mot de passe
+        const isValid = await this.passwordResetService.verifyResetCode(emailOrPhone, code);
+        
+        // Vérifier si le token existe encore pour déterminer le message approprié
+        const user = await this.prisma.user.findFirst({
+          where: {
+            OR: [
+              { email: emailOrPhone },
+              { phone: emailOrPhone },
+            ],
+          },
+        });
+
+        if (user) {
+          const token = await this.prisma.otpToken.findFirst({
+            where: {
+              userId: user.id,
+              purpose: 'PASSWORD_RESET',
+              expiresAt: { gt: new Date() },
+            },
+          });
+
+          if (!token && !isValid) {
+            return {
+              success: false,
+              message: 'Token supprimé après 3 tentatives échouées. Veuillez demander un nouveau code.',
+              requiresNewCode: true
+            };
+          } else if (token && token.attemptsCount > 0 && !isValid) {
+            const remainingAttempts = 3 - token.attemptsCount;
+            return {
+              success: false,
+              message: `Code incorrect. Il vous reste ${remainingAttempts} tentative${remainingAttempts > 1 ? 's' : ''}.`,
+              remainingAttempts
+            };
+          }
+        }
+        
+        return {
+          success: true,
+          message: isValid ? 'Code de réinitialisation valide' : 'Code de réinitialisation invalide ou expiré',
+          isValid
+        };
+      } else {
+        // Utiliser l'ancien service pour les autres purposes
+        const result = await this.authService.verifyOtp(emailOrPhone, code, purpose);
+        return {
+          success: true,
+          message: result.message,
+          isValid: result.isValid
+        };
+      }
     } catch (error) {
       return {
         success: false,
@@ -154,8 +280,24 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: 'Code de réinitialisation envoyé' })
   @ApiResponse({ status: 400, description: 'Erreur lors de l\'envoi' })
-  async requestPasswordReset(@Body() requestPasswordResetDto: RequestPasswordResetDto) {
-    return this.authService.requestPasswordReset(requestPasswordResetDto.emailOrPhone);
+  async requestPasswordReset(@Body() requestPasswordResetDto: OldRequestPasswordResetDto) {
+    const { emailOrPhone } = requestPasswordResetDto;
+    
+    // Déterminer si c'est un email ou un téléphone
+    const isEmail = emailOrPhone.includes('@');
+    const method = isEmail ? 'EMAIL' : 'SMS';
+    
+    // Générer un code de 6 chiffres
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Utiliser le nouveau service de réinitialisation
+    await this.passwordResetService.sendPasswordResetCode(emailOrPhone, code, method);
+    
+    return {
+      message: 'Code de réinitialisation envoyé avec succès',
+      method,
+      expiresIn: '10 minutes'
+    };
   }
 
   @Public()
@@ -167,11 +309,24 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Mot de passe réinitialisé avec succès' })
   @ApiResponse({ status: 400, description: 'Code invalide ou expiré' })
   @ApiResponse({ status: 401, description: 'Code de réinitialisation invalide' })
-  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    return this.authService.resetPassword(
-      resetPasswordDto.emailOrPhone,
-      resetPasswordDto.code,
-      resetPasswordDto.newPassword
-    );
+  async resetPassword(@Body() resetPasswordDto: OldResetPasswordDto) {
+    const { emailOrPhone, code, newPassword, confirmPassword } = resetPasswordDto;
+    
+    // Valider que les mots de passe correspondent
+    if (newPassword !== confirmPassword) {
+      throw new UnauthorizedException('Les mots de passe ne correspondent pas');
+    }
+    
+    // Utiliser le nouveau service de réinitialisation
+    const success = await this.passwordResetService.resetPassword(emailOrPhone, code, newPassword);
+    
+    if (!success) {
+      throw new UnauthorizedException('Code de réinitialisation invalide ou expiré');
+    }
+    
+    return {
+      message: 'Mot de passe réinitialisé avec succès',
+      success: true
+    };
   }
 }

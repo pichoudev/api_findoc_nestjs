@@ -37,30 +37,31 @@ enum Region {
 }
 
 enum BacType {
-  HOUSEHOLD
+  MENAGER
   COMMERCIAL
-  INDUSTRIAL
+  INDUSTRIEL
 }
 
 enum BacStatus {
-  ACTIVE
-  FULL
-  DAMAGED
-  INACTIVE
+  ACTIF
+  DEBORDANT
+  ENDOMMAGE
+  INACTIF
 }
 
 enum ReportType {
-  FULL
-  DAMAGED
-  MISSING
-  OVERFLOWING
+  PLEIN
+  ENDOMMAGE
+  MANQUANT
+  DEBORDENT
 }
 
 enum ReportStatus {
-  ASSIGNED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
+  RECU
+  ASSIGNE
+  EN_COURS
+  TERMINE
+  ANNULE
 }
 
 enum Priority {
@@ -160,13 +161,14 @@ model User {
 
 /// Token OTP a usage unique pour validation email et reset password.
 model OtpToken {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  code      String   @db.VarChar(6)
-  purpose   String   @db.VarChar(30)  // "VERIFY_EMAIL" | "RESET_PASSWORD"
-  expiresAt DateTime @map("expires_at")
-  usedAt    DateTime? @map("used_at")
-  createdAt DateTime @default(now()) @map("created_at")
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  code         String   @db.VarChar(6)
+  purpose      String   @db.VarChar(30)  // "VERIFY_EMAIL" | "RESET_PASSWORD"
+  expiresAt    DateTime @map("expires_at")
+  usedAt       DateTime? @map("used_at")
+  attemptsCount Int     @default(0) @map("attempts_count")
+  createdAt    DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -184,7 +186,8 @@ model Bin {
   neighborhoodId String                                 @map("neighborhood_id") @db.Uuid
   binType        BacType                                @map("bin_type")
   capacityM3     Float                                  @map("capacity_m3")
-  status         BacStatus                              @default(ACTIVE)
+  status         BacStatus                              @default(ACTIF)
+  statusReport   ReportStatus                           @default(RECU) @map("status_report")
   isActive       Boolean                                @default(true) @map("is_active")
   createdAt      DateTime                               @default(now()) @map("created_at")
   updatedAt      DateTime                               @updatedAt @map("updated_at")
@@ -196,6 +199,7 @@ model Bin {
   /// Index spatial GiST pour les requetes de proximite ST_DWithin
   @@index([neighborhoodId])
   @@index([status])
+  @@index([statusReport])
   @@map("bins")
 }
 
@@ -208,8 +212,10 @@ model Report {
   description   String?      @db.Text
   referenceCode String       @unique @map("reference_code") @db.VarChar(20)
   photoUrl      String?      @map("photo_url") @db.Text
-  status        ReportStatus @default(ASSIGNED)
+  status        ReportStatus @default(RECU)
   priority      Priority     @default(MEDIUM)
+  adresseIp     String?      @map("adresse_ip") @db.VarChar(45)
+  locationUser  String?      @map("location_user") @db.Text
   createdAt     DateTime     @default(now()) @map("created_at")
   updatedAt     DateTime     @updatedAt @map("updated_at")
 

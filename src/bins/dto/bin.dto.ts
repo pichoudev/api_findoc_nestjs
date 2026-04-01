@@ -1,13 +1,13 @@
 import { IsString, IsOptional, IsBoolean, IsEnum, IsUUID, IsNumber } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { BacType, BacStatus } from '@prisma/client';
+import { BacType, BacStatus, ReportStatus } from '@prisma/client';
 
 export class CreateBinDto {
   @ApiProperty({ example: 'BAC-001', description: 'Identifiant unique du bac' })
   @IsString()
   identifier: string;
 
-  @ApiProperty({ enum: BacType, example: 'HOUSEHOLD', description: 'Type de bac' })
+  @ApiProperty({ enum: BacType, example: 'MENAGER', description: 'Type de bac' })
   @IsEnum(BacType)
   type: BacType;
 
@@ -41,7 +41,7 @@ export class CreateBinDto {
 
   @ApiPropertyOptional({ 
     enum: BacStatus, 
-    example: 'ACTIVE', 
+    example: 'ACTIF', 
     description: 'Statut du bac' 
   })
   @IsEnum(BacStatus)
@@ -63,6 +63,15 @@ export class CreateBinDto {
   @IsNumber()
   @IsOptional()
   fillLevel?: number;
+
+  @ApiPropertyOptional({ 
+    enum: ReportStatus, 
+    example: ReportStatus.RECU, 
+    description: 'Statut de rapport du bac' 
+  })
+  @IsEnum(ReportStatus)
+  @IsOptional()
+  statusReport?: ReportStatus;
 }
 
 export class UpdateBinDto {
@@ -110,12 +119,21 @@ export class UpdateBinDto {
 
   @ApiPropertyOptional({ 
     enum: BacStatus, 
-    example: 'FULL', 
+    example: 'PLEIN', 
     description: 'Statut du bac' 
   })
   @IsEnum(BacStatus)
   @IsOptional()
   status?: BacStatus;
+
+  @ApiPropertyOptional({ 
+    enum: ReportStatus, 
+    example: ReportStatus.RECU, 
+    description: 'Statut de rapport du bac' 
+  })
+  @IsEnum(ReportStatus)
+  @IsOptional()
+  statusReport?: ReportStatus;
 
   @ApiPropertyOptional({ 
     example: 100, 
@@ -137,7 +155,7 @@ export class UpdateBinDto {
 export class FilterBinsDto {
   @ApiPropertyOptional({ 
     enum: BacType, 
-    example: 'HOUSEHOLD', 
+    example: 'MENAGER', 
     description: 'Filtrer par type de bac' 
   })
   @IsEnum(BacType)
@@ -146,12 +164,21 @@ export class FilterBinsDto {
 
   @ApiPropertyOptional({ 
     enum: BacStatus, 
-    example: 'ACTIVE', 
+    example: 'ACTIF', 
     description: 'Filtrer par statut du bac' 
   })
   @IsEnum(BacStatus)
   @IsOptional()
   status?: BacStatus;
+
+  @ApiPropertyOptional({ 
+    enum: ReportStatus, 
+    example: ReportStatus.RECU, 
+    description: 'Filtrer par statut de rapport du bac' 
+  })
+  @IsEnum(ReportStatus)
+  @IsOptional()
+  statusReport?: ReportStatus;
 
   @ApiPropertyOptional({ 
     example: 'uuid-quartier-bonaberi', 

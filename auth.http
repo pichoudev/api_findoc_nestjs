@@ -130,9 +130,10 @@ POST {{baseUrl}}/auth/reset-password
 Content-Type: {{contentType}}
 
 {
-  "emailOrPhone": "citoyen@cleaner.cm",
-  "code": "123456",
-  "newPassword": "newpassword123"
+  "emailOrPhone": "apollinebanemb@gmail.com",
+  "code": "194548",
+  "newPassword": "newPassword123",
+  "confirmPassword": "newPassword123"
 }
 
 ### ==================== GOOGLE AUTH (optionnel) ====================
