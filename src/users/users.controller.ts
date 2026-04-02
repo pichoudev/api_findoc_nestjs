@@ -82,6 +82,18 @@ export class UsersController {
     return this.usersService.findOne(req.user.userId);
   }
 
+  @Patch('profile')
+  @ApiOperation({ summary: 'Mettre à jour le profil de l\'utilisateur connecté' })
+  @ApiResponse({ status: 200, description: 'Profil mis à jour avec succès' })
+  @ApiResponse({ status: 400, description: 'Données invalides' })
+  @ApiResponse({ status: 409, description: 'Email ou téléphone déjà utilisé' })
+  async updateProfile(@Req() req: Request & { user: AuthenticatedUser }, @Body() updateUserDto: UpdateUserDto) {
+    if (!req.user || !req.user.userId) {
+      throw new UnauthorizedException('Utilisateur non authentifié');
+    }
+    return this.usersService.update(req.user.userId, updateUserDto);
+  }
+
   @Get(':id')
   @Roles('ADMIN', 'SUPERVISOR', 'AGENT')
   @ApiParam({ name: 'id', description: 'ID de l\'utilisateur' })
