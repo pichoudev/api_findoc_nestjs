@@ -383,38 +383,29 @@ private async sendEmailResetCode(email: string, code: string): Promise<void> {
     try {
       this.logger.log(`Début resetPassword pour ${emailOrPhone} avec code: ${code}`);
       
-      // Vérifier d'abord le code
-      const isCodeValid = await this.verifyResetCode(emailOrPhone, code);
-      this.logger.log(`Résultat verifyResetCode: ${isCodeValid}`);
-      
-      if (!isCodeValid) {
-        this.logger.warn(`Code invalide pour resetPassword: ${emailOrPhone}`);
-        return false;
-      }
-
-      this.logger.log(`Code valide, recherche utilisateur pour ${emailOrPhone}`);
-
-      // Trouver l'utilisateur
-      const user = await this.prisma.user.findFirst({
+      // Trouver le token de réinitialisation valide
+      const token = await this.prisma.otpToken.findFirst({
         where: {
-          OR: [
-            { email: emailOrPhone },
-            { phone: emailOrPhone },
-          ],
+          code: code,
+          purpose: 'PASSWORD_RESET',
+          expiresAt: { gt: new Date() },
         },
+        include: {
+          user: true
+        }
       });
 
-      if (!user) {
-        this.logger.warn(`Utilisateur non trouvé pour la réinitialisation: ${emailOrPhone}`);
+      if (!token) {
+        this.logger.warn(`Token non trouvé ou expiré pour le code: ${code}`);
         return false;
       }
 
+      const user = token.user;
       this.logger.log(`Utilisateur trouvé pour reset: ${user.id}`);
 
-      // Hasher le mot de passe avant de le sauvegarder
+      // Hasher le nouveau mot de passe
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-      
       this.logger.log(`Mot de passe hashé pour ${user.id}`);
 
       // Mettre à jour le mot de passe
@@ -425,7 +416,7 @@ private async sendEmailResetCode(email: string, code: string): Promise<void> {
 
       this.logger.log(`Mot de passe mis à jour pour ${user.id}`);
 
-      // Supprimer le token après utilisation réussie
+      // Supprimer le token après utilisation
       await this.prisma.otpToken.deleteMany({
         where: {
           userId: user.id,
@@ -435,18 +426,17 @@ private async sendEmailResetCode(email: string, code: string): Promise<void> {
 
       this.logger.log(`Token supprimé après reset pour ${user.id}`);
 
-      // Envoyer une notification de réinitialisation réussie
+      // Envoyer notification
       await this.notificationService.createNotification({
         userId: user.id,
         type: NotificationEventType.USER_PASSWORD_RESET,
         title: 'Mot de passe réinitialisé',
-        body: 'Votre mot de passe a été réinitialisé avec succès. Si vous n\'êtes pas à l\'origine de cette action, veuillez contacter le support.',
+        body: 'Votre mot de passe a été réinitialisé avec succès.',
         entityType: 'USER',
         entityId: user.id
       });
 
-      this.logger.log(`Notification envoyée pour ${user.id}`);
-      this.logger.log(`Mot de passe réinitialisé avec succès pour l'utilisateur ${emailOrPhone}`);
+      this.logger.log(`Mot de passe réinitialisé avec succès pour ${emailOrPhone}`);
       return true;
     } catch (error) {
       this.logger.error(`Erreur lors de la réinitialisation du mot de passe pour ${emailOrPhone}:`, error);

@@ -87,7 +87,7 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'Profil mis à jour avec succès' })
   @ApiResponse({ status: 400, description: 'Données invalides' })
   @ApiResponse({ status: 409, description: 'Email ou téléphone déjà utilisé' })
-  async updateProfile(@Req() req: Request & { user: AuthenticatedUser }, @Body() updateUserDto: UpdateUserDto) {
+  async updateProfile(@Req() req: Request & { user: AuthenticatedUser }, @Body() updateUserDto: UpdateUoserDto) {
     if (!req.user || !req.user.userId) {
       throw new UnauthorizedException('Utilisateur non authentifié');
     }

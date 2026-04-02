@@ -40,6 +40,14 @@ export class CreateUserDto {
   @IsOptional()
   neighborhoodId?: string;
 
+   @ApiPropertyOptional({ 
+    example: 'Akwa', 
+    description: 'nom du quartier de l\'utilisateur' 
+  })
+  @IsString()
+  @IsOptional()
+  neighborhood?: string;
+
   @ApiPropertyOptional({ 
     example: 'token-fcm', 
     description: 'Token FCM pour les notifications push' 
