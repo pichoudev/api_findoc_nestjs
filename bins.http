@@ -1,5 +1,5 @@
 ### Variables
-@baseUrl = http://localhost:3000
+@baseUrl = http://localhost:3000/api/v1
 @contentType = application/json
 
 ### ========================================
@@ -58,8 +58,8 @@ Authorization: Bearer votre_token_agent_ici
 }
 
 ### 4. Lister tous les bacs avec pagination
-GET {{baseUrl}}/bins?page=1&limit=10&status=ACTIVE
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczODQ1ODQzLCJleHAiOjE3NzU2NjAyNDN9.yZ5L1pOrC3MPcArBDbdL7aNavqMpSRUlIKOPUbrH24I
+GET {{baseUrl}}/bins
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTE1MjAzMiwiZXhwIjoxNzc2OTY2NDMyfQ.GYvjivWe67Uv7KnRZXSMFDQXxQO2dec5g-orlew0FGo
 
 ### 5. Obtenir les statistiques des bacs
 GET {{baseUrl}}/bins/stats

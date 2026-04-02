@@ -3,6 +3,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BacType, BacStatus, ReportStatus } from '@prisma/client';
 
 export class CreateBinDto {
+  
   @ApiProperty({ example: 'BAC-001', description: 'Identifiant unique du bac' })
   @IsString()
   identifier: string;

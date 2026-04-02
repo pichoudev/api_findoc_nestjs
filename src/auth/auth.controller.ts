@@ -185,6 +185,7 @@ export class AuthController {
           const token = await this.prisma.otpToken.findFirst({
             where: {
               userId: user.id,
+              code: code,
               purpose,
               expiresAt: { gt: new Date() },
             },
@@ -229,6 +230,7 @@ export class AuthController {
           const token = await this.prisma.otpToken.findFirst({
             where: {
               userId: user.id,
+              code: code,
               purpose: 'PASSWORD_RESET',
               expiresAt: { gt: new Date() },
             },

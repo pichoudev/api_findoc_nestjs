@@ -7,6 +7,82 @@ import { BacType, BacStatus, ReportStatus } from '@prisma/client';
 export class BinsService {
   constructor(private prisma: PrismaService) {}
 
+  // Méthode pour construire la clause WHERE à partir des filtres
+  private buildWhereClause(where: any): string {
+    const conditions: string[] = [];
+    
+    if (where.binType) {
+      conditions.push(`bin_type = '${where.binType}'`);
+    }
+    if (where.status) {
+      conditions.push(`status = '${where.status}'`);
+    }
+    if (where.statusReport) {
+      conditions.push(`status_report = '${where.statusReport}'`);
+    }
+    if (where.neighborhoodId) {
+      conditions.push(`neighborhood_id = '${where.neighborhoodId}'`);
+    }
+    if (where.neighborhood) {
+      conditions.push(`neighborhood_id = '${where.neighborhood.cityId}'`);
+    }
+    if (where.OR && where.OR.length > 0) {
+      const orConditions = where.OR.map((condition: any) => {
+        if (condition.refCode) {
+          return `ref_code ILIKE '%${condition.refCode.contains}%'`;
+        }
+        return '';
+      }).filter(c => c !== '');
+      if (orConditions.length > 0) {
+        conditions.push(`(${orConditions.join(' OR ')})`);
+      }
+    }
+    
+    return conditions.length > 0 ? conditions.join(' AND ') : '1=1';
+  }
+
+  // Méthode pour extraire les coordonnées du champ localisation (GEOGRAPHY)
+  private extractCoordinates(localisation: any): { latitude: number; longitude: number } | null {
+    console.log('DEBUG localisation:', localisation);
+    console.log('DEBUG type:', typeof localisation);
+    console.log('DEBUG JSON:', JSON.stringify(localisation));
+    
+    if (!localisation) return null;
+    
+    // Le champ localisation est stocké comme GEOGRAPHY(POINT,4326) en binaire PostGIS
+    // Format binaire: Buffer hexadécimal comme "0101000020E6100000B81E85EB51782340F1F44A5986381040"
+    if (typeof localisation === 'string' && localisation.startsWith('01')) {
+      // C'est du WKB (Well-Known Binary) PostGIS
+      console.log('DEBUG: Format WKB détecté');
+      
+      // Pour l'instant, retournons null car le décodage WKB est complexe
+      // On pourrait utiliser une librairie comme 'wkx' pour décoder
+      return null;
+    }
+    
+    // Le champ localisation est stocké comme GEOGRAPHY(POINT,4326)
+    // Format typique: "POINT(longitude latitude)" ou { x: longitude, y: latitude }
+    if (typeof localisation === 'string') {
+      // Format WKT: "POINT(longitude latitude)"
+      const match = localisation.match(/POINT\(([-\d.]+)\s+([-\d.]+)\)/);
+      console.log('DEBUG match:', match);
+      if (match) {
+        return {
+          longitude: parseFloat(match[1]),
+          latitude: parseFloat(match[2])
+        };
+      }
+    } else if (typeof localisation === 'object' && localisation.x && localisation.y) {
+      // Format objet: { x: longitude, y: latitude }
+      return {
+        longitude: localisation.x,
+        latitude: localisation.y
+      };
+    }
+    
+    return null;
+  }
+
   async create(createBinDto: CreateBinDto) {
     const { 
       identifier, 
@@ -122,52 +198,80 @@ export class BinsService {
     }
 
     const [bins, total] = await Promise.all([
-      this.prisma.bin.findMany({
-        where,
-        skip,
-        take,
-        include: {
-          neighborhood: {
-            include: {
-              city: true
-            }
-          },
-          reports: {
-            include: {
-              reporter: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  email: true
-                }
-              }
-            },
-            orderBy: {
-              createdAt: 'desc'
-            },
-            take: 3
-          },
-          _count: {
-            select: {
-              reports: true
-          }
-        }
-      },
-      orderBy: {
-        refCode: 'asc'
-      }
-    }),
-      this.prisma.bin.count({ where })
+      this.prisma.$queryRaw`
+        SELECT 
+          id,
+          ref_code as "refCode",
+          bin_type as "binType",
+          status,
+          status_report as "statusReport",
+          capacity_m3 as "capacityM3",
+          ST_AsText(localisation) as "localisationText",
+          neighborhood_id as "neighborhoodId",
+          is_active as "isActive",
+          created_at as "createdAt",
+          updated_at as "updatedAt"
+        FROM bins 
+        WHERE ${Object.keys(where).length > 0 ? this.buildWhereClause(where) : 'TRUE'}
+        ORDER BY ref_code ASC
+        LIMIT ${take} OFFSET ${skip}
+      `,
+      this.prisma.$queryRaw`
+        SELECT COUNT(*) as count FROM bins 
+        WHERE ${Object.keys(where).length > 0 ? this.buildWhereClause(where) : 'TRUE'}
+      `
     ]);
 
+    // Récupérer les relations séparément
+    const binsWithRelations = await Promise.all(
+      (bins as any[]).map(async (bin: any) => {
+        const neighborhood = bin.neighborhoodId ? 
+          await this.prisma.neighborhood.findUnique({
+            where: { id: bin.neighborhoodId },
+            include: { city: true }
+          }) : null;
+
+        const reports = await this.prisma.report.findMany({
+          where: { bacId: bin.id },
+          include: {
+            reporter: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true
+              }
+            }
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 3
+        });
+
+        const reportsCount = await this.prisma.report.count({
+          where: { bacId: bin.id }
+        });
+
+        // Extraire les coordonnées du texte WKT
+        const coordinates = this.extractCoordinates(bin.localisationText);
+        
+        return {
+          ...bin,
+          neighborhood,
+          reports,
+          _count: { reports: reportsCount },
+          latitude: coordinates?.latitude || null,
+          longitude: coordinates?.longitude || null
+        };
+      })
+    );
+
     return {
-      data: bins,
+      data: binsWithRelations,
       meta: {
-        total,
+        total: Number((total as any)[0]?.count || 0),
         page: parseInt(page),
         limit: parseInt(limit),
-        totalPages: Math.ceil(total / parseInt(limit))
+        totalPages: Math.ceil(Number((total as any)[0]?.count || 0) / parseInt(limit))
       }
     };
   }
