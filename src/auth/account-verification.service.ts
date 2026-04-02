@@ -280,7 +280,7 @@ private async sendEmailVerification(email: string, code: string): Promise<void> 
       const token = await this.prisma.otpToken.findFirst({
         where: {
           userId: user.id,
-          code,
+          code: code,
           purpose,
           expiresAt: {
             gt: new Date(),
@@ -313,33 +313,25 @@ private async sendEmailVerification(email: string, code: string): Promise<void> 
         },
       });
 
-      // Si le code est correct, supprimer le token et envoyer la notification
-      if (token.code === code) {
-        // Supprimer le token après utilisation
-        await this.prisma.otpToken.delete({
-          where: { id: token.id },
+      // Le code est correct (déjà vérifié dans la requête), supprimer le token et envoyer la notification
+      await this.prisma.otpToken.delete({
+        where: { id: token.id },
+      });
+
+      // Envoyer une notification de vérification réussie
+      if (purpose === 'VERIFY_EMAIL') {
+        await this.notificationService.createNotification({
+          userId: user.id,
+          type: NotificationEventType.USER_EMAIL_VERIFIED,
+          title: 'Compte vérifié',
+          body: 'Votre compte a été vérifié avec succès. Vous pouvez maintenant utiliser toutes les fonctionnalités de l\'application.',
+          entityType: 'USER',
+          entityId: user.id
         });
-
-        // Envoyer une notification de vérification réussie
-        if (purpose === 'VERIFY_EMAIL') {
-          await this.notificationService.createNotification({
-            userId: user.id,
-            type: NotificationEventType.USER_EMAIL_VERIFIED,
-            title: 'Compte vérifié',
-            body: 'Votre compte a été vérifié avec succès. Vous pouvez maintenant utiliser toutes les fonctionnalités de l\'application.',
-            entityType: 'USER',
-            entityId: user.id
-          });
-        }
-
-        this.logger.log(`Vérification réussie pour ${emailOrPhone} avec purpose: ${purpose}`);
-        return true;
-      } else {
-        // Code incorrect, mais tentatives restantes
-        const remainingAttempts = 3 - (token.attemptsCount + 1);
-        this.logger.warn(`Code incorrect pour ${emailOrPhone}. Tentatives restantes: ${remainingAttempts}`);
-        return false;
       }
+
+      this.logger.log(`Vérification réussie pour ${emailOrPhone} avec purpose: ${purpose}`);
+      return true;
     } catch (error) {
       this.logger.error(`Erreur lors de la vérification du code pour ${emailOrPhone}:`, error);
       return false;

@@ -305,6 +305,7 @@ private async sendEmailResetCode(email: string, code: string): Promise<void> {
       const token = await this.prisma.otpToken.findFirst({
         where: {
           userId: user.id,
+          code: code,
           purpose: 'PASSWORD_RESET',
           expiresAt: {
             gt: new Date(),
@@ -337,21 +338,10 @@ private async sendEmailResetCode(email: string, code: string): Promise<void> {
         },
       });
 
-      // Si le code est correct, supprimer le token
-      if (token.code === code) {
-        // Supprimer le token après utilisation
-        await this.prisma.otpToken.delete({
-          where: { id: token.id },
-        });
-
-        this.logger.log(`Code de réinitialisation vérifié avec succès pour ${emailOrPhone}`);
-        return true;
-      } else {
-        // Code incorrect, mais tentatives restantes
-        const remainingAttempts = 3 - (token.attemptsCount + 1);
-        this.logger.warn(`Code de réinitialisation incorrect pour ${emailOrPhone}. Tentatives restantes: ${remainingAttempts}`);
-        return false;
-      }
+      // Le code est correct (déjà vérifié dans la requête), ne pas supprimer le token ici
+      // Il sera supprimé dans resetPassword après la mise à jour du mot de passe
+      this.logger.log(`Code de réinitialisation vérifié avec succès pour ${emailOrPhone}`);
+      return true;
     } catch (error) {
       this.logger.error(`Erreur lors de la vérification du code de réinitialisation pour ${emailOrPhone}:`, error);
       return false;
@@ -385,6 +375,14 @@ private async sendEmailResetCode(email: string, code: string): Promise<void> {
       await this.prisma.user.update({
         where: { id: user.id },
         data: { passwordHash: newPassword }, // Le password sera hashé par le hook Prisma
+      });
+
+      // Supprimer le token après utilisation réussie
+      await this.prisma.otpToken.deleteMany({
+        where: {
+          userId: user.id,
+          purpose: 'PASSWORD_RESET',
+        },
       });
 
       // Envoyer une notification de réinitialisation réussie
