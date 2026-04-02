@@ -12,11 +12,11 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "apollinebanemb@gmail.com",
+  "email": "loona7757@gmail.com",
   "phone": "+237698765432",
   "password": "password123",
   "confirmPassword": "password123",
-  "firstName": "Steph",
+  "firstName": "loona",
   "lastName": "Pichou",
   "role": "CITIZEN"
 }

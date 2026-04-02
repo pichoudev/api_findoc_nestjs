@@ -161,7 +161,7 @@ private async sendEmailVerification(email: string, code: string): Promise<void> 
               </table>
               <p style="margin:14px 0 0;font-size:12px;color:#0F6E56;
                         font-family:Arial,sans-serif">
-                &#9203; Expire dans 5 minutes
+                &#9203; Expire dans 10 minutes
               </p>
             </td>
           </tr>
@@ -226,7 +226,7 @@ private async sendEmailVerification(email: string, code: string): Promise<void> 
 
   private async saveVerificationToken(emailOrPhone: string, code: string, purpose: string): Promise<void> {
     const expiresAt = new Date();
-    expiresAt.setMinutes(expiresAt.getMinutes() + 5); // Expire dans 5 minutes
+    expiresAt.setMinutes(expiresAt.getMinutes() + 10); // Expire dans 10 minutes
 
     // Trouver l'utilisateur d'abord
     const user = await this.prisma.user.findFirst({

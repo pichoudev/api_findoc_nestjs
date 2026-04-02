@@ -308,7 +308,7 @@ export class UsersService {
 
     const updatedUser = await this.prisma.user.update({
       where: { id },
-      data: { role: role as any }, // Cast pour éviter l'erreur de type
+      data: { role: role as any }, 
       include: {
         neighborhoodRelation: {
           include: {
