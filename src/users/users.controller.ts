@@ -93,7 +93,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Roles('ADMIN', 'SUPERVISOR')
+  @Roles('ADMIN', 'SUPERVISOR' ,"CITIZEN")
   @ApiParam({ name: 'id', description: 'ID de l\'utilisateur' })
   @ApiOperation({ summary: 'Mettre à jour un utilisateur' })
   @ApiResponse({ status: 200, description: 'Utilisateur mis à jour avec succès' })
