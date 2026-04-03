@@ -5,7 +5,7 @@
 # ========================================
 
 # Stage 1: Build
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Définition des métadonnées
 LABEL maintainer="Cleaner Backend Team"
@@ -27,8 +27,8 @@ WORKDIR /app
 # Copie des fichiers de gestion des dépendances
 COPY package*.json ./
 
-# Installation des dépendances avec cache optimisé
-RUN npm ci --only=production=false
+# Installation des dépendances (toutes pour le build)
+RUN npm ci
 
 # Copie du code source
 COPY . .
@@ -40,7 +40,7 @@ RUN npm run build
 RUN npm prune --production
 
 # Stage 2: Production
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 # Métadonnées de l'image de production
 LABEL maintainer="Cleaner Backend Team"
