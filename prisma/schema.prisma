@@ -50,6 +50,7 @@ enum BacStatus {
 }
 
 enum ReportType {
+  NORMAL
   PLEIN
   ENDOMMAGE
   MANQUANT
@@ -188,6 +189,7 @@ model Bin {
   capacityM3     Float                                  @map("capacity_m3")
   status         BacStatus                              @default(ACTIF)
   statusReport   ReportStatus                           @default(RECU) @map("status_report")
+  reportType     ReportType                             @default(NORMAL) @map("report_type")
   isActive       Boolean                                @default(true) @map("is_active")
   createdAt      DateTime                               @default(now()) @map("created_at")
   updatedAt      DateTime                               @updatedAt @map("updated_at")

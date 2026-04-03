@@ -1,11 +1,11 @@
 ### Notifications endpoints
 
-@baseUrl = http://localhost:3000
+@baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
 @contentType = application/json
 
 ### 1. Lister mes notifications
 GET {{baseUrl}}/notifications
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzM5OTI4MDgsImV4cCI6MTc3NTgwNzIwOH0.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIxMjY4NCwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
 
 ### 2. Notifications non lues uniquement
 GET {{baseUrl}}/notifications?unreadOnly=true&limit=5

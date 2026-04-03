@@ -20,6 +20,9 @@ export class BinsService {
     if (where.statusReport) {
       conditions.push(`status_report = '${where.statusReport}'`);
     }
+    if (where.reportType) {
+      conditions.push(`report_type = '${where.reportType}'`);
+    }
     if (where.neighborhoodId) {
       conditions.push(`neighborhood_id = '${where.neighborhoodId}'`);
     }
@@ -94,7 +97,8 @@ export class BinsService {
       status, 
       capacity, 
       fillLevel, 
-      statusReport 
+      statusReport,
+      reportType 
     } = createBinDto;
 
     // Vérifier si le quartier existe
@@ -126,6 +130,7 @@ export class BinsService {
         capacityM3: capacity || 1.0,
         status: status || BacStatus.ACTIF,
         ...(statusReport && { statusReport }),
+        ...(reportType && { reportType }),
       },
       include: {
         neighborhood: {
@@ -165,6 +170,7 @@ export class BinsService {
       type,
       status,
       statusReport,
+      reportType,
       neighborhoodId,
       cityId,
       fillLevelAbove,
@@ -181,6 +187,7 @@ export class BinsService {
     if (type) where.binType = type;
     if (status) where.status = status;
     if (statusReport) where.statusReport = statusReport;
+    if (reportType) where.reportType = reportType;
     if (neighborhoodId) where.neighborhoodId = neighborhoodId;
     
     if (cityId) {
@@ -205,6 +212,7 @@ export class BinsService {
           bin_type as "binType",
           status,
           status_report as "statusReport",
+          report_type as "reportType",
           capacity_m3 as "capacityM3",
           ST_AsText(localisation) as "localisationText",
           neighborhood_id as "neighborhoodId",
@@ -327,7 +335,8 @@ export class BinsService {
       status, 
       capacity, 
       fillLevel, 
-      statusReport 
+      statusReport,
+      reportType 
     } = updateBinDto;
 
     // Vérifier si le bac existe
@@ -373,6 +382,7 @@ export class BinsService {
         capacityM3: capacity,
         status: status as any,
         ...(statusReport && { statusReport }), // Cast pour éviter l'erreur de type
+        ...(reportType && { reportType }), // Ajout du reportType
       },
       include: {
         neighborhood: {

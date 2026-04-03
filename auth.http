@@ -2,7 +2,7 @@
 ### Fichier de test pour les endpoints d'authentification
 ### Base URL: http://localhost:3000/api/v1
 
-@baseUrl = http://localhost:3000/api/v1
+@baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
 @contentType = application/json
 
 ### ==================== AUTHENTIFICATION ====================
@@ -113,7 +113,7 @@ Content-Type: {{contentType}}
 
 {
   "emailOrPhone": "apollinebanemb@gmail.com",
-  "code": "896676",
+  "code": "695648",
   "purpose": "VERIFY_EMAIL"
 }
 
@@ -130,8 +130,8 @@ POST {{baseUrl}}/auth/reset-password
 Content-Type: {{contentType}}
 
 {
-  "emailOrPhone": "michaeltchamou393@gmail.com",
-  "code": "346834", 
+  "code": "553109", 
+  "emailOrPhone": "loona7757@gmail.com",
   "newPassword": "Password123",
   "confirmPassword": "Password123"
 }

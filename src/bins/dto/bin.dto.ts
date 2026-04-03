@@ -1,6 +1,6 @@
 import { IsString, IsOptional, IsBoolean, IsEnum, IsUUID, IsNumber } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { BacType, BacStatus, ReportStatus } from '@prisma/client';
+import { BacType, BacStatus, ReportStatus, ReportType } from '@prisma/client';
 
 export class CreateBinDto {
   
@@ -73,6 +73,15 @@ export class CreateBinDto {
   @IsEnum(ReportStatus)
   @IsOptional()
   statusReport?: ReportStatus;
+
+  @ApiPropertyOptional({ 
+    enum: ReportType, 
+    example: 'NORMAL', 
+    description: 'Type de rapport du bac' 
+  })
+  @IsEnum(ReportType)
+  @IsOptional()
+  reportType?: ReportType;
 }
 
 export class UpdateBinDto {
@@ -137,6 +146,15 @@ export class UpdateBinDto {
   statusReport?: ReportStatus;
 
   @ApiPropertyOptional({ 
+    enum: ReportType, 
+    example: 'NORMAL', 
+    description: 'Type de rapport du bac' 
+  })
+  @IsEnum(ReportType)
+  @IsOptional()
+  reportType?: ReportType;
+
+  @ApiPropertyOptional({ 
     example: 100, 
     description: 'Capacité en litres' 
   })
@@ -180,6 +198,15 @@ export class FilterBinsDto {
   @IsEnum(ReportStatus)
   @IsOptional()
   statusReport?: ReportStatus;
+
+  @ApiPropertyOptional({ 
+    enum: ReportType, 
+    example: 'NORMAL', 
+    description: 'Filtrer par type de rapport du bac' 
+  })
+  @IsEnum(ReportType)
+  @IsOptional()
+  reportType?: ReportType;
 
   @ApiPropertyOptional({ 
     example: 'uuid-quartier-bonaberi', 
