@@ -26,22 +26,18 @@ WORKDIR /app
 
 # Copie des fichiers de gestion des dépendances
 COPY package*.json ./
-COPY pnpm-lock.yaml* ./
-
-# Installation de pnpm (gestionnaire de paquets plus rapide)
-RUN npm install -g pnpm
 
 # Installation des dépendances avec cache optimisé
-RUN pnpm install --frozen-lockfile --prod=false
+RUN npm ci --only=production=false
 
 # Copie du code source
 COPY . .
 
 # Build de l'application
-RUN pnpm run build
+RUN npm run build
 
 # Suppression des dépendances de développement
-RUN pnpm prune --prod
+RUN npm prune --production
 
 # Stage 2: Production
 FROM node:18-alpine AS production

@@ -30,7 +30,7 @@ services:
       - postgres
       - redis
     restart: unless-stopped
-    command: pnpm run start:dev
+    command: npm run start:dev
 
   # Base de données PostgreSQL
   postgres:

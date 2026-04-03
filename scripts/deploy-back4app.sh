@@ -20,6 +20,12 @@ if [ ! -f ".docker-back4app.env" ]; then
     exit 1
 fi
 
+# Vérification que package.json existe
+if [ ! -f "package.json" ]; then
+    echo "❌ package.json non trouvé"
+    exit 1
+fi
+
 # Build de l'image Docker
 echo "📦 Build de l'image Docker..."
 docker build -t cleaner-backend:latest .
