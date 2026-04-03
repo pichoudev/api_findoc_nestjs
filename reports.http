@@ -1,21 +1,21 @@
 ### Reports endpoints
 
-@baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
+@baseUrl = http://localhost:3000/api/v1
 @contentType = application/json
 
 ### 1. Créer un signalement avec photo
 POST {{baseUrl}}/reports
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczOTkyODA4LCJleHAiOjE3NzU4MDcyMDh9.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIzMzM5MSwiZXhwIjoxNzc3MDQ3NzkxfQ.gzlM_zoags6noHj7Ki0aWuuknO1JlHo74CEULOXo484
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="bacId"
 
-550e8400-e29b-41d4-a716-446655440000
+f8e12345-0000-4c1d-9e2f-abc123000010
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="reportType"
 
-FULL
+PLEIN
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="description"
 
@@ -25,10 +25,10 @@ Content-Disposition: form-data; name="priority"
 
 HIGH
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="photo"; filename="photo-bac-plein.jpg"
+Content-Disposition: form-data; name="photo"; filename="test-image.jpg"
 Content-Type: image/jpeg
 
-< ./photo-bac-plein.jpg
+< ./test-image.jpg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
 ### 2. Créer un signalement sans photo

@@ -1,5 +1,5 @@
 ### Test de création de signalement corrigé
-@baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
+@baseUrl = http://localhost:3000/api/v1
 @contentType = application/json
 
 ### 1. Créer un signalement SANS photo (JSON)
@@ -16,26 +16,31 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjY
 
 ### 2. Créer un signalement AVEC photo (multipart/form-data)
 POST {{baseUrl}}/reports
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIzMzM5MSwiZXhwIjoxNzc3MDQ3NzkxfQ.gzlM_zoags6noHj7Ki0aWuuknO1JlHo74CEULOXo484
 
-------WebKitFormBoundary
+------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="bacId"
-e487b5cc-1df4-4650-a1f7-a799859be221
-------WebKitFormBoundary
+
+f8e12345-0000-4c1d-9e2f-abc123000010
+------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="reportType"
+
 PLEIN
-------WebKitFormBoundary
+------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="description"
+
 Le bac est complètement plein et déborde sur la voie publique
-------WebKitFormBoundary
+------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="priority"
+
 HIGH
-------WebKitFormBoundary
-Content-Disposition: form-data; name="photo"; filename="photo-bac-plein.jpg"
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="photo"; filename="test-upload.jpg"
 Content-Type: image/jpeg
-[contenu binaire de l'image]
-------WebKitFormBoundary--
+
+< ./test-upload.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
 ### 3. Créer un signalement avec reportType NORMAL
 POST {{baseUrl}}/reports

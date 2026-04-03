@@ -21,8 +21,8 @@ async function bootstrap() {
     transform: true,
   }));
 
-  // Servir les fichiers statiques (uploads depuis dist)
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+  // Servir les fichiers statiques (uploads depuis la racine du projet)
+  app.useStaticAssets(join(__dirname, '..', 'uploads/compressed'), {
     prefix: '/uploads',
   });
 

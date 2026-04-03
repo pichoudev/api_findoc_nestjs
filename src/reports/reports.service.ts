@@ -117,10 +117,10 @@ export class ReportsService {
           include: this.reportInclude,
         });
 
-        // Mettre à jour le statusReport du bac avec son propre reportType converti en ReportStatus
+        // Mettre à jour le reportType du bac avec la valeur du signalement
         await tx.bin.update({
           where: { id: bacId },
-          data: { statusReport: reportType as ReportStatus },
+          data: { reportType: reportType as ReportType },
         });
 
         return report;
