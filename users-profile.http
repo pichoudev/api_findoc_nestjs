@@ -4,18 +4,17 @@
 
 ### 1. Obtenir le profil de l'utilisateur connecté
 GET {{baseUrl}}/users/profile
-Authorization: Bearer votre_token_jwt_ici
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDIxNDExfQ.fjOZ2Cdo4lRbthg22GRJyjoGp5fSZ738nbXM6Gg-Nr0
 ### 2. Mettre à jour le profil de l'utilisateur connecté
 PATCH {{baseUrl}}/users/profile
 Content-Type: {{contentType}}
-Authorization: Bearer votre_token_jwt_ici
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDIxNDExfQ.fjOZ2Cdo4lRbthg22GRJyjoGp5fSZ738nbXM6Gg-Nr0
 
 {
-  "firstName": "Jean",
+  "firstName": "loona",
   "lastName": "Dupont",
   "phone": "+237698765432",
-  "neighborhoodId": "uuid-du-quartier"
+  "neighborhood": "pk8"
 }
 
 ### 3. Mettre à jour uniquement le prénom

@@ -43,20 +43,9 @@ export class UsersService {
         }
       });
       
-      if (!foundNeighborhood) {
-        throw new BadRequestException(`Aucun quartier trouvé avec le nom: ${neighborhood}`);
-      }
-      
-      finalNeighborhoodId = foundNeighborhood.id;
-    }
-
-    // Vérifier si le quartier existe (si spécifié)
-    if (finalNeighborhoodId) {
-      const neighborhoodExists = await this.prisma.neighborhood.findUnique({
-        where: { id: finalNeighborhoodId }
-      });
-      if (!neighborhoodExists) {
-        throw new BadRequestException('Le quartier spécifié n\'existe pas');
+      // Si quartier trouvé, utiliser son ID, sinon laisser null
+      if (foundNeighborhood) {
+        finalNeighborhoodId = foundNeighborhood.id;
       }
     }
 
@@ -254,20 +243,9 @@ export class UsersService {
         }
       });
       
-      if (!foundNeighborhood) {
-        throw new BadRequestException(`Aucun quartier trouvé avec le nom: ${neighborhood}`);
-      }
-      
-      finalNeighborhoodId = foundNeighborhood.id;
-    }
-
-    // Vérifier si le quartier existe (si spécifié)
-    if (finalNeighborhoodId) {
-      const neighborhoodExists = await this.prisma.neighborhood.findUnique({
-        where: { id: finalNeighborhoodId }
-      });
-      if (!neighborhoodExists) {
-        throw new BadRequestException('Le quartier spécifié n\'existe pas');
+      // Si quartier trouvé, utiliser son ID, sinon laisser null
+      if (foundNeighborhood) {
+        finalNeighborhoodId = foundNeighborhood.id;
       }
     }
 
