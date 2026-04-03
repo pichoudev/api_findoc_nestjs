@@ -15,7 +15,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiParam, ApiBody } from '@nestjs/swagger';
 import { ReportsService } from './reports.service';
 import { CreateReportDto, UpdateReportDto, FilterReportsDto, CreateReportWithPhotoDto } from './dto/report.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
