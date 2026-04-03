@@ -308,6 +308,16 @@ export class BinsController {
     return this.binsService.findByNeighborhood(neighborhoodId);
   }
 
+  @Get('neighborhood-name/:neighborhoodName')
+  @Roles('ADMIN', 'SUPERVISOR', 'AGENT', 'CITIZEN')
+  @ApiParam({ name: 'neighborhoodName', description: 'Nom du quartier' })
+  @ApiOperation({ summary: 'Récupérer les bacs d\'un quartier par son nom' })
+  @ApiResponse({ status: 200, description: 'Bacs du quartier récupérés avec succès' })
+  @ApiResponse({ status: 404, description: 'Quartier non trouvé' })
+  async findByNeighborhoodName(@Param('neighborhoodName') neighborhoodName: string) {
+    return this.binsService.findByNeighborhoodName(neighborhoodName);
+  }
+
   @Get(':id')
   @Roles('ADMIN', 'SUPERVISOR', 'AGENT', 'CITIZEN')
   @ApiParam({ name: 'id', description: 'ID du bac' })

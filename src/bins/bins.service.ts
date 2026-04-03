@@ -512,6 +512,68 @@ export class BinsService {
     return bins;
   }
 
+  async findByNeighborhoodName(neighborhoodName: string) {
+    // Vérifier si le quartier existe par nom
+    const neighborhood = await this.prisma.neighborhood.findFirst({
+      where: {
+        name: {
+          equals: neighborhoodName,
+          mode: 'insensitive'
+        }
+      },
+      include: {
+        city: true
+      }
+    });
+
+    if (!neighborhood) {
+      throw new NotFoundException('Quartier non trouvé');
+    }
+
+    const bins = await this.prisma.bin.findMany({
+      where: { neighborhoodId: neighborhood.id },
+      include: {
+        neighborhood: {
+          include: {
+            city: true
+          }
+        },
+        reports: {
+          include: {
+            reporter: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          },
+          take: 3
+        },
+        _count: {
+          select: {
+            reports: true
+          }
+        }
+      }
+    });
+
+    // Extraire les coordonnées (le champ localisation est Unsupported, on retourne null)
+    const binsWithCoordinates = bins.map(bin => {
+      return {
+        ...bin,
+        latitude: null,  // localisation Unsupported ne peut pas être extraite
+        longitude: null
+      };
+    });
+
+    return binsWithCoordinates;
+  }
+
   async getFullBins() {
     const bins = await this.prisma.bin.findMany({
       where: { 
