@@ -24,8 +24,9 @@ ENV NPM_CONFIG_CACHE=/tmp/.npm
 # Création du répertoire de travail
 WORKDIR /app
 
-# Copie des fichiers de gestion des dépendances
+# Copie des fichiers de gestion des dépendances et schéma Prisma
 COPY package*.json ./
+COPY prisma/ ./prisma/
 
 # Installation des dépendances (toutes pour le build)
 RUN npm install
