@@ -1,6 +1,6 @@
 ### Reports endpoints
 
-@baseUrl = http://localhost:3000/api/v1
+@baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
 @contentType = application/json
 
 ### 1. Créer un signalement avec photo
@@ -80,7 +80,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4M
 
 ### 9. Statistiques des signalements
 GET {{baseUrl}}/reports/stats
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczODUxNjMwLCJleHAiOjE3NzU2NjYwMzB9.x--KmGSpowXTokIvNG_nSd0OcURXudJ_waqrKQ6RsIc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTI0Nzc4OCwiZXhwIjoxNzc3MDYyMTg4fQ.dxp-ayGdnvyUur9oH6trDu4BTVIjiyjYH5mJR9-14Nc
 
 ### 10. Filtrer les signalements
 GET {{baseUrl}}/reports?reportType=FULL&status=ASSIGNED&priority=HIGH&page=1&limit=5
