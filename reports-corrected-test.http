@@ -1,0 +1,98 @@
+### Test de création de signalement corrigé
+@baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
+@contentType = application/json
+
+### 1. Créer un signalement SANS photo (JSON)
+POST {{baseUrl}}/reports
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+{
+  "bacId": "e487b5cc-1df4-4650-a1f7-a799859be221",
+  "reportType": "PLEIN",
+  "description": "Le bac est plein et déborde depuis 2 jours",
+  "priority": "HIGH"
+}
+
+### 2. Créer un signalement AVEC photo (multipart/form-data)
+POST {{baseUrl}}/reports
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="bacId"
+e487b5cc-1df4-4650-a1f7-a799859be221
+------WebKitFormBoundary
+Content-Disposition: form-data; name="reportType"
+PLEIN
+------WebKitFormBoundary
+Content-Disposition: form-data; name="description"
+Le bac est complètement plein et déborde sur la voie publique
+------WebKitFormBoundary
+Content-Disposition: form-data; name="priority"
+HIGH
+------WebKitFormBoundary
+Content-Disposition: form-data; name="photo"; filename="photo-bac-plein.jpg"
+Content-Type: image/jpeg
+[contenu binaire de l'image]
+------WebKitFormBoundary--
+
+### 3. Créer un signalement avec reportType NORMAL
+POST {{baseUrl}}/reports
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+{
+  "bacId": "e487b5cc-1df4-4650-a1f7-a799859be221",
+  "reportType": "NORMAL",
+  "description": "Petite accumulation autour du bac",
+  "priority": "LOW"
+}
+
+### 4. Créer un signalement avec reportType ENDOMMAGE
+POST {{baseUrl}}/reports
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+{
+  "bacId": "e487b5cc-1df4-4650-a1f7-a799859be221",
+  "reportType": "ENDOMMAGE",
+  "description": "Le couvercle du bac est cassé",
+  "priority": "MEDIUM"
+}
+
+### 5. Créer un signalement avec reportType MANQUANT
+POST {{baseUrl}}/reports
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+{
+  "bacId": "e487b5cc-1df4-4650-a1f7-a799859be221",
+  "reportType": "MANQUANT",
+  "description": "Le bac a disparu de son emplacement habituel",
+  "priority": "HIGH"
+}
+
+### 6. Créer un signalement avec reportType DEBORDENT
+POST {{baseUrl}}/reports
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+{
+  "bacId": "e487b5cc-1df4-4650-a1f7-a799859be221",
+  "reportType": "DEBORDENT",
+  "description": "Le bac déborde énormément, les déchets sont partout",
+  "priority": "URGENT"
+}
+
+### 7. Test avec un reportType invalide (doit retourner 400)
+POST {{baseUrl}}/reports
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+{
+  "bacId": "e487b5cc-1df4-4650-a1f7-a799859be221",
+  "reportType": "INVALID_TYPE",
+  "description": "Test avec un type invalide",
+  "priority": "MEDIUM"
+}

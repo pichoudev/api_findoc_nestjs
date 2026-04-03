@@ -17,7 +17,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiParam } from '@nestjs/swagger';
 import { ReportsService } from './reports.service';
-import { CreateReportDto, UpdateReportDto, FilterReportsDto } from './dto/report.dto';
+import { CreateReportDto, UpdateReportDto, FilterReportsDto, CreateReportWithPhotoDto } from './dto/report.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../users/guards/roles.guard';
 import { Roles } from '../users/decorators/roles.decorator';
@@ -40,6 +40,7 @@ export class ReportsController {
     summary: 'Créer un nouveau signalement de bac',
     description: 'Permet à un utilisateur de signaler un problème sur un bac avec photo optionnelle'
   })
+  @ApiBody({ type: CreateReportWithPhotoDto })
   @ApiResponse({ status: 201, description: 'Signalement créé avec succès' })
   @ApiResponse({ status: 400, description: 'Requête invalide' })
   @ApiResponse({ status: 404, description: 'Bac ou utilisateur non trouvé' })

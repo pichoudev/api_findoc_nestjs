@@ -30,11 +30,52 @@ export class CreateReportDto {
   description?: string;
 
   @ApiPropertyOptional({ 
-    description: 'Photo du problème (fichier)',
-    type: 'string',
-    format: 'binary'
+    description: 'Emplacement de la personne qui signale (format JSON)',
+    example: '{"lat": 4.0583, "lng": 9.7043}',
+    type: 'string'
   })
-  photo?: Express.Multer.File;
+  @IsString()
+  @IsOptional()
+  locationUser?: string;
+
+  @ApiProperty({ 
+    description: 'Priorité du signalement',
+    enum: Priority,
+    example: Priority.MEDIUM,
+    default: Priority.MEDIUM
+  })
+  @IsEnum(Priority)
+  @IsOptional()
+  priority?: Priority;
+}
+
+// DTO pour les requêtes multipart/form-data (avec photo)
+export class CreateReportWithPhotoDto {
+  @ApiProperty({ 
+    description: 'ID du bac signalé',
+    example: '550e8400-e29b-41d4-a716-446655440000'
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  bacId: string;
+
+  @ApiProperty({ 
+    description: 'Type de signalement',
+    enum: ReportType,
+    example: ReportType.PLEIN
+  })
+  @IsEnum(ReportType)
+  @IsNotEmpty()
+  reportType: ReportType;
+
+  @ApiPropertyOptional({ 
+    description: 'Description détaillée du problème',
+    example: 'Le bac déborde depuis 2 jours, il y a des déchets autour'
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(1000)
+  description?: string;
 
   @ApiPropertyOptional({ 
     description: 'Emplacement de la personne qui signale (format JSON)',
@@ -54,6 +95,13 @@ export class CreateReportDto {
   @IsEnum(Priority)
   @IsOptional()
   priority?: Priority;
+
+  @ApiPropertyOptional({ 
+    description: 'Photo du problème (fichier)',
+    type: 'string',
+    format: 'binary'
+  })
+  photo?: Express.Multer.File;
 }
 
 export class UpdateReportDto {
