@@ -13,9 +13,3 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4M
 GET {{baseUrl}}/geo/all
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczODQ1ODQzLCJleHAiOjE3NzU2NjAyNDN9.yZ5L1pOrC3MPcArBDbdL7aNavqMpSRUlIKOPUbrH24I
 
-### Instructions pour geojson.io:
-# 1. Copiez le résultat JSON d'une des requêtes ci-dessus
-# 2. Allez sur https://geojson.io
-# 3. Collez le JSON dans l'éditeur
-# 4. Les bacs apparaîtront comme des points sur la carte
-# 5. Vous pourrez vérifier visuellement si tous les bacs sont bien dans les quartiers de Douala

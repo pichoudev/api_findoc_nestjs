@@ -33,6 +33,9 @@ export class AuthService {
   }
 
   async login(user: any) {
+    console.log('🔐 LOGIN - Configuration JWT:');
+    console.log('JWT_EXPIRATION from env:', this.configService.get<string>('JWT_EXPIRATION'));
+    
     const payload = { 
       sub: user.id, 
       email: user.email, 
@@ -41,6 +44,14 @@ export class AuthService {
     };
     
     const access_token = this.jwtService.sign(payload);
+    const decoded = this.jwtService.decode(access_token);
+    
+    console.log('🎫 TOKEN GÉNÉRÉ:');
+    console.log('Émis (iat):', new Date(decoded.iat * 1000));
+    console.log('Expire (exp):', new Date(decoded.exp * 1000));
+    console.log('Temps actuel:', new Date());
+    console.log('Heures jusqu\'expiration:', (decoded.exp - Math.floor(Date.now()/1000)) / 3600);
+    
     const refresh_token = randomBytes(40).toString('hex');
     
     console.log(`🔄 Tentative de sauvegarde du refresh token pour l'utilisateur ${user.id}`);

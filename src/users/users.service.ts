@@ -8,7 +8,7 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    const { password, neighborhoodId, ...userData } = createUserDto;
+    const { password, neighborhoodId, neighborhood, ...userData } = createUserDto;
 
     // Vérifier si l'email ou le téléphone existe déjà
     const existingUser = await this.prisma.user.findFirst({
@@ -29,12 +29,33 @@ export class UsersService {
       }
     }
 
-    // Vérifier si le quartier existe
-    if (neighborhoodId) {
-      const neighborhood = await this.prisma.neighborhood.findUnique({
-        where: { id: neighborhoodId }
+    // Gérer le quartier : soit par ID, soit par nom
+    let finalNeighborhoodId = neighborhoodId;
+    
+    if (neighborhood && !neighborhoodId) {
+      // Rechercher le quartier par nom
+      const foundNeighborhood = await this.prisma.neighborhood.findFirst({
+        where: {
+          name: {
+            contains: neighborhood,
+            mode: 'insensitive'
+          }
+        }
       });
-      if (!neighborhood) {
+      
+      if (!foundNeighborhood) {
+        throw new BadRequestException(`Aucun quartier trouvé avec le nom: ${neighborhood}`);
+      }
+      
+      finalNeighborhoodId = foundNeighborhood.id;
+    }
+
+    // Vérifier si le quartier existe (si spécifié)
+    if (finalNeighborhoodId) {
+      const neighborhoodExists = await this.prisma.neighborhood.findUnique({
+        where: { id: finalNeighborhoodId }
+      });
+      if (!neighborhoodExists) {
         throw new BadRequestException('Le quartier spécifié n\'existe pas');
       }
     }
@@ -46,7 +67,7 @@ export class UsersService {
       data: {
         ...userData,
         passwordHash,
-        neighborhoodId,
+        neighborhoodId: finalNeighborhoodId,
       },
       include: {
         neighborhoodRelation: {
@@ -182,7 +203,7 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    const { neighborhoodId, ...userData } = updateUserDto;
+    const { neighborhoodId, neighborhood, ...userData } = updateUserDto;
 
     // Vérifier si l'utilisateur existe
     const existingUser = await this.prisma.user.findUnique({
@@ -219,12 +240,33 @@ export class UsersService {
       }
     }
 
-    // Vérifier si le quartier existe
-    if (neighborhoodId) {
-      const neighborhood = await this.prisma.neighborhood.findUnique({
-        where: { id: neighborhoodId }
+    // Gérer le quartier : soit par ID, soit par nom
+    let finalNeighborhoodId = neighborhoodId;
+    
+    if (neighborhood && !neighborhoodId) {
+      // Rechercher le quartier par nom
+      const foundNeighborhood = await this.prisma.neighborhood.findFirst({
+        where: {
+          name: {
+            contains: neighborhood,
+            mode: 'insensitive'
+          }
+        }
       });
-      if (!neighborhood) {
+      
+      if (!foundNeighborhood) {
+        throw new BadRequestException(`Aucun quartier trouvé avec le nom: ${neighborhood}`);
+      }
+      
+      finalNeighborhoodId = foundNeighborhood.id;
+    }
+
+    // Vérifier si le quartier existe (si spécifié)
+    if (finalNeighborhoodId) {
+      const neighborhoodExists = await this.prisma.neighborhood.findUnique({
+        where: { id: finalNeighborhoodId }
+      });
+      if (!neighborhoodExists) {
         throw new BadRequestException('Le quartier spécifié n\'existe pas');
       }
     }
@@ -233,7 +275,7 @@ export class UsersService {
       where: { id },
       data: {
         ...userData,
-        neighborhoodId,
+        neighborhoodId: finalNeighborhoodId,
       },
       include: {
         neighborhoodRelation: {

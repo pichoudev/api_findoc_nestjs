@@ -67,7 +67,7 @@ Content-Type: {{contentType}}
 
 {
   "email": "loona7757@gmail.com",
-  "password": "password123"
+  "password": "newPassword123"
 }
 
 ### ==================== TOKEN MANAGEMENT ====================
@@ -122,7 +122,7 @@ POST {{baseUrl}}/auth/request-password-reset
 Content-Type: {{contentType}}
 
 {
-  "emailOrPhone": "apollinebanemb@gmail.com"
+  "emailOrPhone": "loona7757@gmail.com"
 }
 
 ### 12. Réinitialiser mot de passe avec OTP
@@ -130,10 +130,10 @@ POST {{baseUrl}}/auth/reset-password
 Content-Type: {{contentType}}
 
 {
-  "emailOrPhone": "apollinebanemb@gmail.com",
-  "code": "194548",
-  "newPassword": "newPassword123",
-  "confirmPassword": "newPassword123"
+  "emailOrPhone": "loona7757@gmail.com",
+  "code": "955604",
+  "newPassword": "password123",
+  "confirmPassword": "password123"
 }
 
 ### ==================== GOOGLE AUTH (optionnel) ====================

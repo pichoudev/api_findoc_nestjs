@@ -96,6 +96,14 @@ export class UpdateUserDto {
   neighborhoodId?: string;
 
   @ApiPropertyOptional({ 
+    example: 'Akwa', 
+    description: 'Nom du quartier de l\'utilisateur' 
+  })
+  @IsString()
+  @IsOptional()
+  neighborhood?: string;
+
+  @ApiPropertyOptional({ 
     example: true, 
     description: 'Statut actif de l\'utilisateur' 
   })
