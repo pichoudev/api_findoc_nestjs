@@ -37,7 +37,7 @@ export class UsersService {
       const foundNeighborhood = await this.prisma.neighborhood.findFirst({
         where: {
           name: {
-            contains: neighborhood,
+            equals: neighborhood,
             mode: 'insensitive'
           }
         }
@@ -248,7 +248,7 @@ export class UsersService {
       const foundNeighborhood = await this.prisma.neighborhood.findFirst({
         where: {
           name: {
-            contains: neighborhood,
+            equals: neighborhood,
             mode: 'insensitive'
           }
         }

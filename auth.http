@@ -2,7 +2,7 @@
 ### Fichier de test pour les endpoints d'authentification
 ### Base URL: http://localhost:3000/api/v1
 
-@baseUrl = http://localhost:3000/api/v1
+@baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
 @contentType = application/json
 
 ### ==================== AUTHENTIFICATION ====================
@@ -131,9 +131,9 @@ Content-Type: {{contentType}}
 
 {
   "emailOrPhone": "loona7757@gmail.com",
-  "code": "955604",
-  "newPassword": "password123",
-  "confirmPassword": "password123"
+  "code": "603032", 
+  "newPassword": "Password123",
+  "confirmPassword": "Password123"
 }
 
 ### ==================== GOOGLE AUTH (optionnel) ====================
