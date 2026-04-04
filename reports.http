@@ -79,8 +79,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4M
 }
 
 ### 9. Statistiques des signalements
-GET {{baseUrl}}/reports/stats
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTI0Nzc4OCwiZXhwIjoxNzc3MDYyMTg4fQ.dxp-ayGdnvyUur9oH6trDu4BTVIjiyjYH5mJR9-14Nc
+GET {{baseUrl}}/reports/my-stats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTI4MDAwNSwiZXhwIjoxNzc3MDk0NDA1fQ.NGiFIYyNmbnNGFI4itIs1KBPvtL3PaLaa1SFYrDJffI
 
 ### 10. Filtrer les signalements
 GET {{baseUrl}}/reports?reportType=FULL&status=ASSIGNED&priority=HIGH&page=1&limit=5

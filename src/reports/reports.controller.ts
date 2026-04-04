@@ -259,4 +259,28 @@ export class ReportsController {
     await this.reportsService.syncAllBinStatusReports();
     return { message: 'Tous les statusReport synchronisés avec succès' };
   }
+
+  @Patch(':id/cancel')
+  @Roles('CITIZEN', 'AGENT', 'SUPERVISOR', 'ADMIN')
+  @ApiParam({ name: 'id', description: 'ID du signalement à annuler' })
+  @ApiOperation({ 
+    summary: 'Annuler un signalement',
+    description: 'Annule un signalement et remet le reportType du bac à NORMAL'
+  })
+  @ApiResponse({ status: 200, description: 'Signalement annulé avec succès' })
+  @ApiResponse({ status: 404, description: 'Signalement non trouvé' })
+  @ApiResponse({ status: 403, description: 'Non autorisé à annuler ce signalement' })
+  @ApiResponse({ status: 400, description: 'Signalement déjà terminé ou annulé' })
+  async cancelReport(
+    @Param('id', ParseUUIDPipe) reportId: string,
+    @Req() req: any,
+  ) {
+    const userId = req.user?.userId || req.user?.id;
+    console.log('DEBUG - Controller - User from request:', {
+      user: req.user,
+      userId: userId,
+      reportId: reportId
+    });
+    return this.reportsService.cancelReport(reportId, userId);
+  }
 }

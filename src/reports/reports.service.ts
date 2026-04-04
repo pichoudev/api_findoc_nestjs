@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ConflictException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateReportDto, UpdateReportDto, FilterReportsDto } from './dto/report.dto';
@@ -545,5 +546,79 @@ export class ReportsService {
     await Promise.all(
       bins.map(bin => this.syncBinStatusReport(bin.id))
     );
+  }
+
+  // ─── CANCEL REPORT ───────────────────────────────────────────────────────────────
+  /**
+   * Annule un signalement et remet le reportType du bac à NORMAL
+   */
+  async cancelReport(reportId: string, userId: string): Promise<any> {
+    const report = await this.prisma.report.findUnique({
+      where: { id: reportId },
+      include: {
+        bin: true
+      }
+    });
+
+    if (!report) {
+      throw new NotFoundException('Signalement non trouvé');
+    }
+
+    console.log('DEBUG - Report details:', {
+      reportId: report.id,
+      reportUserId: report.userId,
+      reportStatus: report.status,
+      reportType: report.reportType,
+      bacId: report.bacId
+    });
+
+    // Vérifier que l'utilisateur est bien l'auteur du signalement ou un admin/agent
+    console.log('DEBUG - Comparaison userId:', {
+      reportUserId: report.userId,
+      requestUserId: userId,
+      areEqual: report.userId === userId
+    });
+    
+    if (report.userId !== userId) {
+      throw new ForbiddenException('Vous ne pouvez annuler que vos propres signalements');
+    }
+
+    // Vérifier que le signalement n'est pas déjà terminé ou annulé
+    if (report.status === 'TERMINE' || report.status === 'ANNULE') {
+      throw new BadRequestException('Ce signalement ne peut plus être annulé');
+    }
+
+    // Utiliser une transaction pour annuler le signalement et mettre à jour le bac
+    const result = await this.prisma.$transaction(async (tx) => {
+      // Mettre à jour le statut du signalement
+      const updatedReport = await tx.report.update({
+        where: { id: reportId },
+        data: {
+          status: 'ANNULE',
+          updatedAt: new Date()
+        },
+        include: this.reportInclude
+      });
+
+      // Remettre le reportType du bac à NORMAL
+      await tx.bin.update({
+        where: { id: report.bacId },
+        data: { reportType: 'NORMAL' }
+      });
+
+      return updatedReport;
+    });
+
+    // Émettre un événement de notification pour l'annulation
+    this.notificationService.emitEvent(NotificationEventType.REPORT_CANCELLED, {
+      reportId: result.id,
+      reporterId: userId,
+      referenceCode: result.referenceCode,
+      reportType: result.reportType,
+      priority: result.priority,
+      bacId: result.bacId,
+    });
+
+    return result;
   }
 }
