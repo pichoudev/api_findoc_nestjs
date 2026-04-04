@@ -271,6 +271,7 @@ export class AuthController {
         isActive: true,
         isVerified: true,
         neighborhoodId: "uuid-quartier",
+        reportCount: 5,
         neighborhoodRelation: {
           id: "uuid-quartier",
           name: "Bonaberi",

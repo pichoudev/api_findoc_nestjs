@@ -124,6 +124,11 @@ export class AuthService {
   }
 
   async getMe(userId: string) {
+    // Compter les signalements de l'utilisateur
+    const reportCount = await this.prisma.report.count({
+      where: { userId: userId }
+    });
+
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -159,7 +164,11 @@ export class AuthService {
       throw new UnauthorizedException('Utilisateur non trouvé');
     }
 
-    return user;
+    // Ajouter le nombre de signalements à la réponse
+    return {
+      ...user,
+      reportCount
+    };
   }
 
   async register(createUserDto: any) {
