@@ -3,6 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { Request, Response } from 'express';
 import { AppModule } from './app.module';
 
 import sharp from 'sharp';
@@ -39,14 +40,23 @@ async function bootstrap() {
   // CORS
   app.enableCors();
 
+  // Health check endpoint (avant le préfixe global)
+  app.use('/health', (req: Request, res: Response) => {
+    res.status(200).json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    });
+  });
+
   // Préfixe global pour toutes les routes
   app.setGlobalPrefix('api/v1');
  
-  await app.listen(process.env.PORT ?? 3000,'0.0.0.0');
+  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
   
- 
   console.log(`Application is running on: ${await app.getUrl()}`);
   console.log(`API endpoints available at: ${await app.getUrl()}/api/v1/`);
   console.log(`Swagger documentation available at: ${await app.getUrl()}/api`);
 }
+
 bootstrap();
