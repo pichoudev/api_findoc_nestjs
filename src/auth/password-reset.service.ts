@@ -58,10 +58,7 @@ export class PasswordResetService {
         await this.sendSmsResetCode(emailOrPhone, code);
       }
 
-      // Sauvegarder le token dans la base de données
-      await this.saveResetToken(emailOrPhone, code, 'PASSWORD_RESET');
-      
-      this.logger.log(`Code reset password envoyé avec succès pour ${emailOrPhone}`);
+      this.logger.log(`Code reset password envoyé avec succès pour ${emailOrPhone} (sans sauvegarde de token)`);
     } catch (error) {
       this.logger.error(`Erreur lors de l'envoi du code de réinitialisation pour ${emailOrPhone}:`, error);
       throw error;
@@ -383,24 +380,21 @@ private async sendEmailResetCode(email: string, code: string): Promise<void> {
     try {
       this.logger.log(`Début resetPassword pour ${emailOrPhone} avec code: ${code}`);
       
-      // Trouver le token de réinitialisation valide
-      const token = await this.prisma.otpToken.findFirst({
+      // Trouver l'utilisateur directement par email ou téléphone
+      const user = await this.prisma.user.findFirst({
         where: {
-          code: code,
-          purpose: 'PASSWORD_RESET',
-          expiresAt: { gt: new Date() },
-        },
-        include: {
-          user: true
+          OR: [
+            { email: emailOrPhone },
+            { phone: emailOrPhone }
+          ]
         }
       });
 
-      if (!token) {
-        this.logger.warn(`Token non trouvé ou expiré pour le code: ${code}`);
+      if (!user) {
+        this.logger.warn(`Utilisateur non trouvé pour ${emailOrPhone}`);
         return false;
       }
 
-      const user = token.user;
       this.logger.log(`Utilisateur trouvé pour reset: ${user.id}`);
 
       // Hasher le nouveau mot de passe
@@ -414,18 +408,8 @@ private async sendEmailResetCode(email: string, code: string): Promise<void> {
         data: { passwordHash: hashedPassword },
       });
 
-      this.logger.log(`Mot de passe mis à jour pour ${user.id}`);
-
-      // Supprimer le token après utilisation
-      await this.prisma.otpToken.deleteMany({
-        where: {
-          userId: user.id,
-          purpose: 'PASSWORD_RESET',
-        },
-      });
-
-      this.logger.log(`Token supprimé après reset pour ${user.id}`);
-
+      this.logger.log(`Mot de passe mis à jour avec succès pour ${user.id}`);
+      
       // Envoyer notification
       await this.notificationService.createNotification({
         userId: user.id,
