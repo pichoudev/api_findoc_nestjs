@@ -1,8 +1,8 @@
 ### Cleaner App - API Auth Tests
 ### Fichier de test pour les endpoints d'authentification
- @baseUrl= http://localhost:3000/api/v1
-
-# @baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
+#  @baseUrl= http://localhost:3000/api/v1
+# 
+@baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
 @contentType = application/json
 
 ### ==================== AUTHENTIFICATION ====================
@@ -130,7 +130,7 @@ POST {{baseUrl}}/auth/reset-password
 Content-Type: {{contentType}}
 
 {
-  "code": "553109", 
+  "code": "596464", 
   "emailOrPhone": "loona7757@gmail.com",
   "newPassword": "Password123",
   "confirmPassword": "Password123"
@@ -147,8 +147,8 @@ GET {{baseUrl}}/auth/google/callback
 ### ==================== PROFILE ====================
 
 ### 15. Obtenir le profil utilisateur connecté
-GET {{baseUrl}}/users/profile
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmY2YzZWM5NC0yNjdhLTRkZWUtODMwNy0yOGFjMjIzNzY2NzkiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY1NTc3NzQ0MiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczNzMzMjQ0LCJleHAiOjE3NzU1NDc2NDR9.mk2Ji39ySXvD4PPcaiA4nWqq5e2yF5osaPOFNx3znlM
+GET {{baseUrl}}/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTMyNTA1NSwiZXhwIjoxNzc3MTM5NDU1fQ.ZbW5_BVWLsyTdZlYDznB4dd-KipRsynBw41eSBzc6_g
 
 ### ==================== TESTS D'ERREURS ====================
 

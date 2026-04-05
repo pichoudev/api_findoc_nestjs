@@ -596,6 +596,22 @@ export class AuthController {
     // Générer un code de 6 chiffres
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     
+    // Afficher le code OTP de manière très visible
+    console.log('\n' + '='.repeat(60));
+    console.log('🔐 CODE OTP DE RÉINITIALISATION DE MOT DE PASSE');
+    console.log('='.repeat(60));
+    console.log(`📧 Email: ${emailOrPhone}`);
+    console.log(`🔢 Code: ${code}`);
+    console.log(`⏰ Valide pendant: 10 minutes`);
+    console.log('='.repeat(60));
+    console.log('🔐 UTILISEZ CE CODE POUR RÉINITIALISER LE MOT DE PASSE');
+    console.log('='.repeat(60) + '\n');
+    
+    // Log du code OTP pour développement
+    console.log(`🔐 [OTP DEBUG] Code de réinitialisation généré pour ${emailOrPhone}: ${code}`);
+    console.log(`🔐 [OTP DEBUG] Méthode d'envoi: ${method}`);
+    console.log(`🔐 [OTP DEBUG] Code expire dans: 10 minutes`);
+    
     // Utiliser le nouveau service de réinitialisation
     await this.passwordResetService.sendPasswordResetCode(emailOrPhone, code, method);
     
@@ -618,17 +634,29 @@ export class AuthController {
   async resetPassword(@Body() resetPasswordDto: OldResetPasswordDto) {
     const { emailOrPhone, code, newPassword, confirmPassword } = resetPasswordDto;
     
+    // Log du code OTP reçu pour développement
+    console.log(`🔐 [OTP DEBUG] Tentative de réinitialisation pour ${emailOrPhone}`);
+    console.log(`🔐 [OTP DEBUG] Code reçu: ${code}`);
+    console.log(`🔐 [OTP DEBUG] Nouveau mot de passe: ${newPassword ? '***' + newPassword.slice(-4) : 'non fourni'}`);
+    console.log(`🔐 [OTP DEBUG] Confirmation mot de passe: ${confirmPassword ? '***' + confirmPassword.slice(-4) : 'non fourni'}`);
+    
     // Valider que les mots de passe correspondent
     if (newPassword !== confirmPassword) {
+      console.log(`❌ [OTP DEBUG] Les mots de passe ne correspondent pas`);
       throw new UnauthorizedException('Les mots de passe ne correspondent pas');
     }
+    
+    console.log(`✅ [OTP DEBUG] Les mots de passe correspondent, tentative de réinitialisation...`);
     
     // Utiliser le nouveau service de réinitialisation
     const success = await this.passwordResetService.resetPassword(emailOrPhone, code, newPassword);
     
     if (!success) {
+      console.log(`❌ [OTP DEBUG] Échec de la réinitialisation - Code invalide ou expiré`);
       throw new UnauthorizedException('Code de réinitialisation invalide ou expiré');
     }
+    
+    console.log(`✅ [OTP DEBUG] Mot de passe réinitialisé avec succès pour ${emailOrPhone}`);
     
     return {
       message: 'Mot de passe réinitialisé avec succès',
