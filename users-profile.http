@@ -8,13 +8,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjY
 ### 2. Mettre à jour le profil de l'utilisateur connecté
 PATCH {{baseUrl}}/users/profile
 Content-Type: {{contentType}}
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDIxNDExfQ.fjOZ2Cdo4lRbthg22GRJyjoGp5fSZ738nbXM6Gg-Nr0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTM1OTQyMiwiZXhwIjoxNzc3MTczODIyfQ.I6menPXTPiUWOdG3VCo2c_xx7WAdegw8VUiRDeUZkKo
 
 {
   "firstName": "loona",
   "lastName": "Dupont",
   "phone": "+237698765432",
-  "neighborhood": "pk8"
+  "neighborhood": "Ndogbong"
 }
 
 ### 3. Mettre à jour uniquement le prénom

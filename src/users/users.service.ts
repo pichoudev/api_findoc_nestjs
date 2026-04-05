@@ -194,6 +194,9 @@ export class UsersService {
   async update(id: string, updateUserDto: UpdateUserDto) {
     const { neighborhoodId, neighborhood, ...userData } = updateUserDto;
 
+    console.log(`🔍 [USER UPDATE] Mise à jour utilisateur ${id}`);
+    console.log(`🔍 [USER UPDATE] Données reçues:`, JSON.stringify(updateUserDto, null, 2));
+
     // Vérifier si l'utilisateur existe
     const existingUser = await this.prisma.user.findUnique({
       where: { id }
@@ -229,31 +232,32 @@ export class UsersService {
       }
     }
 
-    // Gérer le quartier : soit par ID, soit par nom
-    let finalNeighborhoodId = neighborhoodId;
+    // Utiliser le neighborhoodId s'il est fourni et valide, sinon vérifier si c'est un nom de quartier
+    let finalNeighborhoodId: string | null | undefined = neighborhoodId;
     
+    // Si neighborhood est fourni et que neighborhoodId n'est pas fourni
     if (neighborhood && !neighborhoodId) {
-      // Rechercher le quartier par nom
-      const foundNeighborhood = await this.prisma.neighborhood.findFirst({
-        where: {
-          name: {
-            equals: neighborhood,
-            mode: 'insensitive'
-          }
-        }
-      });
-      
-      // Si quartier trouvé, utiliser son ID, sinon laisser null
-      if (foundNeighborhood) {
-        finalNeighborhoodId = foundNeighborhood.id;
+      // Vérifier si neighborhood ressemble à un UUID (format valide)
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (uuidRegex.test(neighborhood)) {
+        // C'est un UUID, l'utiliser directement
+        finalNeighborhoodId = neighborhood;
+      } else {
+        // C'est un nom de quartier, le mettre à null car on ne vérifie plus dans la BDD
+        finalNeighborhoodId = null;
+        console.log(`🔍 [USER UPDATE] Nom de quartier détecté: "${neighborhood}" -> mis à null`);
       }
     }
+
+    console.log(`🔍 [USER UPDATE] neighborhoodId utilisé: ${finalNeighborhoodId}`);
 
     const user = await this.prisma.user.update({
       where: { id },
       data: {
         ...userData,
         neighborhoodId: finalNeighborhoodId,
+        // Mettre à jour le champ neighborhood avec le nom si fourni
+        neighborhood: neighborhood || null,
       },
       include: {
         neighborhoodRelation: {
@@ -263,6 +267,9 @@ export class UsersService {
         }
       }
     });
+
+    console.log(`🔍 [USER UPDATE] Utilisateur mis à jour avec succès`);
+    console.log(`🔍 [USER UPDATE] neighborhoodId final: ${user.neighborhoodId}`);
 
     // Retourner l'utilisateur sans le mot de passe
     const { passwordHash: _, ...userWithoutPassword } = user;
