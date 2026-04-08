@@ -122,13 +122,7 @@ export class BinsService {
       throw new ConflictException('Un bac avec cet identifiant existe déjà');
     }
 
-    // Convertir latitude et longitude en localisation PostGIS si fournies
-    let localisation: any = null;
-    if (latitude && longitude) {
-      // Format PostGIS: ST_GeomFromText('POINT(longitude latitude)', 4326)
-      localisation = `ST_GeomFromText('POINT(${longitude} ${latitude})', 4326)`;
-    }
-
+    // Créer le bac sans localisation d'abord
     const bin = await this.prisma.bin.create({
       data: {
         refCode: identifier,
@@ -138,7 +132,6 @@ export class BinsService {
         status: status || BacStatus.ACTIF,
         ...(statusReport && { statusReport }),
         ...(reportType && { reportType }),
-        ...(localisation && { localisation }),
       },
       include: {
         neighborhood: {
@@ -169,6 +162,50 @@ export class BinsService {
         }
       }
     });
+
+    // Mettre à jour la localisation avec une requête SQL brute si latitude/longitude fournies
+    if (latitude && longitude) {
+      await this.prisma.$executeRaw`
+        UPDATE bins 
+        SET localisation = ST_GeomFromText('POINT(${longitude} ${latitude})', 4326)
+        WHERE id = ${bin.id}
+      `;
+      
+      // Récupérer le bac avec la localisation mise à jour
+      const updatedBin = await this.prisma.bin.findUnique({
+        where: { id: bin.id },
+        include: {
+          neighborhood: {
+            include: {
+              city: true
+            }
+          },
+          reports: {
+            include: {
+              reporter: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true
+                }
+              }
+            },
+            orderBy: {
+              createdAt: 'desc'
+            },
+            take: 5
+          },
+          _count: {
+            select: {
+              reports: true
+            }
+          }
+        }
+      });
+      
+      return updatedBin;
+    }
 
     return bin;
   }
@@ -381,13 +418,7 @@ export class BinsService {
       }
     }
 
-    // Convertir latitude et longitude en localisation PostGIS si fournies
-    let localisation: any = undefined;
-    if (latitude && longitude) {
-      // Format PostGIS: ST_GeomFromText('POINT(longitude latitude)', 4326)
-      localisation = `ST_GeomFromText('POINT(${longitude} ${latitude})', 4326)`;
-    }
-
+    // Mettre à jour le bac sans localisation d'abord
     const bin = await this.prisma.bin.update({
       where: { id },
       data: {
@@ -398,7 +429,6 @@ export class BinsService {
         status: status as any,
         ...(statusReport && { statusReport }), // Cast pour éviter l'erreur de type
         ...(reportType && { reportType }), // Ajout du reportType
-        ...(localisation && { localisation }),
       },
       include: {
         neighborhood: {
@@ -429,6 +459,50 @@ export class BinsService {
         }
       }
     });
+
+    // Mettre à jour la localisation avec une requête SQL brute si latitude/longitude fournies
+    if (latitude && longitude) {
+      await this.prisma.$executeRaw`
+        UPDATE bins 
+        SET localisation = ST_GeomFromText('POINT(${longitude} ${latitude})', 4326)
+        WHERE id = ${bin.id}
+      `;
+      
+      // Récupérer le bac avec la localisation mise à jour
+      const updatedBin = await this.prisma.bin.findUnique({
+        where: { id: bin.id },
+        include: {
+          neighborhood: {
+            include: {
+              city: true
+            }
+          },
+          reports: {
+            include: {
+              reporter: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true
+                }
+              }
+            },
+            orderBy: {
+              createdAt: 'desc'
+            },
+            take: 5
+          },
+          _count: {
+            select: {
+              reports: true
+            }
+          }
+        }
+      });
+      
+      return updatedBin;
+    }
 
     return bin;
   }
