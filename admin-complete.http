@@ -1,0 +1,675 @@
+### Cleaner App - API Admin Complete Tests
+### Fichier de test complet pour un utilisateur ADMIN - Tous les modules de l'app
+### Couvre : Authentification, Users, Reports, Bins, Interventions, Notifications, Audit
+
+@baseUrl = http://localhost:3000/api/v1
+@contentType = application/json
+@adminEmail = admin@cleaner.com
+@adminPassword = admin123
+
+### ==================== AUTHENTIFICATION ====================
+
+### 1. Inscription Admin
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Admin",
+  "lastName": "Super",
+  "email": "{{adminEmail}}",
+  "phone": "+237699999999",
+  "password": "{{adminPassword}}",
+  "confirmPassword": "{{adminPassword}}",
+  "role": "ADMIN"
+}
+
+### 2. Connexion Admin
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+### 3. Obtenir le profil Admin connecté
+GET {{baseUrl}}/auth/me
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 4. Demande de réinitialisation mot de passe Admin
+POST {{baseUrl}}/auth/request-password-reset
+Content-Type: {{contentType}}
+
+{
+  "emailOrPhone": "{{adminEmail}}"
+}
+
+### 5. Réinitialisation mot de passe Admin
+POST {{baseUrl}}/auth/reset-password
+Content-Type: {{contentType}}
+
+{
+  "emailOrPhone": "{{adminEmail}}",
+  "code": "123456",
+  "newPassword": "newAdmin123",
+  "confirmPassword": "newAdmin123"
+}
+
+### ==================== UTILISATEURS ====================
+
+### 6. Lister tous les utilisateurs (Admin)
+GET {{baseUrl}}/users
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 7. Lister les utilisateurs avec pagination et filtres
+GET {{baseUrl}}/users?page=1&limit=10&role=CITIZEN&isActive=true
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 8. Obtenir un utilisateur spécifique
+GET {{baseUrl}}/users/e487b5cc-1df4-4650-a1f7-a799859be221
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 9. Créer un utilisateur Agent
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "firstName": "Agent",
+  "lastName": "Cleaner",
+  "email": "agent@cleaner.com",
+  "phone": "+237698888888",
+  "password": "agent123",
+  "confirmPassword": "agent123",
+  "role": "AGENT",
+  "neighborhoodId": "uuid-du-quartier-agent"
+}
+
+### 10. Créer un utilisateur Superviseur
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "firstName": "Superviseur",
+  "lastName": "Team",
+  "email": "supervisor@cleaner.com",
+  "phone": "+237697777777",
+  "password": "supervisor123",
+  "confirmPassword": "supervisor123",
+  "role": "SUPERVISOR",
+  "neighborhoodId": "uuid-du-quartier-superviseur"
+}
+
+### 11. Mettre à jour un utilisateur
+PATCH {{baseUrl}}/users/e487b5cc-1df4-4650-a1f7-a799859be221
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "firstName": "Updated",
+  "lastName": "User",
+  "phone": "+237696666666",
+  "role": "AGENT",
+  "isActive": true,
+  "isVerified": true
+}
+
+### 12. Mettre à jour le mot de passe d'un utilisateur
+PATCH {{baseUrl}}/users/e487b5cc-1df4-4650-a1f7-a799859be221/password
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "oldPassword": "oldPassword123",
+  "newPassword": "newPassword123",
+  "confirmPassword": "newPassword123"
+}
+
+### 13. Mettre à jour le rôle d'un utilisateur
+PATCH {{baseUrl}}/users/e487b5cc-1df4-4650-a1f7-a799859be221/role
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "role": "SUPERVISOR"
+}
+
+### 14. Désactiver un utilisateur
+PATCH {{baseUrl}}/users/e487b5cc-1df4-4650-a1f7-a799859be221/deactivate
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 15. Activer un utilisateur
+PATCH {{baseUrl}}/users/e487b5cc-1df4-4650-a1f7-a799859be221/activate
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 16. Supprimer un utilisateur
+DELETE {{baseUrl}}/users/e487b5cc-1df4-4650-a1f7-a799859be221
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 17. Statistiques des utilisateurs
+GET {{baseUrl}}/users/stats
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== SIGNALEMENTS (REPORTS) ====================
+
+### 18. Lister tous les signalements
+GET {{baseUrl}}/reports
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 19. Lister les signalements avec filtres
+GET {{baseUrl}}/reports?status=ASSIGNE&reportType=PLEIN&page=1&limit=20
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 20. Obtenir un signalement spécifique
+GET {{baseUrl}}/reports/uuid-du-signalement
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 21. Créer un signalement (au nom d'un citoyen)
+POST {{baseUrl}}/reports
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "binId": "uuid-du-bac",
+  "reportType": "PLEIN",
+  "description": "Bac poubelle complètement plein, nécessite une intervention urgente",
+  "latitude": 4.0511,
+  "longitude": 9.7679,
+  "images": [
+    "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+  ],
+  "userId": "uuid-du-citoyen"
+}
+
+### 22. Mettre à jour un signalement
+PATCH {{baseUrl}}/reports/uuid-du-signalement
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "status": "EN_COURS",
+  "description": "Signalement en cours de traitement",
+  "priority": "HIGH"
+}
+
+### 23. Assigner un signalement à un agent
+PATCH {{baseUrl}}/reports/uuid-du-signalement/assign
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "agentId": "uuid-de-l-agent",
+  "priority": "HIGH",
+  "estimatedDuration": 120
+}
+
+### 24. Marquer un signalement comme terminé
+PATCH {{baseUrl}}/reports/uuid-du-signalement/complete
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "resolution": "Bac vidé et nettoyé avec succès",
+  "actualDuration": 90,
+  "beforeImages": ["url-image-avant"],
+  "afterImages": ["url-image-apres"]
+}
+
+### 25. Annuler un signalement
+PATCH {{baseUrl}}/reports/uuid-du-signalement/cancel
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "reason": "Signalement erroné - bac déjà vidé"
+}
+
+### 26. Statistiques des signalements
+GET {{baseUrl}}/reports/stats
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 27. Signalements par quartier
+GET {{baseUrl}}/reports/by-neighborhood/uuid-du-quartier
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 28. Signalements par période
+GET {{baseUrl}}/reports/by-period?startDate=2026-04-01&endDate=2026-04-30
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== BACS POUBELLES (BINS) ====================
+
+### 29. Lister tous les bacs
+GET {{baseUrl}}/bins
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 30. Lister les bacs avec filtres
+GET {{baseUrl}}/bins?status=ENDOMMAGE&reportType=MANQUANT&neighborhoodId=uuid-du-quartier
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 31. Obtenir un bac spécifique
+GET {{baseUrl}}/bins/uuid-du-bac
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 32. Créer un nouveau bac
+POST {{baseUrl}}/bins
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "identifier": "BAC-001-NEW",
+  "latitude": 4.0511,
+  "longitude": 9.7679,
+  "neighborhoodId": "uuid-du-quartier",
+  "capacity": 100,
+  "reportType": "NORMAL",
+  "status": "ACTIF",
+  "lastEmptied": "2026-04-05T10:00:00Z",
+  "nextMaintenance": "2026-05-05T10:00:00Z"
+}
+
+### 33. Mettre à jour un bac
+PATCH {{baseUrl}}/bins/uuid-du-bac
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "reportType": "PLEIN",
+  "status": "ACTIF",
+  "capacity": 100,
+  "lastEmptied": "2026-04-05T14:30:00Z",
+  "nextMaintenance": "2026-05-05T10:00:00Z"
+}
+
+### 34. Marquer un bac comme vidé
+PATCH {{baseUrl}}/bins/uuid-du-bac/empty
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "emptiedAt": "2026-04-05T14:30:00Z",
+  "agentId": "uuid-de-l-agent",
+  "notes": "Bac vidé complètement"
+}
+
+### 35. Mettre un bac en maintenance
+PATCH {{baseUrl}}/bins/uuid-du-bac/maintenance
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "maintenanceReason": "Bac endommagé, nécessite réparation",
+  "estimatedDuration": 48,
+  "maintenanceType": "REPAIR"
+}
+
+### 36. Supprimer un bac
+DELETE {{baseUrl}}/bins/uuid-du-bac
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 37. Statistiques des bacs
+GET {{baseUrl}}/bins/stats
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 38. Bacs par quartier
+GET {{baseUrl}}/bins/by-neighborhood/uuid-du-quartier
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 39. Bacs nécessitant une intervention
+GET {{baseUrl}}/bins/critical
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== INTERVENTIONS ====================
+
+### 40. Lister toutes les interventions
+GET {{baseUrl}}/interventions
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 41. Lister les interventions avec filtres
+GET {{baseUrl}}/interventions?status=EN_COURS&agentId=uuid-de-l-agent&page=1&limit=20
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 42. Obtenir une intervention spécifique
+GET {{baseUrl}}/interventions/uuid-de-l-intervention
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 43. Créer une intervention
+POST {{baseUrl}}/interventions
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "reportId": "uuid-du-signalement",
+  "agentId": "uuid-de-l-agent",
+  "type": "COLLECTION",
+  "status": "PLANIFIEE",
+  "scheduledAt": "2026-04-05T15:00:00Z",
+  "estimatedDuration": 60,
+  "priority": "HIGH",
+  "description": "Intervention planifiée pour vider le bac signalé",
+  "equipment": ["Camion benne", "Gants", "Sacs poubelle"],
+  "notes": "Intervention urgente suite à signalement citoyen"
+}
+
+### 44. Mettre à jour une intervention
+PATCH {{baseUrl}}/interventions/uuid-de-l-intervention
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "status": "EN_COURS",
+  "startedAt": "2026-04-05T15:05:00Z",
+  "notes": "Intervention commencée, en route vers le site"
+}
+
+### 45. Démarrer une intervention
+PATCH {{baseUrl}}/interventions/uuid-de-l-intervention/start
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "startedAt": "2026-04-05T15:05:00Z",
+  "notes": "Début de l'intervention sur site",
+  "equipmentUsed": ["Camion benne", "Gants"]
+}
+
+### 46. Terminer une intervention
+PATCH {{baseUrl}}/interventions/uuid-de-l-intervention/complete
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "completedAt": "2026-04-05T16:15:00Z",
+  "duration": 70,
+  "result": "SUCCESS",
+  "notes": "Intervention terminée avec succès, bac vidé et zone nettoyée",
+  "beforeImages": ["url-image-avant"],
+  "afterImages": ["url-image-apres"],
+  "wasteCollected": 85,
+  "fuelUsed": 5.2
+}
+
+### 47. Annuler une intervention
+PATCH {{baseUrl}}/interventions/uuid-de-l-intervention/cancel
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "reason": "Intervention non nécessaire - bac déjà vidé",
+  "cancelledAt": "2026-04-05T14:30:00Z"
+}
+
+### 48. Réassigner une intervention
+PATCH {{baseUrl}}/interventions/uuid-de-l-intervention/reassign
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "newAgentId": "uuid-nouvel-agent",
+  "reason": "Agent précédent indisponible",
+  "notes": "Réassignation à un autre agent disponible"
+}
+
+### 49. Statistiques des interventions
+GET {{baseUrl}}/interventions/stats
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 50. Interventions par agent
+GET {{baseUrl}}/interventions/by-agent/uuid-de-l-agent
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 51. Interventions par période
+GET {{baseUrl}}/interventions/by-period?startDate=2026-04-01&endDate=2026-04-30
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== QUARTIERS (NEIGHBORHOODS) ====================
+
+### 52. Lister tous les quartiers
+GET {{baseUrl}}/neighborhoods
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 53. Lister les quartiers par ville
+GET {{baseUrl}}/neighborhoods/by-city/uuid-de-la-ville
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 54. Obtenir un quartier spécifique
+GET {{baseUrl}}/neighborhoods/uuid-du-quartier
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 55. Créer un nouveau quartier
+POST {{baseUrl}}/neighborhoods
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "name": "Nouveau Quartier",
+  "cityId": "uuid-de-la-ville",
+  "description": "Description du nouveau quartier",
+  "latitude": 4.0511,
+  "longitude": 9.7679,
+  "population": 5000,
+  "area": 2.5
+}
+
+### 56. Mettre à jour un quartier
+PATCH {{baseUrl}}/neighborhoods/uuid-du-quartier
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "name": "Quartier Mis à Jour",
+  "description": "Description mise à jour",
+  "population": 5500,
+  "area": 2.8
+}
+
+### 57. Supprimer un quartier
+DELETE {{baseUrl}}/neighborhoods/uuid-du-quartier
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== VILLES (CITIES) ====================
+
+### 58. Lister toutes les villes
+GET {{baseUrl}}/cities
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 59. Lister les villes par région
+GET {{baseUrl}}/cities/by-region/LITTORAL
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 60. Obtenir une ville spécifique
+GET {{baseUrl}}/cities/uuid-de-la-ville
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 61. Créer une nouvelle ville
+POST {{baseUrl}}/cities
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "name": "Nouvelle Ville",
+  "region": "OUEST",
+  "description": "Description de la nouvelle ville",
+  "latitude": 4.0511,
+  "longitude": 9.7679,
+  "population": 100000
+}
+
+### 62. Mettre à jour une ville
+PATCH {{baseUrl}}/cities/uuid-de-la-ville
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "name": "Ville Mis à Jour",
+  "description": "Description mise à jour",
+  "population": 105000
+}
+
+### 63. Supprimer une ville
+DELETE {{baseUrl}}/cities/uuid-de-la-ville
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== NOTIFICATIONS ====================
+
+### 64. Lister toutes les notifications
+GET {{baseUrl}}/notifications
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 65. Lister les notifications par utilisateur
+GET {{baseUrl}}/notifications/user/uuid-de-l-utilisateur
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 66. Lister les notifications par type
+GET {{baseUrl}}/notifications/type/REPORT_RECEIVED
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 67. Créer une notification
+POST {{baseUrl}}/notifications
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "userId": "uuid-de-l-utilisateur",
+  "type": "REPORT_ASSIGNED",
+  "title": "Nouveau signalement assigné",
+  "body": "Un nouveau signalement vous a été assigné",
+  "entityType": "REPORT",
+  "entityId": "uuid-du-signalement",
+  "data": {
+    "priority": "HIGH",
+    "location": "Douala, Akwa"
+  }
+}
+
+### 68. Marquer une notification comme lue
+PATCH {{baseUrl}}/notifications/uuid-de-la-notification/read
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 69. Marquer toutes les notifications comme lues
+PATCH {{baseUrl}}/notifications/read-all
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "userId": "uuid-de-l-utilisateur"
+}
+
+### 70. Supprimer une notification
+DELETE {{baseUrl}}/notifications/uuid-de-la-notification
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== AUDITS ET LOGS ====================
+
+### 71. Lister tous les logs d'audit
+GET {{baseUrl}}/audit-logs
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 72. Lister les logs par utilisateur
+GET {{baseUrl}}/audit-logs/user/uuid-de-l-utilisateur
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 73. Lister les logs par action
+GET {{baseUrl}}/audit-logs/action/USER_CREATED
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 74. Lister les logs par période
+GET {{baseUrl}}/audit-logs/by-period?startDate=2026-04-01&endDate=2026-04-30
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 75. Obtenir les statistiques d'audit
+GET {{baseUrl}}/audit-logs/stats
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== STATISTIQUES GLOBALES ====================
+
+### 76. Tableau de bord admin
+GET {{baseUrl}}/admin/dashboard
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 77. Statistiques globales
+GET {{baseUrl}}/admin/stats
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 78. Statistiques par quartier
+GET {{baseUrl}}/admin/neighborhood-stats/uuid-du-quartier
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 79. Rapport d'activité
+GET {{baseUrl}}/admin/activity-report?startDate=2026-04-01&endDate=2026-04-30
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 80. Export des données
+GET {{baseUrl}}/admin/export?format=csv&type=reports&startDate=2026-04-01&endDate=2026-04-30
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== SYSTÈME ====================
+
+### 81. Vérifier la santé du système
+GET {{baseUrl}}/admin/health
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 82. Informations système
+GET {{baseUrl}}/admin/system-info
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 83. Nettoyer les anciennes données
+DELETE {{baseUrl}}/admin/cleanup?days=30
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 84. Sauvegarder la base de données
+POST {{baseUrl}}/admin/backup
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "description": "Sauvegarde manuelle du 05/04/2026",
+  "includeFiles": true
+}
+
+### ==================== CONFIGURATION ====================
+
+### 85. Obtenir la configuration système
+GET {{baseUrl}}/admin/config
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 86. Mettre à jour la configuration
+PATCH {{baseUrl}}/admin/config
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "maxReportsPerUser": 10,
+  "autoAssignReports": true,
+  "notificationDelay": 5,
+  "maintenanceMode": false
+}
+
+### ==================== NOTES ====================
+
+### Instructions d'utilisation :
+### 1. Remplacez "VOTRE_TOKEN_ADMIN_ICI" par le token JWT obtenu après connexion
+### 2. Remplacez les UUID (uuid-xxx) par des IDs réels de votre base de données
+### 3. Adaptez les dates, coordonnées et autres données selon vos besoins
+### 4. Testez les routes dans l'ordre logique : inscription → connexion → autres opérations
+### 5. Certaines routes peuvent nécessiter des permissions spécifiques selon votre configuration
+
+### Rôles disponibles :
+### - ADMIN : Accès complet à toutes les fonctionnalités
+### - SUPERVISOR : Gestion des équipes et supervision des interventions
+### - AGENT : Gestion des interventions sur le terrain
+### - CITIZEN : Signalement et consultation
+
+### Statuts des signalements :
+### - RECU : Signalement reçu et en attente de traitement
+### - ASSIGNE : Signalement assigné à un agent
+### - EN_COURS : Intervention en cours
+### - TERMINE : Intervention terminée avec succès
+### - ANNULE : Signalement annulé
+
+### Types de signalements :
+### - NORMAL : État normal du bac
+### - PLEIN : Bac plein
+### - ENDOMMAGE : Bac endommagé
+### - MANQUANT : Bac manquant
+### - DEBORDE : Bac qui déborde

@@ -86,84 +86,43 @@ export class BinsService {
     return null;
   }
 
-  async create(createBinDto: CreateBinDto) {
-    const { 
-      identifier, 
-      type, 
-      neighborhoodId, 
-      latitude, 
-      longitude, 
-      locationDescription, 
-      status, 
-      capacity, 
-      fillLevel, 
-      statusReport,
-      reportType 
-    } = createBinDto;
+async create(createBinDto: CreateBinDto) {
+  const { identifier, type, status, capacity, statusReport, reportType } = createBinDto;
 
-    // Vérifier si le quartier existe
-    const neighborhood = await this.prisma.neighborhood.findUnique({
-      where: { id: neighborhoodId },
-      include: {
-        city: true
-      }
-    });
+  const existingBin = await this.prisma.bin.findUnique({
+    where: { refCode: identifier },
+  });
 
-    if (!neighborhood) {
-      throw new BadRequestException('Le quartier spécifié n\'existe pas');
-    }
-
-    // Vérifier si le refCode du bac existe déjà
-    const existingBin = await this.prisma.bin.findUnique({
-      where: { refCode: identifier }
-    });
-
-    if (existingBin) {
-      throw new ConflictException('Un bac avec cet identifiant existe déjà');
-    }
-
-    const bin = await this.prisma.bin.create({
-      data: {
-        refCode: identifier,
-        binType: type,
-        neighborhoodId,
-        capacityM3: capacity || 1.0,
-        status: status || BacStatus.ACTIF,
-        ...(statusReport && { statusReport }),
-        ...(reportType && { reportType }),
-      },
-      include: {
-        neighborhood: {
-          include: {
-            city: true
-          }
-        },
-        reports: {
-          include: {
-            reporter: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                email: true
-              }
-            }
-          },
-          orderBy: {
-            createdAt: 'desc'
-          },
-          take: 5
-        },
-        _count: {
-          select: {
-            reports: true
-          }
-        }
-      }
-    });
-
-    return bin;
+  if (existingBin) {
+    throw new ConflictException('Un bac avec cet identifiant existe déjà');
   }
+
+  return this.prisma.bin.create({
+    data: {
+      refCode: identifier,
+      binType: type,
+      neighborhoodId: undefined as any,
+      capacityM3: capacity ?? 1.0,
+      status: status ?? BacStatus.ACTIF,
+      ...(statusReport && { statusReport }),
+      ...(reportType && { reportType }),
+    },
+    include: {
+      neighborhood: { include: { city: true } },
+      reports: {
+        include: {
+          reporter: {
+            select: { id: true, firstName: true, lastName: true, email: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+      },
+      _count: { select: { reports: true } },
+    },
+  });
+
+}
 
   async findAll(filters: FilterBinsDto) {
     const {
