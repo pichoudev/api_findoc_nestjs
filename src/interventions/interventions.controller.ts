@@ -141,7 +141,7 @@ export class InterventionsController {
   @Roles('AGENT', 'SUPERVISOR', 'ADMIN')
   @ApiOperation({ 
     summary: 'Mettre à jour le statut d\'une intervention',
-    description: 'Permet de changer le statut d\'une intervention (PENDING, IN_PROGRESS, RESOLVED, CANCELLED)'
+    description: 'Permet de changer le statut d\'une intervention (EN_ATTENTE, EN_COURS, RESOLU, ANNULE)'
   })
   @ApiParam({ name: 'id', description: 'ID de l\'intervention' })
   @ApiResponse({ status: 200, description: 'Statut mis à jour avec succès' })

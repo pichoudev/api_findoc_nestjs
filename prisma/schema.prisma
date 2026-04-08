@@ -73,10 +73,10 @@ enum Priority {
 }
 
 enum InterventionStatus {
-  PENDING
-  IN_PROGRESS
-  RESOLVED
-  CANCELLED
+  EN_ATTENTE
+  EN_COURS
+  RESOLU
+  ANNULE
 }
 
 enum NotificationType {
@@ -240,7 +240,7 @@ model Intervention {
   id          String             @id @default(uuid()) @db.Uuid
   reportId    String             @unique @map("report_id") @db.Uuid
   agentId     String             @map("agent_id") @db.Uuid
-  status      InterventionStatus @default(PENDING)
+  status      InterventionStatus @default(EN_COURS)
   comment     String?            @db.Text
   assignedAt  DateTime           @default(now()) @map("assigned_at")
   startedAt   DateTime?          @map("started_at")

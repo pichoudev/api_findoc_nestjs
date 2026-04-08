@@ -33,7 +33,7 @@ export class UpdateInterventionDto {
   @ApiPropertyOptional({ 
     description: 'Statut de l\'intervention',
     enum: InterventionStatus,
-    example: InterventionStatus.IN_PROGRESS
+    example: InterventionStatus.EN_COURS
   })
   @IsEnum(InterventionStatus)
   @IsOptional()

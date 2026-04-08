@@ -287,7 +287,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjY
 }
 
 ### 36. Lister toutes les interventions (GET /interventions)
-GET {{baseUrl}}/interventions?page=1&limit=20&status=PENDING
+GET {{baseUrl}}/interventions?page=1&limit=20&status=EN_ATTENTE
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzU1NjQwMDAsImV4cCI6MTc3NzM3ODQwMH0.knYfJyUaXFTYLy9VQ0Ql4w36aq0AU-0UgLAOm0y4wPU
 
 ### 37. Lister mes interventions (GET /interventions/my-interventions)
@@ -316,7 +316,7 @@ Content-Type: {{contentType}}
 Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
 
 {
-  "status": "IN_PROGRESS",
+  "status": "EN_COURS",
   "startedAt": "2026-04-05T15:05:00Z",
   "comment": "Intervention commencée, en route vers le site"
 }
@@ -327,7 +327,7 @@ Content-Type: {{contentType}}
 Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
 
 {
-  "status": "RESOLVED",
+  "status": "RESOLU",
   "comment": "Intervention terminée avec succès"
 }
 

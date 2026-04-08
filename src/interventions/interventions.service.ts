@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateInterventionDto, UpdateInterventionDto, FilterInterventionsDto, AssignInterventionDto } from './dto/intervention.dto';
-import { InterventionStatus, ReportStatus } from '@prisma/client';
+import { InterventionStatus, ReportStatus, BacStatus, ReportType } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import { NotificationService } from '../notifications/notification.service';
 import { NotificationEventType } from '../notifications/types/notification.types';
@@ -91,7 +91,7 @@ export class InterventionsService {
           reportId,
           agentId,
           comment,
-          status: InterventionStatus.PENDING,
+          status: InterventionStatus.EN_COURS,
         },
         include: this.interventionInclude,
       });
@@ -99,7 +99,7 @@ export class InterventionsService {
       // Mettre à jour le statut du signalement
       await this.prisma.report.update({
         where: { id: reportId },
-        data: { status: ReportStatus.ASSIGNE },
+        data: { status: ReportStatus.EN_COURS },
       });
 
       // Émettre des événements de notification
@@ -224,12 +224,32 @@ export class InterventionsService {
         include: this.interventionInclude,
       });
 
-      // Si l'intervention est terminée, mettre à jour le signalement
-      if (status === InterventionStatus.RESOLVED && completedAt) {
-        await this.prisma.report.update({
+      // Si l'intervention est terminée, mettre à jour le signalement et le bac
+      if (status === InterventionStatus.RESOLU && completedAt) {
+        const report = await this.prisma.report.findUnique({
           where: { id: existingIntervention.reportId },
-          data: { status: ReportStatus.TERMINE },
+          include: { bin: true }
         });
+
+        if (report) {
+          // Mettre à jour le statut du report à TERMINE
+          await this.prisma.report.update({
+            where: { id: existingIntervention.reportId },
+            data: { status: ReportStatus.TERMINE },
+          });
+
+          // Mettre à jour le statut du bac à NORMAL
+          if (report.bin) {
+            await this.prisma.bin.update({
+              where: { id: report.bin.id },
+              data: { 
+                status: BacStatus.ACTIF,
+                statusReport: ReportStatus.RECU,
+                reportType: ReportType.NORMAL
+              },
+            });
+          }
+        }
       }
 
       return intervention;
@@ -340,7 +360,7 @@ export class InterventionsService {
         reportId,
         agentId,
         comment,
-        status: InterventionStatus.PENDING,
+        status: InterventionStatus.EN_COURS,
       },
       include: this.interventionInclude,
     });
@@ -348,7 +368,7 @@ export class InterventionsService {
     // Mettre à jour le statut du signalement
     await this.prisma.report.update({
       where: { id: reportId },
-      data: { status: ReportStatus.ASSIGNE },
+      data: { status: ReportStatus.EN_COURS },
     });
 
     return intervention;
@@ -369,10 +389,10 @@ export class InterventionsService {
     }
 
     // Mettre à jour les dates selon le statut
-    if (status === InterventionStatus.IN_PROGRESS && !intervention.startedAt) {
+    if (status === InterventionStatus.EN_COURS && !intervention.startedAt) {
       updateData.startedAt = new Date();
     }
-    if (status === InterventionStatus.RESOLVED && !intervention.completedAt) {
+    if (status === InterventionStatus.RESOLU && !intervention.completedAt) {
       updateData.completedAt = new Date();
     }
 
@@ -383,7 +403,7 @@ export class InterventionsService {
     });
 
     // Émettre des événements de notification selon le statut
-    if (status === InterventionStatus.IN_PROGRESS) {
+    if (status === InterventionStatus.EN_COURS) {
       this.notificationService.emitEvent(NotificationEventType.INTERVENTION_STARTED, {
         interventionId: updatedIntervention.id,
         agentId: updatedIntervention.agentId,
@@ -393,7 +413,7 @@ export class InterventionsService {
       });
     }
 
-    if (status === InterventionStatus.RESOLVED) {
+    if (status === InterventionStatus.RESOLU) {
       this.notificationService.emitEvent(NotificationEventType.INTERVENTION_COMPLETED, {
         interventionId: updatedIntervention.id,
         agentId: updatedIntervention.agentId,
@@ -403,12 +423,32 @@ export class InterventionsService {
       });
     }
 
-    // Si l'intervention est terminée, mettre à jour le signalement
-    if (status === InterventionStatus.RESOLVED) {
-      await this.prisma.report.update({
+    // Si l'intervention est terminée, mettre à jour le signalement et le bac
+    if (status === InterventionStatus.RESOLU) {
+      const report = await this.prisma.report.findUnique({
         where: { id: intervention.reportId },
-        data: { status: ReportStatus.TERMINE },
+        include: { bin: true }
       });
+
+      if (report) {
+        // Mettre à jour le statut du report à TERMINE
+        await this.prisma.report.update({
+          where: { id: intervention.reportId },
+          data: { status: ReportStatus.TERMINE },
+        });
+
+        // Mettre à jour le statut du bac à NORMAL
+        if (report.bin) {
+          await this.prisma.bin.update({
+            where: { id: report.bin.id },
+            data: { 
+              status: BacStatus.ACTIF,
+              statusReport: ReportStatus.RECU,
+              reportType: ReportType.NORMAL
+            },
+          });
+        }
+      }
     }
 
     return updatedIntervention;
@@ -427,11 +467,11 @@ export class InterventionsService {
       recentInterventions,
     ] = await Promise.all([
       this.prisma.intervention.count(),
-      this.prisma.intervention.count({ where: { status: InterventionStatus.PENDING } }),
-      this.prisma.intervention.count({ where: { status: InterventionStatus.IN_PROGRESS } }),
-      this.prisma.intervention.count({ where: { status: InterventionStatus.RESOLVED } }),
-      this.prisma.intervention.count({ where: { status: InterventionStatus.CANCELLED } }),
-      this.prisma.intervention.groupBy({ by: ['status'], _count: { status: true } }),
+      this.prisma.intervention.count({ where: { status: InterventionStatus.EN_ATTENTE } }),
+      this.prisma.intervention.count({ where: { status: InterventionStatus.EN_COURS } }),
+      this.prisma.intervention.count({ where: { status: InterventionStatus.RESOLU } }),
+      this.prisma.intervention.count({ where: { status: InterventionStatus.ANNULE } }),
+      this.prisma.intervention.groupBy({ by: ['status'], _count: { status: true } }) as unknown as Array<{ status: string; _count: { status: number } }>,
       this.prisma.intervention.groupBy({ 
         by: ['agentId'], 
         _count: { agentId: true }, 
@@ -452,10 +492,10 @@ export class InterventionsService {
       resolved: resolvedInterventions,
       cancelled: cancelledInterventions,
       resolutionRate: totalInterventions > 0 ? Math.round((resolvedInterventions / totalInterventions) * 100) : 0,
-      byStatus: interventionsByStatus.reduce<Record<string, number>>((acc, item) => {
+      byStatus: interventionsByStatus?.reduce<Record<string, number>>((acc, item) => {
         acc[item.status] = item._count.status;
         return acc;
-      }, {}),
+      }, {}) || {},
       topAgents: interventionsByAgent.map((item: any) => ({
         agentId: item.agentId,
         count: item._count.agentId,
