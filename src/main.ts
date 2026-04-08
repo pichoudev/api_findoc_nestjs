@@ -35,7 +35,7 @@ async function bootstrap() {
     console.log('✅ Global validation pipe configured');
 
     // Servir les fichiers statiques (uploads depuis la racine du projet)
-    app.useStaticAssets(join(__dirname, '..', 'uploads/compressed'), {
+    app.useStaticAssets(join(__dirname, '..', 'dist/uploads/compressed'), {
       prefix: '/uploads',
     });
 

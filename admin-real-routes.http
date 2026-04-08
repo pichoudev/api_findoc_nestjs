@@ -265,9 +265,9 @@ Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
 }
 
 ### 34. Annuler un signalement (PATCH /reports/:id/cancel)
-PATCH {{baseUrl}}/reports/uuid-du-signalement/cancel
+GET  {{baseUrl}}/reports
 Content-Type: {{contentType}}
-Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzU2NjAwNjgsImV4cCI6MTc3NzQ3NDQ2OH0.6lW_1SUC8TzgjCM5ON2mGxTdT_ck69a1II-_oL0kFyo
 
 {
   "reason": "Signalement erroné - bac déjà vidé"
