@@ -36,7 +36,7 @@ async function bootstrap() {
 
     // Servir les fichiers statiques (uploads depuis la racine du projet)
     const staticPath = process.env.NODE_ENV === 'production' 
-      ? join(__dirname, 'uploads/compressed')     // En production: dist/uploads/compressed (fichiers copiés)
+      ? join(__dirname, '..', 'uploads/compressed')     // En production: depuis dist/main, on remonte au projet puis uploads/compressed
       : join(__dirname, '..', 'uploads/compressed'); // En développement: src/../uploads/compressed
     
     app.useStaticAssets(staticPath, {
