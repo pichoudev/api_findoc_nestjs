@@ -86,43 +86,92 @@ export class BinsService {
     return null;
   }
 
-async create(createBinDto: CreateBinDto) {
-  const { identifier, type, status, capacity, statusReport, reportType } = createBinDto;
+  async create(createBinDto: CreateBinDto) {
+    const { 
+      identifier, 
+      type, 
+      neighborhoodId, 
+      latitude, 
+      longitude, 
+      locationDescription, 
+      status, 
+      capacity, 
+      fillLevel, 
+      statusReport,
+      reportType 
+    } = createBinDto;
 
-  const existingBin = await this.prisma.bin.findUnique({
-    where: { refCode: identifier },
-  });
+    // Vérifier si le quartier existe
+    const neighborhood = await this.prisma.neighborhood.findUnique({
+      where: { id: neighborhoodId },
+      include: {
+        city: true
+      }
+    });
 
-  if (existingBin) {
-    throw new ConflictException('Un bac avec cet identifiant existe déjà');
-  }
+    if (!neighborhood) {
+      throw new BadRequestException('Le quartier spécifié n\'existe pas');
+    }
 
-  return this.prisma.bin.create({
-    data: {
-      refCode: identifier,
-      binType: type,
-      neighborhoodId: undefined as any,
-      capacityM3: capacity ?? 1.0,
-      status: status ?? BacStatus.ACTIF,
-      ...(statusReport && { statusReport }),
-      ...(reportType && { reportType }),
-    },
-    include: {
-      neighborhood: { include: { city: true } },
-      reports: {
-        include: {
-          reporter: {
-            select: { id: true, firstName: true, lastName: true, email: true },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 5,
+    // Vérifier si le refCode du bac existe déjà
+    const existingBin = await this.prisma.bin.findUnique({
+      where: { refCode: identifier }
+    });
+
+    if (existingBin) {
+      throw new ConflictException('Un bac avec cet identifiant existe déjà');
+    }
+
+    // Convertir latitude et longitude en localisation PostGIS si fournies
+    let localisation: any = null;
+    if (latitude && longitude) {
+      // Format PostGIS: ST_GeomFromText('POINT(longitude latitude)', 4326)
+      localisation = `ST_GeomFromText('POINT(${longitude} ${latitude})', 4326)`;
+    }
+
+    const bin = await this.prisma.bin.create({
+      data: {
+        refCode: identifier,
+        binType: type,
+        neighborhoodId,
+        capacityM3: capacity || 1.0,
+        status: status || BacStatus.ACTIF,
+        ...(statusReport && { statusReport }),
+        ...(reportType && { reportType }),
+        ...(localisation && { localisation }),
       },
-      _count: { select: { reports: true } },
-    },
-  });
+      include: {
+        neighborhood: {
+          include: {
+            city: true
+          }
+        },
+        reports: {
+          include: {
+            reporter: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          },
+          take: 5
+        },
+        _count: {
+          select: {
+            reports: true
+          }
+        }
+      }
+    });
 
-}
+    return bin;
+  }
 
   async findAll(filters: FilterBinsDto) {
     const {
@@ -332,6 +381,13 @@ async create(createBinDto: CreateBinDto) {
       }
     }
 
+    // Convertir latitude et longitude en localisation PostGIS si fournies
+    let localisation: any = undefined;
+    if (latitude && longitude) {
+      // Format PostGIS: ST_GeomFromText('POINT(longitude latitude)', 4326)
+      localisation = `ST_GeomFromText('POINT(${longitude} ${latitude})', 4326)`;
+    }
+
     const bin = await this.prisma.bin.update({
       where: { id },
       data: {
@@ -342,6 +398,7 @@ async create(createBinDto: CreateBinDto) {
         status: status as any,
         ...(statusReport && { statusReport }), // Cast pour éviter l'erreur de type
         ...(reportType && { reportType }), // Ajout du reportType
+        ...(localisation && { localisation }),
       },
       include: {
         neighborhood: {
