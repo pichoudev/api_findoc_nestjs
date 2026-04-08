@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && mkdir -p dist/uploads/compressed",
+    "build": "nest build && mkdir -p dist/uploads/compressed && ([ -d 'uploads/compressed' ] && cp -r uploads/compressed/* dist/uploads/compressed/ || true)",
     "start": "node --max-old-space-size=400 dist/main",
     "start:dev": "npm run init && nest start --watch",
     "start:debug": "nest start --debug --watch",

@@ -12,13 +12,12 @@ Content-Type: {{contentType}}
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzU2NjAwNjgsImV4cCI6MTc3NzQ3NDQ2OH0.6lW_1SUC8TzgjCM5ON2mGxTdT_ck69a1II-_oL0kFyo
 
 {
-  "identifier": "BAC-001",
+  "identifier": "BAC-o1",
   "type": "COMMERCIAL",
   "neighborhoodId": "d2b51234-abcd-4a1b-8a3d-987654321001",
   "latitude": 9.7043,
   "longitude": 4.0483,
-  "locationDescription": "À côté du marché central",
-  "status": "ACTIf",
+  "status": "ACTIF",
   "capacity": 100,
   "fillLevel": 25
 }

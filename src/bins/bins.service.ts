@@ -167,7 +167,7 @@ export class BinsService {
     if (latitude && longitude) {
       await this.prisma.$executeRaw`
         UPDATE bins 
-        SET localisation = ST_GeomFromText('POINT(${longitude} ${latitude})', 4326)
+        SET localisation = ST_GeomFromText('POINT(' || ${longitude} || ' ' || ${latitude} || ')', 4326)
         WHERE id = ${bin.id}
       `;
       
@@ -464,7 +464,7 @@ export class BinsService {
     if (latitude && longitude) {
       await this.prisma.$executeRaw`
         UPDATE bins 
-        SET localisation = ST_GeomFromText('POINT(${longitude} ${latitude})', 4326)
+        SET localisation = ST_GeomFromText('POINT(' || ${longitude} || ' ' || ${latitude} || ')', 4326)
         WHERE id = ${bin.id}
       `;
       
