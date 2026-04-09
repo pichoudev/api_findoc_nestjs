@@ -1,6 +1,6 @@
 ### Reports endpoints
 
- @baseUrl= https://backend-cleaner-nestjs.onrender.com/api/v1
+ @baseUrl= https://api-backend-cleaner-nestjs-omega.vercel.app/api/v1
 @contentType = application/json
 
 ### 1. Créer un signalement avec photo
