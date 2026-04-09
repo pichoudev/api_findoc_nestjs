@@ -1,12 +1,12 @@
 ### Reports endpoints
 
-@baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
+ @baseUrl= https://api-backend-cleaner-nestjs-omega.vercel.app/api/v1
 @contentType = application/json
 
 ### 1. Créer un signalement avec photo
 POST {{baseUrl}}/reports
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIzMzM5MSwiZXhwIjoxNzc3MDQ3NzkxfQ.gzlM_zoags6noHj7Ki0aWuuknO1JlHo74CEULOXo484
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzU3Mzc5ODgsImV4cCI6MTc3NzU1MjM4OH0.a3L0dtMnpSTnsCQ31fQWFAKAocO82Pik9W0Lh0_ZyA4
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="bacId"
@@ -23,12 +23,12 @@ Le bac est complètement plein et déborde depuis 2 jours. Il y a des déchets a
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="priority"
 
-HIGH
+LOW
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="photo"; filename="test-image.jpg"
 Content-Type: image/jpeg
 
-< ./test-image.jpg
+< ./ProgrammerBlankPoster.jpeg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
 ### 2. Créer un signalement sans photo

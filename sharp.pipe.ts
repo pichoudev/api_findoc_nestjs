@@ -47,14 +47,21 @@ export class SharpPipe implements PipeTransform<Express.Multer.File, Promise<str
     try {
       const originalName = path.parse(image.originalname).name.replace(/\s+/g, '-'); // Remplace les espaces
       const filename = `${Date.now()}-${originalName}.webp`;
-      const outputPath = path.join('dist', 'uploads', 'compressed', filename);
+      
+      // Déterminer le chemin de sortie selon l'environnement
+      const isProduction = process.env.NODE_ENV === 'production';
+      const outputPath = isProduction 
+        ? path.join(process.cwd(), 'uploads', 'compressed', filename)  // En production: /app/uploads/compressed
+        : path.join(__dirname, '..', 'uploads', 'compressed', filename); // En développement: projet/uploads/compressed
       const outputDir = path.dirname(outputPath);
 
       console.log('SharpPipe - Processing:', {
         originalName,
         filename,
         outputPath,
-        outputDir
+        outputDir,
+        isProduction,
+        cwd: process.cwd()
       });
 
       // Créer le dossier s'il n'existe pas
