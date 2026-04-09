@@ -51,7 +51,7 @@ export class SharpPipe implements PipeTransform<Express.Multer.File, Promise<str
       // Déterminer le chemin de sortie selon l'environnement
       const isProduction = process.env.NODE_ENV === 'production';
       const outputPath = isProduction 
-        ? path.join(process.cwd(), 'uploads', 'compressed', filename)  // En production: /app/uploads/compressed
+        ? path.join('/tmp', 'uploads', 'compressed', filename)  // En production: /tmp/uploads/compressed (accessible en écriture)
         : path.join(__dirname, '..', 'uploads', 'compressed', filename); // En développement: projet/uploads/compressed
       const outputDir = path.dirname(outputPath);
 
