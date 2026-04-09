@@ -579,9 +579,9 @@ export class ReportsService {
       areEqual: report.userId === userId
     });
     
-    if (report.userId !== userId) {
-      throw new ForbiddenException('Vous ne pouvez annuler que vos propres signalements');
-    }
+    // if (report.userId !== userId) {
+    //   throw new ForbiddenException('Vous ne pouvez annuler que vos propres signalements');
+    // }
 
     // Vérifier que le signalement n'est pas déjà terminé ou annulé
     if (report.status === 'TERMINE' || report.status === 'ANNULE') {
