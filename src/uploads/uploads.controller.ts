@@ -11,20 +11,40 @@ export class UploadsController {
       
       // Vérifier si c'est une image WebP
       if (!filename.endsWith('.webp')) {
-        throw new NotFoundException('Fichier non trouvé');
+        console.log('UploadsController - Invalid file format:', filename);
+        throw new NotFoundException('Format de fichier non supporté');
       }
 
-      // Construire l'URL Vercel Blob
+      // Essayer d'abord Vercel Blob
       const blobUrl = `https://blob.vercel-storage.com/${filename}`;
       
-      console.log('UploadsController - Redirecting to:', blobUrl);
+      console.log('UploadsController - Trying Vercel Blob:', blobUrl);
       
-      // Rediriger vers Vercel Blob
+      // Pour l'instant, on redirige vers Vercel Blob
+      // Si ça ne fonctionne pas, l'utilisateur verra l'erreur Vercel Blob
       return res.redirect(302, blobUrl);
       
     } catch (error) {
       console.error('UploadsController - Error:', error);
       throw new NotFoundException('Fichier non trouvé');
     }
+  }
+
+  @Get(':filename/info')
+  async getFileInfo(@Param('filename') filename: string) {
+    console.log('UploadsController - File info requested:', filename);
+    
+    // Informations de debugging
+    return {
+      filename,
+      expectedBlobUrl: `https://blob.vercel-storage.com/${filename}`,
+      message: 'Vérifiez que BLOB_READ_WRITE_TOKEN est configuré dans Vercel',
+      troubleshooting: {
+        step1: 'Allez dans Vercel Dashboard > Project > Settings > Environment Variables',
+        step2: 'Ajoutez BLOB_READ_WRITE_TOKEN avec la valeur générée par Vercel',
+        step3: 'Redéployez l\'application',
+        step4: 'Testez à nouveau l\'upload d\'image'
+      }
+    };
   }
 }
