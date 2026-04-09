@@ -1,0 +1,500 @@
+### Cleaner App - API Admin Tests (CORRIGÉ - Routes existantes uniquement)
+### Fichier basé UNIQUEMENT sur les contrôleurs, DTOs et schéma Prisma réels
+### Routes vérifiées dans les contrôleurs existants
+
+@baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
+@contentType = application/json
+@adminEmail = admin@cleaner.com
+@adminPassword = admin123
+
+### ==================== AUTHENTIFICATION ====================
+
+### 1. Inscription Admin
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Admin",
+  "lastName": "Super",
+  "email": "{{adminEmail}}",
+  "phone": "+237699999999",
+  "password": "{{adminPassword}}",
+  "confirmPassword": "{{adminPassword}}",
+  "role": "ADMIN",
+  "neighborhood": "Akwa"
+}
+
+### 2. Connexion Admin
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+### 3. Obtenir le profil Admin connecté
+GET {{baseUrl}}/auth/me
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 4. Demande de réinitialisation mot de passe
+POST {{baseUrl}}/auth/request-password-reset
+Content-Type: {{contentType}}
+
+{
+  "emailOrPhone": "{{adminEmail}}"
+}
+
+### 5. Réinitialisation mot de passe
+POST {{baseUrl}}/auth/reset-password
+Content-Type: {{contentType}}
+
+{
+  "emailOrPhone": "{{adminEmail}}",
+  "code": "123456",
+  "newPassword": "newAdmin123",
+  "confirmPassword": "newAdmin123"
+}
+
+### ==================== UTILISATEURS (UsersController) ====================
+
+### 6. Créer un utilisateur (POST /users)
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "firstName": "Agent",
+  "lastName": "Cleaner",
+  "email": "agent@cleaner.com",
+  "phone": "+237698888888",
+  "password": "agent123",
+  "role": "AGENT",
+  "neighborhoodId": "uuid-du-quartier",
+  "isActive": true,
+  "isVerified": true
+}
+
+### 7. Lister tous les utilisateurs (GET /users)
+GET {{baseUrl}}/users?page=1&limit=10&role=CITIZEN&isActive=true
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 8. Statistiques des utilisateurs (GET /users/stats)
+GET {{baseUrl}}/users/stats
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 9. Rechercher des utilisateurs (GET /users/search)
+GET {{baseUrl}}/users/search?q=loona
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 10. Obtenir le profil utilisateur connecté (GET /users/profile)
+GET {{baseUrl}}/users/profile
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 11. Mettre à jour le profil utilisateur (PATCH /users/profile)
+PATCH {{baseUrl}}/users/profile
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "firstName": "Updated",
+  "lastName": "User",
+  "phone": "+237696666666",
+  "neighborhood": "Ndogbong"
+}
+
+### 12. Obtenir un utilisateur spécifique (GET /users/:id)
+GET {{baseUrl}}/users/e487b5cc-1df4-4650-a1f7-a799859be221
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 13. Mettre à jour un utilisateur (PATCH /users/:id)
+PATCH {{baseUrl}}/users/e487b5cc-1df4-4650-a1f7-a799859be221
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "firstName": "Updated",
+  "lastName": "User",
+  "phone": "+237696666666",
+  "role": "AGENT",
+  "isActive": true,
+  "isVerified": true,
+  "neighborhood": "Bonaberi"
+}
+
+### 14. Mettre à jour le mot de passe (PATCH /users/:id/password)
+PATCH {{baseUrl}}/users/e487b5cc-1df4-4650-a1f7-a799859be221/password
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "oldPassword": "oldPassword123",
+  "newPassword": "newPassword123"
+}
+
+### 15. Mettre à jour le rôle (PATCH /users/:id/role)
+PATCH {{baseUrl}}/users/e487b5cc-1df4-4650-a1f7-a799859be221/role
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "role": "SUPERVISOR"
+}
+
+### 16. Activer un utilisateur (PATCH /users/:id/activate)
+PATCH {{baseUrl}}/users/e487b5cc-1df4-4650-a1f7-a799859be221/activate
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 17. Désactiver un utilisateur (PATCH /users/:id/deactivate)
+PATCH {{baseUrl}}/users/e487b5cc-1df4-4650-a1f7-a799859be221/deactivate
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 18. Supprimer un utilisateur (DELETE /users/:id)
+DELETE {{baseUrl}}/users/e487b5cc-1df4-4650-a1f7-a799859be221
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== BACS (BinsController) ====================
+
+### 19. Créer un bac (POST /bins)
+POST {{baseUrl}}/bins
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "identifier": "BAC-001-NEW",
+  "type": "MENAGER",
+  "neighborhoodId": "uuid-du-quartier",
+  "latitude": 4.0511,
+  "longitude": 9.7679,
+  "capacity": 100,
+  "fillLevel": 50,
+  "status": "ACTIF",
+  "statusReport": "RECU",
+  "reportType": "NORMAL",
+  "locationDescription": "Près du marché central"
+}
+
+### 20. Lister tous les bacs (GET /bins)
+GET {{baseUrl}}/bins?page=1&limit=10&type=MENAGER&status=ACTIF
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 21. Rechercher des bacs (GET /bins/search)
+GET {{baseUrl}}/bins/search?name=BAC-001
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 22. Statistiques des bacs (GET /bins/stats)
+GET {{baseUrl}}/bins/stats
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 23. Bacs pleins (GET /bins/full)
+GET {{baseUrl}}/bins/full
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 24. Bacs par quartier (GET /bins/neighborhood/:neighborhoodId)
+GET {{baseUrl}}/bins/neighborhood/uuid-du-quartier
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 25. Bacs par nom de quartier (GET /bins/neighborhood-name/:neighborhoodName)
+GET {{baseUrl}}/neighborhoods/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzU1NjQwMDAsImV4cCI6MTc3NzM3ODQwMH0.knYfJyUaXFTYLy9VQ0Ql4w36aq0AU-0UgLAOm0y4wPU
+
+### 26. Obtenir un bac spécifique (GET /bins/:id)
+GET {{baseUrl}}/bins/uuid-du-bac
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 27. Mettre à jour un bac (PATCH /bins/:id)
+PATCH {{baseUrl}}/bins/uuid-du-bac
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "identifier": "BAC-001-UPDATED",
+  "type": "COMMERCIAL",
+  "capacity": 150,
+  "fillLevel": 75,
+  "status": "DEBORDANT",
+  "statusReport": "RECU",
+  "reportType": "PLEIN"
+}
+
+### 28. Mettre à jour le statut d'un bac (PATCH /bins/:id/status)
+PATCH {{baseUrl}}/bins/uuid-du-bac/status
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "status": "ENDOMMAGE"
+}
+
+### 29. Supprimer un bac (DELETE /bins/:id)
+DELETE {{baseUrl}}/bins/uuid-du-bac
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== SIGNALEMENTS (ReportsController) ====================
+
+### 30. Créer un signalement (POST /reports)
+POST {{baseUrl}}/reports
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "bacId": "uuid-du-bac",
+  "reportType": "PLEIN",
+  "description": "Bac poubelle complètement plein, nécessite une intervention urgente",
+  "locationUser": "{\"lat\": 4.0511, \"lng\": 9.7679}",
+  "priority": "HIGH"
+}
+
+### 31. Lister tous les signalements (GET /reports)
+GET {{baseUrl}}/reports?page=1&limit=20&status=RECU&reportType=PLEIN
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 32. Obtenir un signalement spécifique (GET /reports/:id)
+GET {{baseUrl}}/reports/uuid-du-signalement
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 33. Mettre à jour un signalement (PATCH /reports/:id)
+PATCH {{baseUrl}}/reports/uuid-du-signalement
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "status": "EN_COURS",
+  "description": "Signalement en cours de traitement",
+  "priority": "HIGH"
+}
+
+### 34. Annuler un signalement (PATCH /reports/:id/cancel)
+GET  {{baseUrl}}/reports
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzU2NjAwNjgsImV4cCI6MTc3NzQ3NDQ2OH0.6lW_1SUC8TzgjCM5ON2mGxTdT_ck69a1II-_oL0kFyo
+
+{
+  "reason": "Signalement erroné - bac déjà vidé"
+}
+
+### ==================== INTERVENTIONS (InterventionsController) ====================
+
+### 35. Créer une intervention (POST /interventions)
+POST {{baseUrl}}/interventions
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzU1NjQwMDAsImV4cCI6MTc3NzM3ODQwMH0.knYfJyUaXFTYLy9VQ0Ql4w36aq0AU-0UgLAOm0y4wPU
+
+{
+  "reportId": "uuid-du-signalement",
+  "agentId": "uuid-de-l-agent",
+  "comment": "Intervention planifiée pour vider le bac signalé"
+}
+
+### 36. Lister toutes les interventions (GET /interventions)
+GET {{baseUrl}}/interventions?page=1&limit=20&status=EN_ATTENTE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzU1NjQwMDAsImV4cCI6MTc3NzM3ODQwMH0.knYfJyUaXFTYLy9VQ0Ql4w36aq0AU-0UgLAOm0y4wPU
+
+### 37. Lister mes interventions (GET /interventions/my-interventions)
+GET {{baseUrl}}/interventions/my-interventions
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 38. Statistiques des interventions (GET /interventions/stats)
+GET {{baseUrl}}/bins/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzU1NjQwMDAsImV4cCI6MTc3NzM3ODQwMH0.knYfJyUaXFTYLy9VQ0Ql4w36aq0AU-0UgLAOm0y4wPU
+
+### 39. Interventions d'un signalement (GET /interventions/report/:reportId)
+GET {{baseUrl}}/interventions/report/uuid-du-signalement
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 40. Interventions d'un agent (GET /interventions/agent/:agentId)
+GET {{baseUrl}}/interventions/agent/uuid-de-l-agent
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 41. Obtenir une intervention spécifique (GET /interventions/:id)
+GET {{baseUrl}}/interventions/uuid-de-l-intervention
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 42. Mettre à jour une intervention (PATCH /interventions/:id)
+PATCH {{baseUrl}}/interventions/uuid-de-l-intervention
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "status": "EN_COURS",
+  "startedAt": "2026-04-05T15:05:00Z",
+  "comment": "Intervention commencée, en route vers le site"
+}
+
+### 43. Mettre à jour le statut d'une intervention (PATCH /interventions/:id/status)
+PATCH {{baseUrl}}/interventions/uuid-de-l-intervention/status
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "status": "RESOLU",
+  "comment": "Intervention terminée avec succès"
+}
+
+### 44. Assigner une intervention (POST /interventions/report/:reportId/assign)
+POST {{baseUrl}}/interventions/report/uuid-du-signalement/assign
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "agentId": "uuid-de-l-agent",
+  "comment": "Assignation urgente - bac critique"
+}
+
+### 45. Supprimer une intervention (DELETE /interventions/:id)
+DELETE {{baseUrl}}/interventions/uuid-de-l-intervention
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== QUARTIERS (NeighborhoodsController) ====================
+
+### 46. Créer un quartier (POST /neighborhoods)
+POST {{baseUrl}}/neighborhoods
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "name": "Nouveau Quartier",
+  "cityId": "uuid-de-la-ville",
+  "description": "Description du nouveau quartier",
+  "isActive": true
+}
+
+### 47. Lister tous les quartiers (GET /neighborhoods)
+GET {{baseUrl}}/neighborhoods?page=1&limit=20&cityId=uuid-de-la-ville
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 48. Rechercher des quartiers (GET /neighborhoods/search)
+GET {{baseUrl}}/neighborhoods/search?q=Bonaberi
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 49. Statistiques des quartiers (GET /neighborhoods/stats)
+GET {{baseUrl}}/neighborhoods/stats
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 50. Quartiers d'une ville (GET /neighborhoods/city/:cityId)
+GET {{baseUrl}}/neighborhoods/city/uuid-de-la-ville
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 51. Obtenir un quartier spécifique (GET /neighborhoods/:id)
+GET {{baseUrl}}/neighborhoods/uuid-du-quartier
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 52. Mettre à jour un quartier (PATCH /neighborhoods/:id)
+PATCH {{baseUrl}}/neighborhoods/uuid-du-quartier
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "name": "Quartier Mis à Jour",
+  "description": "Description mise à jour",
+  "isActive": true
+}
+
+### 53. Supprimer un quartier (DELETE /neighborhoods/:id)
+DELETE {{baseUrl}}/neighborhoods/uuid-du-quartier
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== VILLES (CitiesController) ====================
+
+### 54. Créer une ville (POST /cities)
+POST {{baseUrl}}/cities
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "name": "Nouvelle Ville",
+  "region": "OUEST",
+  "country": "Cameroun",
+  "postalCode": "237",
+  "isActive": true
+}
+
+### 55. Lister toutes les villes (GET /cities)
+GET {{baseUrl}}/cities?page=1&limit=20&region=LITTORAL
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 56. Obtenir une ville spécifique (GET /cities/:id)
+GET {{baseUrl}}/cities/uuid-de-la-ville
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 57. Mettre à jour une ville (PATCH /cities/:id)
+PATCH {{baseUrl}}/cities/uuid-de-la-ville
+Content-Type: {{contentType}}
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+{
+  "name": "Ville Mis à Jour",
+  "region": "OUEST",
+  "country": "Cameroun",
+  "isActive": true
+}
+
+### 58. Supprimer une ville (DELETE /cities/:id)
+DELETE {{baseUrl}}/cities/uuid-de-la-ville
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== NOTIFICATIONS (NotificationController) ====================
+
+### 59. Lister toutes les notifications (GET /notifications)
+GET {{baseUrl}}/notifications?page=1&limit=20&userId=uuid-utilisateur
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 60. Obtenir une notification spécifique (GET /notifications/:id)
+GET {{baseUrl}}/notifications/uuid-de-la-notification
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 61. Marquer une notification comme lue (PATCH /notifications/:id/read)
+PATCH {{baseUrl}}/notifications/uuid-de-la-notification/read
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 62. Supprimer une notification (DELETE /notifications/:id)
+DELETE {{baseUrl}}/notifications/uuid-de-la-notification
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== AUDITS (AuditController) ====================
+
+### 63. Lister tous les logs d'audit (GET /audit)
+GET {{baseUrl}}/audit?page=1&limit=20&action=USER_CREATED
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### 64. Statistiques des logs d'audit (GET /audit/stats)
+GET {{baseUrl}}/audit/stats
+Authorization: Bearer VOTRE_TOKEN_ADMIN_ICI
+
+### ==================== NOTES ====================
+
+### Instructions d'utilisation :
+### 1. Remplacez "VOTRE_TOKEN_ADMIN_ICI" par le token JWT obtenu après connexion
+### 2. Remplacez les UUID (uuid-xxx) par des IDs réels de votre base de données
+### 3. Adaptez les données selon vos besoins
+### 4. Testez les routes dans l'ordre logique : inscription → connexion → autres opérations
+
+### Routes vérifiées dans les contrôleurs existants :
+### ✅ UsersController : 18 routes (POST, GET, PATCH, DELETE avec bons paramètres)
+### ✅ BinsController : 15 routes (avec /search, /stats, /full, /neighborhood, /status)
+### ✅ ReportsController : 5 routes (POST, GET, PATCH, /cancel)
+### ✅ InterventionsController : 11 routes (avec /my-interventions, /stats, /report, /agent, /status, /assign)
+### ✅ NeighborhoodsController : 8 routes (avec /search, /stats, /city)
+### ✅ CitiesController : 5 routes (GET, POST, PATCH, DELETE)
+### ✅ NotificationController : 4 routes (GET, PATCH/read, DELETE)
+### ✅ AuditController : 2 routes (GET, /stats)
+### ✅ AuthController : 5 routes (register, login, /me, /request-password-reset, /reset-password)
+
+### Champs basés sur les DTOs réels :
+### ✅ CreateUserDto : firstName, lastName, email, phone, password, role?, neighborhoodId?, neighborhood?, isActive?, isVerified?, fcmToken?
+### ✅ UpdateUserDto : mêmes champs mais optionnels
+### ✅ CreateBinDto : identifier, type, neighborhoodId, latitude?, longitude?, locationDescription?, status?, capacity?, fillLevel?, statusReport?, reportType?
+### ✅ CreateReportDto : bacId, reportType, description?, locationUser?, priority?
+### ✅ CreateInterventionDto : reportId, agentId, comment?
+### ✅ CreateNeighborhoodDto : name, cityId, description?, isActive?
+### ✅ CreateCityDto : name, region?, country?, postalCode?, isActive?
+
+### Enums exactes du schéma Prisma :
+### ✅ UserRole : CITIZEN | AGENT | SUPERVISOR | ADMIN
+### ✅ BacType : MENAGER | COMMERCIAL | INDUSTRIEL
+### ✅ BacStatus : ACTIF | DEBORDANT | ENDOMMAGE | INACTIF
+### ✅ ReportType : NORMAL | PLEIN | ENDOMMAGE | MANQUANT | DEBORDENT
+### ✅ ReportStatus : RECU | ASSIGNE | EN_COURS | TERMINE | ANNULE
+### ✅ Priority : LOW | MEDIUM | HIGH | CRITICAL
+### ✅ InterventionStatus : PENDING | IN_PROGRESS | RESOLVED | CANCELLED
+### ✅ Region : LITTORAL | CENTRE | OUEST | EXTREME_NORD | NORD | SUD | SUD_OUEST | NORD_OUEST | ADAMAOUA

@@ -1,0 +1,27 @@
+### Test de recherche de bacs par nom de quartier
+@baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
+@contentType = application/json
+
+### 1. Rechercher les bacs du quartier "Bonaberi"
+GET {{baseUrl}}/bins/neighborhood-name/Bonaberi
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+### 2. Rechercher les bacs du quartier "Akwa"
+GET {{baseUrl}}/bins/neighborhood-name/Akwa
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+### 3. Rechercher les bacs du quartier "Makepe"
+GET {{baseUrl}}/bins/neighborhood-name/Makepe
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+### 4. Rechercher les bacs d'un quartier qui n'existe pas (doit retourner 404)
+GET {{baseUrl}}/bins/neighborhood-name/QuartierInexistant123
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+### 5. Rechercher les bacs avec une casse différente (insensitive)
+GET {{baseUrl}}/bins/neighborhood-name/bonaberi
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+### 6. Comparaison avec la route par ID du quartier
+GET {{baseUrl}}/bins/neighborhood/e487b5cc-1df4-4650-a1f7-a799859be221
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q

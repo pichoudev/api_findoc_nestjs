@@ -1,0 +1,117 @@
+### Variables
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### ========================================
+### MODULE CITIES - CRUD COMPLET
+### ========================================
+
+### 1. Créer une nouvelle ville
+POST {{baseUrl}}/cities
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_admin_ici
+
+{
+  "name": "Douala",
+  "country": "Cameroun",
+  "postalCode": "237",
+  "region": "LITTORAL",
+  "isActive": true
+}
+
+### 2. Créer une autre ville
+POST {{baseUrl}}/cities
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_admin_ici
+
+{
+  "name": "Yaoundé",
+  "country": "Cameroun",
+  "postalCode": "237",
+  "region": "CENTRE",
+  "isActive": true
+}
+
+### 3. Lister toutes les villes avec pagination
+GET {{baseUrl}}/cities?page=1&limit=10&isActive=true
+Authorization: Bearer votre_token_ici
+
+### 4. Obtenir les statistiques des villes
+GET {{baseUrl}}/cities/stats
+Authorization: Bearer votre_token_admin_ici
+
+### 5. Obtenir une ville par ID
+GET {{baseUrl}}/cities/uuid-ville-ici
+Authorization: Bearer votre_token_ici
+
+### 6. Mettre à jour une ville
+PATCH {{baseUrl}}/cities/uuid-ville-ici
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_admin_ici
+
+{
+  "name": "Douala Ville",
+  "region": "LITTORAL",
+  "isActive": true
+}
+
+### 7. Activer une ville
+PATCH {{baseUrl}}/cities/uuid-ville-ici/activate
+Authorization: Bearer votre_token_admin_ici
+
+### 8. Désactiver une ville
+PATCH {{baseUrl}}/cities/uuid-ville-ici/deactivate
+Authorization: Bearer votre_token_admin_ici
+
+### 9. Supprimer une ville (ADMIN uniquement)
+DELETE {{baseUrl}}/cities/uuid-ville-ici
+Authorization: Bearer votre_token_admin_ici
+
+### ========================================
+### FILTRES AVANCÉS
+### ========================================
+
+### Filtrer par région
+GET {{baseUrl}}/cities?region=LITTORAL&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Filtrer par statut actif
+GET {{baseUrl}}/cities?isActive=true&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Rechercher par nom de ville
+GET {{baseUrl}}/cities?search=Douala&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Combinaison de filtres
+GET {{baseUrl}}/cities?region=LITTORAL&isActive=true&search=douala&page=1&limit=10
+Authorization: Bearer votre_token_ici
+
+### ========================================
+### TESTS D'ERREURS
+### ========================================
+
+### Créer une ville avec un nom existant
+POST {{baseUrl}}/cities
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_admin_ici
+
+{
+  "name": "Douala",
+  "country": "Cameroun",
+  "postalCode": "237",
+  "region": "LITTORAL"
+}
+
+### Mettre à jour une ville avec un nom existant
+PATCH {{baseUrl}}/cities/uuid-autre-ville-ici
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_admin_ici
+
+{
+  "name": "Douala"
+}
+
+### Supprimer une ville avec des dépendances
+DELETE {{baseUrl}}/cities/uuid-ville-avec-dependances-ici
+Authorization: Bearer votre_token_admin_ici

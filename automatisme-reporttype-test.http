@@ -1,0 +1,90 @@
+### Test de l'automatisme reportType → statusReport
+@baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
+@contentType = application/json
+
+### 1. Créer un bac avec reportType PLEIN
+POST {{baseUrl}}/bins
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+{
+  "identifier": "BAC-AUTO-001",
+  "type": "MENAGER",
+  "neighborhoodId": "e487b5cc-1df4-4650-a1f7-a799859be221",
+  "reportType": "PLEIN"
+}
+
+### 2. Vérifier le bac créé (doit avoir reportType PLEIN)
+GET {{baseUrl}}/bins/ID_DU_BAC_CRÉÉ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+### 3. Signaler ce bac (doit mettre statusReport = PLEIN)
+POST {{baseUrl}}/reports
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+{
+  "bacId": "ID_DU_BAC_CRÉÉ",
+  "reportType": "PLEIN",
+  "description": "Test d'automatisme reportType → statusReport",
+  "priority": "HIGH"
+}
+
+### 4. Vérifier le bac après signalement (doit avoir statusReport = PLEIN)
+GET {{baseUrl}}/bins/ID_DU_BAC_CRÉÉ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+### 5. Créer un bac avec reportType ENDOMMAGE
+POST {{baseUrl}}/bins
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+{
+  "identifier": "BAC-AUTO-002",
+  "type": "MENAGER",
+  "neighborhoodId": "e487b5cc-1df4-4650-a1f7-a799859be221",
+  "reportType": "ENDOMMAGE"
+}
+
+### 6. Signaler ce bac (doit mettre statusReport = ENDOMMAGE)
+POST {{baseUrl}}/reports
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+{
+  "bacId": "ID_DU_BAC_CRÉÉ_2",
+  "reportType": "ENDOMMAGE",
+  "description": "Test automatisme ENDOMMAGE",
+  "priority": "MEDIUM"
+}
+
+### 7. Vérifier le bac après signalement (doit avoir statusReport = ENDOMMAGE)
+GET {{baseUrl}}/bins/ID_DU_BAC_CRÉÉ_2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+### 8. Créer un bac SANS reportType (doit utiliser NORMAL par défaut)
+POST {{baseUrl}}/bins
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+{
+  "identifier": "BAC-AUTO-003",
+  "type": "MENAGER",
+  "neighborhoodId": "e487b5cc-1df4-4650-a1f7-a799859be221"
+}
+
+### 9. Signaler ce bac (doit mettre statusReport = NORMAL)
+POST {{baseUrl}}/reports
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q
+
+{
+  "bacId": "ID_DU_BAC_CRÉÉ_3",
+  "reportType": "NORMAL",
+  "description": "Test automatisme NORMAL",
+  "priority": "LOW"
+}
+
+### 10. Vérifier le bac après signalement (doit avoir statusReport = NORMAL)
+GET {{baseUrl}}/bins/ID_DU_BAC_CRÉÉ_3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIwNzAxMSwiZXhwIjoxNzc3MDI3MDg0fQ.VIoEh40HkUevq0CviGCegpbs_XmhDKRXnKZYxqMhv4Q

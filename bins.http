@@ -1,0 +1,185 @@
+### Variables
+@baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
+@contentType = application/json
+
+### ========================================
+### MODULE BINS - CRUD COMPLET
+### ========================================
+
+### 1. Créer un nouveau bac
+POST {{baseUrl}}/bins
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzU2NjAwNjgsImV4cCI6MTc3NzQ3NDQ2OH0.6lW_1SUC8TzgjCM5ON2mGxTdT_ck69a1II-_oL0kFyo
+
+{
+  "identifier": "BAC-081",
+  "type": "COMMERCIAL",
+  "neighborhoodId": "d2b51234-abcd-4a1b-8a3d-987654321001",
+  "latitude": 9.7043,
+  "longitude": 4.0483,
+  "status": "ACTIF",
+  "capacity": 100,
+  "fillLevel": 25
+}
+
+### 2. Créer un bac commercial
+POST {{baseUrl}}/bins
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_agent_ici
+
+{
+  "identifier": "BAC-COM-001",
+  "type": "COMMERCIAL",
+  "neighborhoodId": "uuid-quartier-akwa-ici",
+  "latitude": 9.7050,
+  "longitude": 4.0490,
+  "locationDescription": "Devant le centre commercial",
+  "status": "ACTIVE",
+  "capacity": 500,
+  "fillLevel": 60
+}
+
+### 3. Créer un bac industriel
+POST {{baseUrl}}/bins
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_agent_ici
+
+{
+  "identifier": "BAC-IND-001",
+  "type": "INDUSTRIAL",
+  "neighborhoodId": "",
+  "latitude": 9.7060,
+  "longitude": 4.0500,
+  "locationDescription": "Zone industrielle",
+  "status": "ACTIVE",
+  "capacity": 1000,
+  "fillLevel": 80
+}
+
+### 4. Lister tous les bacs avec pagination
+GET {{baseUrl}}/bins
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTE1MjAzMiwiZXhwIjoxNzc2OTY2NDMyfQ.GYvjivWe67Uv7KnRZXSMFDQXxQO2dec5g-orlew0FGo
+
+### 5. Obtenir les statistiques des bacs
+GET {{baseUrl}}/bins/stats
+Authorization: Bearer votre_token_agent_ici
+
+### 6. Obtenir les bacs pleins (seuil par défaut 80%)
+GET {{baseUrl}}/bins/full
+Authorization: Bearer votre_token_agent_ici
+
+### 7. Obtenir les bacs pleins avec seuil personnalisé
+GET {{baseUrl}}/bins/full?threshold=70
+Authorization: Bearer votre_token_agent_ici
+
+### 8. Obtenir les bacs d'un quartier spécifique
+GET {{baseUrl}}/bins/neighborhood/uuid-quartier-bonaberi-ici
+Authorization: Bearer votre_token_ici
+
+### 9. Obtenir un bac par ID
+GET {{baseUrl}}/bins/uuid-bac-ici
+Authorization: Bearer votre_token_ici
+
+### 10. Mettre à jour un bac
+PATCH {{baseUrl}}/bins/uuid-bac-ici
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_agent_ici
+
+{
+  "identifier": "BAC-001-UPDATED",
+  "locationDescription": "Nouvelle description",
+  "fillLevel": 45
+}
+
+### 11. Mettre à jour le statut d'un bac
+PATCH {{baseUrl}}/bins/uuid-bac-ici/status
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_agent_ici
+
+{
+  "status": "FULL"
+}
+
+### 12. Mettre à jour le niveau de remplissage
+PATCH {{baseUrl}}/bins/uuid-bac-ici/fill-level
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_agent_ici
+
+{
+  "fillLevel": 85
+}
+
+### 13. Supprimer un bac (ADMIN/SUPERVISOR uniquement)
+DELETE {{baseUrl}}/bins/uuid-bac-ici
+Authorization: Bearer votre_token_admin_ici
+
+### ========================================
+### FILTRES AVANCÉS
+### ========================================
+
+### Filtrer par type de bac
+GET {{baseUrl}}/bins?type=HOUSEHOLD&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Filtrer par statut
+GET {{baseUrl}}/bins?status=ACTIVE&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Filtrer par quartier
+GET {{baseUrl}}/bins?neighborhoodId=uuid-quartier-bonaberi-ici&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Filtrer par ville
+GET {{baseUrl}}/bins?cityId=uuid-ville-douala-ici&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Filtrer par niveau de remplissage supérieur
+GET {{baseUrl}}/bins?fillLevelAbove=70&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Rechercher par identifiant
+GET {{baseUrl}}/bins?search=BAC-001&page=1&limit=5
+Authorization: Bearer votre_token_ici
+
+### Combinaison de filtres
+GET {{baseUrl}}/bins?type=HOUSEHOLD&status=ACTIVE&fillLevelAbove=50&search=BAC&page=1&limit=10
+Authorization: Bearer votre_token_ici
+
+### ========================================
+### TESTS D'ERREURS
+### ========================================
+
+### Créer un bac avec un identifiant existant
+POST {{baseUrl}}/bins
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_agent_ici
+
+{
+  "identifier": "BAC-001",
+  "type": "HOUSEHOLD",
+  "neighborhoodId": "uuid-quartier-bonaberi-ici"
+}
+
+### Créer un bac avec un quartier inexistant
+POST {{baseUrl}}/bins
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_agent_ici
+
+{
+  "identifier": "BAC-ERROR-001",
+  "type": "HOUSEHOLD",
+  "neighborhoodId": "uuid-quartier-inexistant-ici"
+}
+
+### Mettre à jour avec un niveau de remplissage invalide
+PATCH {{baseUrl}}/bins/uuid-bac-ici/fill-level
+Content-Type: {{contentType}}
+Authorization: Bearer votre_token_agent_ici
+
+{
+  "fillLevel": 150
+}
+
+### Supprimer un bac avec des dépendances
+DELETE {{baseUrl}}/bins/uuid-bac-avec-rapports-ici
+Authorization: Bearer votre_token_admin_ici

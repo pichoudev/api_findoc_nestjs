@@ -1,0 +1,127 @@
+### Reports endpoints
+
+@baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
+@contentType = application/json
+
+### 1. Créer un signalement avec photo
+POST {{baseUrl}}/reports
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTIzMzM5MSwiZXhwIjoxNzc3MDQ3NzkxfQ.gzlM_zoags6noHj7Ki0aWuuknO1JlHo74CEULOXo484
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="bacId"
+
+f8e12345-0000-4c1d-9e2f-abc123000010
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="reportType"
+
+PLEIN
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="description"
+
+Le bac est complètement plein et déborde depuis 2 jours. Il y a des déchets autour qui attirent les moustiques.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="priority"
+
+HIGH
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="photo"; filename="test-image.jpg"
+Content-Type: image/jpeg
+
+< ./test-image.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 2. Créer un signalement sans photo
+POST {{baseUrl}}/reports
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczODUxNjMwLCJleHAiOjE3NzU2NjYwMzB9.x--KmGSpowXTokIvNG_nSd0OcURXudJ_waqrKQ6RsIc
+
+{
+  "bacId": "550e8400-e29b-41d4-a716-446655440000",
+  "reportType": "DAMAGED",
+  "description": "Le couvercle du bac est cassé et ne ferme plus correctement",
+  "priority": "MEDIUM"
+}
+
+### 3. Lister tous les signalements (pour agents/admins)
+GET {{baseUrl}}/reports?page=1&limit=10
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczODUxNjMwLCJleHAiOjE3NzU2NjYwMzB9.x--KmGSpowXTokIvNG_nSd0OcURXudJ_waqrKQ6RsIc
+
+### 4. Lister mes signalements
+GET {{baseUrl}}/reports/my-reports
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczODUxNjMwLCJleHAiOjE3NzU2NjYwMzB9.x--KmGSpowXTokIvNG_nSd0OcURXudJ_waqrKQ6RsIc
+
+### 5. Signalements par bac
+GET {{baseUrl}}/reports/bin/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczODUxNjMwLCJleHAiOjE3NzU2NjYwMzB9.x--KmGSpowXTokIvNG_nSd0OcURXudJ_waqrKQ6RsIc
+
+### 6. Détails d'un signalement
+GET {{baseUrl}}/reports/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczODUxNjMwLCJleHAiOjE3NzU2NjYwMzB9.x--KmGSpowXTokIvNG_nSd0OcURXudJ_waqrKQ6RsIc
+
+### 7. Mettre à jour un signalement
+PATCH {{baseUrl}}/reports/550e8400-e29b-41d4-a716-446655440000
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczODUxNjMwLCJleHAiOjE3NzU2NjYwMzB9.x--KmGSpowXTokIvNG_nSd0OcURXudJ_waqrKQ6RsIc
+
+{
+  "status": "IN_PROGRESS",
+  "description": "Le bac est en cours de réparation"
+}
+
+### 8. Mettre à jour le statut d'un signalement
+PATCH {{baseUrl}}/reports/550e8400-e29b-41d4-a716-446655440000/status
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczODUxNjMwLCJleHAiOjE3NzU2NjYwMzB9.x--KmGSpowXTokIvNG_nSd0OcURXudJ_waqrKQ6RsIc
+
+{
+  "status": "COMPLETED"
+}
+
+### 9. Statistiques des signalements
+GET {{baseUrl}}/reports/my-stats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTI4MDAwNSwiZXhwIjoxNzc3MDk0NDA1fQ.NGiFIYyNmbnNGFI4itIs1KBPvtL3PaLaa1SFYrDJffI
+
+### 10. Filtrer les signalements
+GET {{baseUrl}}/reports?reportType=FULL&status=ASSIGNED&priority=HIGH&page=1&limit=5
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczODUxNjMwLCJleHAiOjE3NzU2NjYwMzB9.x--KmGSpowXTokIvNG_nSd0OcURXudJ_waqrKQ6RsIc
+
+### 11. Supprimer un signalement (admin/supervisor uniquement)
+DELETE {{baseUrl}}/reports/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczODUxNjMwLCJleHAiOjE3NzU2NjYwMzB9.x--KmGSpowXTokIvNG_nSd0OcURXudJ_waqrKQ6RsIc
+
+### Instructions:
+# - Les photos sont automatiquement compressées en WebP (800x800, qualité 75%)
+# - Les fichiers sont stockés dans ./uploads/ et ./uploads/compressed/
+# - Les codes de référence sont générés automatiquement (ex: REP-26-001)
+# - Les signalements sont audités automatiquement
+# - Seuls les agents et admins peuvent voir tous les signalements
+# - Les citoyens ne voient que leurs propres signalements
+
+
+POST {{baseUrl}}/reports
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczOTkyODA4LCJleHAiOjE3NzU4MDcyMDh9.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="bacId"
+
+0433bb58-16dd-4252-a742-e4cabf9808bf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="reportType"
+
+FULL
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="description"
+
+Le bac est plein et déborde
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="priority"
+
+HIGH
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="photo"; filename="test-upload.jpg"
+Content-Type: image/jpeg
+
+< ./test-upload.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

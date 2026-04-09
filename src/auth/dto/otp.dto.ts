@@ -6,6 +6,12 @@ export class SendOtpDto {
   @IsString()
   @IsNotEmpty()
   emailOrPhone: string;
+
+  @ApiPropertyOptional({ description: 'Purpose de l\'OTP: VERIFY_EMAIL ou RESET_PASSWORD', enum: ['VERIFY_EMAIL', 'RESET_PASSWORD'] })
+  @IsString()
+  @IsOptional()
+  @IsIn(['VERIFY_EMAIL', 'RESET_PASSWORD'])
+  purpose?: string;
 }
 
 export class VerifyOtpDto {

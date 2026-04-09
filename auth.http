@@ -1,8 +1,8 @@
 ### Cleaner App - API Auth Tests
 ### Fichier de test pour les endpoints d'authentification
-### Base URL: http://localhost:3000
-
-@baseUrl = http://localhost:3000
+ @baseUrl= https://backend-cleaner-nestjs.onrender.com/api/v1
+# 
+# @baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
 @contentType = application/json
 
 ### ==================== AUTHENTIFICATION ====================
@@ -12,12 +12,12 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "citoyen@cleaner.cm",
+  "email": "loona7757@gmail.com",
   "phone": "+237698765432",
   "password": "password123",
   "confirmPassword": "password123",
-  "firstName": "Jean",
-  "lastName": "Mbiya",
+  "firstName": "loona",
+  "lastName": "Pichou",
   "role": "CITIZEN"
 }
 
@@ -40,13 +40,13 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "douala@cleaner.cm",
+  "email": "apollinebanemb@gmail.com",
   "phone": "+237655555555",
-  "password": "douala123",
-  "confirmPassword": "douala123",
-  "firstName": "Marie",
-  "lastName": "Douala",
-  "neighborhoodId": "uuid-du-quartier-ici",
+  "password": "doual123",
+  "confirmPassword": "doual123",
+  "firstName": "Steph",
+  "lastName": "pichou",
+  "neighborhood": "Akwa",
   "role": "CITIZEN"
 }
 
@@ -66,8 +66,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "citoyen@cleaner.cm",
-  "password": "password123"
+  "email": "loona7757@gmail.com",
+  "password": "Password123"
 }
 
 ### ==================== TOKEN MANAGEMENT ====================
@@ -96,7 +96,7 @@ POST {{baseUrl}}/auth/send-otp
 Content-Type: {{contentType}}
 
 {
-  "emailOrPhone": "citoyen@cleaner.cm"
+  "emailOrPhone": "apollinebanemb@gmail.com"
 }
 
 ### 9. Envoyer OTP par SMS
@@ -104,7 +104,7 @@ POST {{baseUrl}}/auth/send-otp
 Content-Type: {{contentType}}
 
 {
-  "emailOrPhone": "+237698765432"
+  "emailOrPhone": "+237655777442"
 }
 
 ### 10. Vérifier OTP pour activation de compte
@@ -112,8 +112,8 @@ POST {{baseUrl}}/auth/verify-otp
 Content-Type: {{contentType}}
 
 {
-  "emailOrPhone": "citoyen@cleaner.cm",
-  "code": "123456",
+  "emailOrPhone": "apollinebanemb@gmail.com",
+  "code": "695648",
   "purpose": "VERIFY_EMAIL"
 }
 
@@ -122,7 +122,7 @@ POST {{baseUrl}}/auth/request-password-reset
 Content-Type: {{contentType}}
 
 {
-  "emailOrPhone": "citoyen@cleaner.cm"
+  "emailOrPhone": "loona7757@gmail.com"
 }
 
 ### 12. Réinitialiser mot de passe avec OTP
@@ -130,9 +130,10 @@ POST {{baseUrl}}/auth/reset-password
 Content-Type: {{contentType}}
 
 {
-  "emailOrPhone": "citoyen@cleaner.cm",
-  "code": "123456",
-  "newPassword": "newpassword123"
+  "code": "596464", 
+  "emailOrPhone": "loona7757@gmail.com",
+  "newPassword": "Password123",
+  "confirmPassword": "Password123"
 }
 
 ### ==================== GOOGLE AUTH (optionnel) ====================
@@ -147,7 +148,7 @@ GET {{baseUrl}}/auth/google/callback
 
 ### 15. Obtenir le profil utilisateur connecté
 GET {{baseUrl}}/auth/me
-Authorization: Bearer votre-access-token-ici
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTMyNTA1NSwiZXhwIjoxNzc3MTM5NDU1fQ.ZbW5_BVWLsyTdZlYDznB4dd-KipRsynBw41eSBzc6_g
 
 ### ==================== TESTS D'ERREURS ====================
 
@@ -202,26 +203,3 @@ Content-Type: {{contentType}}
   "code": "000000",
   "purpose": "VERIFY_EMAIL"
 }
-
-### ==================== VARIABLES D'ENVIRONNEMENT ====================
-
-# Pour tester avec différents environnements:
-# @baseUrl = http://localhost:3000 (développement)
-# @baseUrl = https://api.cleaner.cm (production)
-# @baseUrl = https://staging-api.cleaner.cm (staging)
-
-### ==================== INSTRUCTIONS ====================
-
-# 1. Démarrer le serveur NestJS: npm run start:dev
-# 2. Exécuter ces requêtes avec VS Code REST Client ou Postman
-# 3. Remplacer les UUID et tokens par des valeurs réelles
-# 4. Vérifier les emails OTP dans votre boîte de réception
-# 5. Utiliser les tokens retournés pour les requêtes authentifiées
-
-### Notes importantes:
-# - Les mots de passe doivent avoir minimum 6 caractères
-# - Les rôles valides: CITIZEN, AGENT, SUPERVISOR, ADMIN
-# - Le téléphone doit être unique au format international (+237...)
-# - Un OTP est envoyé automatiquement après inscription
-# - Le compte est inactif jusqu'à vérification OTP
-# - La ville par défaut est Douala si aucun neighborhoodId spécifié

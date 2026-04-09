@@ -1,17 +1,24 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { OtpService } from './otp.service';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
+import { ProductionLogger } from '../common/logger';
 import { randomBytes } from 'crypto';
 
 @Injectable()
 export class AuthService {
+  private readonly logger: Logger;
+
   constructor(
+    private readonly configService: ConfigService,
     private prisma: PrismaService,
     private jwtService: JwtService,
     private otpService: OtpService,
-  ) {}
+  ) {
+    this.logger = new Logger('AuthService');
+  }
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.prisma.user.findUnique({
@@ -26,6 +33,9 @@ export class AuthService {
   }
 
   async login(user: any) {
+    console.log('🔐 LOGIN - Configuration JWT:');
+    console.log('JWT_EXPIRATION from env:', this.configService.get<string>('JWT_EXPIRATION'));
+    
     const payload = { 
       sub: user.id, 
       email: user.email, 
@@ -34,13 +44,27 @@ export class AuthService {
     };
     
     const access_token = this.jwtService.sign(payload);
+    const decoded = this.jwtService.decode(access_token);
+    
+    console.log('🎫 TOKEN GÉNÉRÉ:');
+    console.log('Émis (iat):', new Date(decoded.iat * 1000));
+    console.log('Expire (exp):', new Date(decoded.exp * 1000));
+    console.log('Temps actuel:', new Date());
+    console.log('Heures jusqu\'expiration:', (decoded.exp - Math.floor(Date.now()/1000)) / 3600);
+    
     const refresh_token = randomBytes(40).toString('hex');
     
+    console.log(`🔄 Tentative de sauvegarde du refresh token pour l'utilisateur ${user.id}`);
+    console.log(`📝 Refresh token généré: ${refresh_token.substring(0, 10)}...`);
+    
     // Sauvegarder le refresh token dans le modèle User
-    await this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
       data: { refreshToken: refresh_token }
     });
+    
+    console.log(`✅ Refresh token sauvegardé: ${updatedUser.refreshToken ? 'OUI' : 'NON'}`);
+    console.log(`📊 Valeur dans la base: ${updatedUser.refreshToken?.substring(0, 10)}...`);
     
     return {
       access_token,
@@ -48,6 +72,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        quartier: user.neighborhood,
         phone: user.phone,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -59,12 +84,20 @@ export class AuthService {
   }
 
   async refreshToken(refreshToken: string) {
+    console.log(`🔍 Recherche de l'utilisateur avec refresh token: ${refreshToken.substring(0, 10)}...`);
+    
     const user = await this.prisma.user.findFirst({
       where: { 
         refreshToken: refreshToken,
         isActive: true
       },
     });
+    
+    console.log(`👤 Utilisateur trouvé: ${user ? 'OUI' : 'NON'}`);
+    if (user) {
+      console.log(`📧 Email: ${user.email}`);
+      console.log(`🔄 Token dans la base: ${user.refreshToken?.substring(0, 10)}...`);
+    }
 
     if (!user) {
       throw new UnauthorizedException('Token de rafraîchissement invalide ou expiré');
@@ -91,6 +124,11 @@ export class AuthService {
   }
 
   async getMe(userId: string) {
+    // Compter les signalements de l'utilisateur
+    const reportCount = await this.prisma.report.count({
+      where: { userId: userId }
+    });
+
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -101,11 +139,12 @@ export class AuthService {
         phone: true,
         role: true,
         neighborhoodId: true,
+        neighborhood: true,
         isActive: true,
         isVerified: true,
         createdAt: true,
         updatedAt: true,
-        neighborhood: {
+        neighborhoodRelation: {
           select: {
             id: true,
             name: true,
@@ -125,7 +164,11 @@ export class AuthService {
       throw new UnauthorizedException('Utilisateur non trouvé');
     }
 
-    return user;
+    // Ajouter le nombre de signalements à la réponse
+    return {
+      ...user,
+      reportCount
+    };
   }
 
   async register(createUserDto: any) {
@@ -157,9 +200,25 @@ export class AuthService {
       throw new UnauthorizedException('Rôle invalide. Choisissez: CITIZEN, AGENT, SUPERVISOR, ADMIN');
     }
 
-    // Si aucun neighborhoodId n'est fourni, assigner un quartier par défaut à Douala
-    let neighborhoodId = createUserDto.neighborhoodId;
-    if (!neighborhoodId) {
+    // Si aucun neighborhood n'est fourni, assigner un quartier par défaut à Douala
+    let neighborhoodName = createUserDto.neighborhood;
+    let neighborhoodId: string | null = null;
+    
+    if (neighborhoodName) {
+      // Chercher le quartier par nom
+      const neighborhood = await this.prisma.neighborhood.findFirst({
+        where: {
+          name: {
+            contains: neighborhoodName,
+            mode: 'insensitive'
+          }
+        }
+      });
+      
+      if (neighborhood) {
+        neighborhoodId = neighborhood.id;
+      }
+    } else {
       // Chercher un quartier par défaut à Douala
       const defaultNeighborhood = await this.prisma.neighborhood.findFirst({
         where: {
@@ -172,15 +231,7 @@ export class AuthService {
       
       if (defaultNeighborhood) {
         neighborhoodId = defaultNeighborhood.id;
-      }
-    } else {
-      // Vérifier si le neighborhoodId fourni existe
-      const neighborhood = await this.prisma.neighborhood.findUnique({
-        where: { id: neighborhoodId },
-      });
-      
-      if (!neighborhood) {
-        throw new UnauthorizedException('Quartier non trouvé');
+        neighborhoodName = defaultNeighborhood.name;
       }
     }
 
@@ -201,6 +252,7 @@ export class AuthService {
         isActive: false, // Nécessite une verification OTP/email
         isVerified: false,
         neighborhoodId: neighborhoodId,
+        neighborhood: neighborhoodName,
       },
     });
 
@@ -255,51 +307,95 @@ export class AuthService {
   }
 
   async sendOtp(emailOrPhone: string, purpose: string = 'VERIFY_EMAIL') {
+    this.logger.log(`=== DÉBUT SEND OTP ===`);
+    this.logger.log(`Email/Phone: ${emailOrPhone}`);
+    this.logger.log(`Purpose: ${purpose}`);
+    
     const isEmail = emailOrPhone.includes('@');
+    this.logger.log(`Is Email: ${isEmail}`);
     
     let user;
     if (isEmail) {
+      this.logger.log('Recherche par email...');
       user = await this.findByEmail(emailOrPhone);
     } else {
+      this.logger.log('Recherche par téléphone...');
       user = await this.findByPhone(emailOrPhone);
     }
     
+    this.logger.log(`User found: ${user ? 'YES' : 'NO'}`);
+    
+    // 🛡️ SÉCURITÉ: Ne pas révéler si l'utilisateur existe (comme requestPasswordReset)
     if (!user) {
-      throw new UnauthorizedException('Utilisateur non trouvé');
+      this.logger.warn('Utilisateur non trouvé - retour silencieux pour sécurité');
+      return {
+        message: 'Si cet utilisateur existe, un code de vérification a été envoyé',
+        expiresIn: 600,
+      };
     }
 
-    // Générer et stocker l'OTP dans la base de données
-    const { code, secret, expiresAt } = this.otpService.generateOtp();
+    this.logger.log(`User ID: ${user.id}`);
     
-    // Supprimer les anciens OTP pour cet utilisateur et ce purpose
-    await this.prisma.otpToken.deleteMany({
-      where: {
-        userId: user.id,
-        purpose: purpose
-      }
-    });
-    
-    // Créer le nouvel OTP
-    await this.prisma.otpToken.create({
-      data: {
-        userId: user.id,
-        code: code,
-        purpose: purpose,
-        expiresAt: expiresAt
-      }
-    });
+    try {
+      // Générer et stocker l'OTP dans la base de données
+      const code = await this.otpService.generateOtp();
+      const expiresAt = new Date();
+      expiresAt.setMinutes(expiresAt.getMinutes() + 10);
+      this.logger.log(`OTP généré: ${code}`);
+      this.logger.log(`Expires à: ${expiresAt}`);
+      
+      // Supprimer les anciens OTP pour cet utilisateur et ce purpose
+      this.logger.log('Suppression des anciens OTP...');
+      const deleteResult = await this.prisma.otpToken.deleteMany({
+        where: {
+          userId: user.id,
+          purpose: purpose
+        }
+      });
+      this.logger.log(`Anciens OTP supprimés: ${deleteResult.count}`);
+      
+      // Créer le nouvel OTP
+      this.logger.log('Création du nouvel OTP...');
+      const newOtp = await this.prisma.otpToken.create({
+        data: {
+          userId: user.id,
+          code: code,
+          purpose: purpose,
+          expiresAt: expiresAt
+        }
+      });
+      this.logger.log(`Nouvel OTP créé avec ID: ${newOtp.id}`);
 
-    // Envoyer l'OTP
-    if (isEmail) {
-      await this.otpService.sendOtpEmail(emailOrPhone, code);
-    } else {
-      await this.otpService.sendSmsOtp(emailOrPhone, code);
+      // Envoyer l'OTP avec timeout
+      this.logger.log('Envoi de l\'OTP...');
+      const emailPromise = this.otpService.sendOtpEmail(emailOrPhone, code);
+      
+      // 🕐 Timeout de 30 secondes pour l'envoi email
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout envoi email')), 30000);
+      });
+      
+      await Promise.race([emailPromise, timeoutPromise]);
+      this.logger.log('✅ OTP envoyé par email');
+
+      this.logger.log('=== FIN SEND OTP ===');
+      return {
+        message: 'Code OTP envoyé avec succès',
+        expiresIn: 600, // 10 minutes
+      };
+    } catch (error) {
+      this.logger.error(`❌ Erreur dans sendOtp: ${error.message}`, error.stack);
+      
+      // 🛡️ En cas d'erreur SMTP, retourner un message générique
+      if (error.message.includes('Timeout') || error.message.includes('SMTP')) {
+        return {
+          message: 'Code OTP généré mais erreur lors de l\'envoi. Veuillez réessayer.',
+          expiresIn: 600,
+        };
+      }
+      
+      throw error;
     }
-
-    return {
-      message: 'Code OTP envoyé avec succès',
-      expiresIn: 300, // 5 minutes
-    };
   }
 
   async verifyOtp(emailOrPhone: string, code: string, purpose: string = 'VERIFY_EMAIL') {

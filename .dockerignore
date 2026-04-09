@@ -1,0 +1,86 @@
+# ========================================
+# .dockerignore - Fichiers à exclure du build Docker
+# ========================================
+
+# Dépendances et cache
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Fichiers de build
+dist
+build
+.next
+.nuxt
+
+# Environnement et configuration
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.docker-back4app.env
+
+# Git et versioning
+.git
+.gitignore
+README.md
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Tests et couverture
+coverage
+.nyc_output
+jest.config.js
+*.spec.ts
+*.test.ts
+
+# Outils de développement
+.eslintrc.js
+.prettierrc
+.vscode
+.idea
+
+# Logs
+logs
+*.log
+
+# Fichiers temporaires
+tmp
+temp
+.tmp
+
+# Uploads et médias (gérés séparément en production)
+uploads
+public/uploads
+
+# Documentation
+docs
+*.md
+
+# Scripts et outils
+scripts
+tools
+*.sh
+swagger-templates.js
+debug-*.js
+
+# Fichiers de test HTTP
+*.http
+
+# Cache et dépendances système
+.cache
+.parcel-cache
+
+# ========================================
+# Optimisation pour Back4App
+# ========================================
+# Ce fichier garantit que seul le code nécessaire
+# est inclus dans l'image Docker, réduisant la taille
+# et améliorant la sécurité
+# ========================================

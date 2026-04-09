@@ -1,0 +1,44 @@
+### Test d'accès aux images avec les vrais noms de fichiers
+
+@baseUrl = http://localhost:3000
+
+### 1. Accès à l'image originale (avec espaces - URL encodée)
+GET {{baseUrl}}/uploads/Programmer%20-%20Blank%20Poster.jpeg
+
+### 2. Accès à l'image compressée
+GET {{baseUrl}}/uploads/compressed/1773994601387-test-upload.webp
+
+### 3. Test avec l'image compressée (alternative)
+GET {{baseUrl}}/uploads/compressed/1773994601387-test-upload.webp
+
+### 4. Vérifier si le serveur fonctionne
+GET {{baseUrl}}/
+
+### Instructions:
+# 
+# RÉSOLUTION DU PROBLÈME 404:
+# 
+# FICHIERS TROUVÉS:
+# ✓ uploads/Programmer - Blank Poster.jpeg (existe)
+# ✓ uploads/compressed/1773994601387-test-upload.webp (existe)
+#
+# URLS CORRECTES:
+# - Image originale: http://localhost:3000/uploads/Programmer%20-%20Blank%20Poster.jpeg
+# - Image compressée: http://localhost:3000/uploads/compressed/1773994601387-test-upload.webp
+#
+# ENCODAGE URL:
+# - Les espaces doivent être encodés en %20
+# - Évitez les espaces dans les noms de fichiers uploadés
+#
+# SI TOUJOURS 404:
+# 1. Vérifiez que le serveur a redémarré: npm run start:dev
+# 2. Vérifiez les logs du serveur pour les erreurs
+# 3. Testez avec l'image compressée (plus simple)
+#
+# DANS L'APPLICATION:
+# - Utilisez encodeURIComponent() pour les noms de fichiers
+# - Exemple: const url = `/uploads/${encodeURIComponent(fileName)}`;
+#
+# RECOMMANDATION:
+# - Renommez les fichiers uploadés pour éviter les espaces
+# - Utilisez des tirets ou underscores: programmer-blank-poster.jpeg
