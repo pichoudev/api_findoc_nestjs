@@ -16,6 +16,7 @@ import { ReportsModule } from './reports/reports.module';
 import { InterventionsModule } from './interventions/interventions.module';
 import { NotificationModule } from './notifications/notification.module';
 import { LoggerModule } from './common/logger.module';
+import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { LoggerModule } from './common/logger.module';
     ReportsModule,
     InterventionsModule,
     NotificationModule,
+    UploadsModule,
   ],
   controllers: [AppController],
   providers: [
