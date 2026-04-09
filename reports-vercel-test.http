@@ -1,0 +1,56 @@
+### Test upload sur Vercel avec nouveau bacId
+
+@baseUrl= https://api-backend-cleaner-nestjs-omega.vercel.app/api/v1
+
+### 1. Login pour obtenir un token valide
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@cleaner.com",
+  "password": "admin123"
+}
+
+### 2. Créer un signalement avec photo (remplacer le token et bacId)
+POST {{baseUrl}}/reports
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="bacId"
+
+f8e12345-0000-4c1d-9e2f-abc123000020
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="reportType"
+
+PLEIN
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="description"
+
+Test upload image sur Vercel - nouveau bacId
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="priority"
+
+LOW
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="photo"; filename="test-image.jpg"
+Content-Type: image/jpeg
+
+< ./ProgrammerBlankPoster.jpeg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 3. Créer un autre signalement sans photo avec un autre bacId
+POST {{baseUrl}}/reports
+Content-Type: application/json
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+{
+  "bacId": "f8e12345-0000-4c1d-9e2f-abc123000030",
+  "reportType": "ENDOMMAGE",
+  "description": "Bac endommagé - test Vercel sans photo",
+  "priority": "MEDIUM"
+}
+
+### 4. Lister tous les signalements
+GET {{baseUrl}}/reports
+Authorization: Bearer VOTRE_TOKEN_ICI

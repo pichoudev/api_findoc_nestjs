@@ -501,18 +501,9 @@ export class ReportsService {
   private async generateReferenceCode(): Promise<string> {
     const prefix = 'REP';
     const year = new Date().getFullYear().toString().slice(-2);
+    const timestamp = Date.now().toString().slice(-6); // Derniers 6 chiffres du timestamp
     
-    // Compter le nombre de rapports cette année
-    const count = await this.prisma.report.count({
-      where: {
-        createdAt: {
-          gte: new Date(new Date().getFullYear(), 0, 1),
-        },
-      },
-    });
-    
-    const sequence = (count + 1).toString().padStart(3, '0');
-    return `${prefix}-${year}-${sequence}`;
+    return `${prefix}-${year}-${timestamp}`;
   }
 
   // ─── SYNC BIN STATUS REPORT ─────────────────────────────────────────────────────
