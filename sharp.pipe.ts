@@ -48,7 +48,33 @@ export class SharpPipe implements PipeTransform<Express.Multer.File, Promise<str
       const originalName = path.parse(image.originalname).name.replace(/\s+/g, '-'); // Remplace les espaces
       const filename = `${Date.now()}-${originalName}.webp`;
       
-      // Déterminer le chemin de sortie selon l'environnement
+      // Pour Vercel (serverless), on retourne l'image en base64
+      const isVercel = process.env.VERCEL || process.env.VERCEL_ENV;
+      
+      if (isVercel) {
+        console.log('SharpPipe - Vercel detected, processing to base64');
+        
+        // Traitement de l'image en mémoire
+        const processedBuffer = await sharp(image.buffer)
+          .resize(800, 800, {
+            fit: 'inside',
+            withoutEnlargement: true
+          })
+          .webp({ 
+            quality: 75,
+            effort: 6
+          })
+          .toBuffer();
+
+        // Retourner l'image en base64
+        const base64Image = processedBuffer.toString('base64');
+        const dataUrl = `data:image/webp;base64,${base64Image}`;
+        
+        console.log('SharpPipe - Image processed to base64 successfully:', filename);
+        return dataUrl;
+      }
+      
+      // Pour les autres environnements (développement, Render)
       const isProduction = process.env.NODE_ENV === 'production';
       const outputPath = isProduction 
         ? path.join('/tmp', 'uploads', 'compressed', filename)  // En production: /tmp/uploads/compressed (accessible en écriture)
