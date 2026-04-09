@@ -48,42 +48,63 @@ export class SharpPipe implements PipeTransform<Express.Multer.File, Promise<str
       const originalName = path.parse(image.originalname).name.replace(/\s+/g, '-'); // Remplace les espaces
       const filename = `${Date.now()}-${originalName}.webp`;
       
-      // Pour Vercel (serverless), on retourne l'image en base64
+      // Détection de l'environnement
       const isVercel = process.env.VERCEL || process.env.VERCEL_ENV;
+      const hasBlobToken = !!process.env.BLOB_READ_WRITE_TOKEN;
       
-      if (isVercel) {
-        console.log('SharpPipe - Vercel detected, processing to base64');
-        
-        // Traitement de l'image en mémoire
-        const processedBuffer = await sharp(image.buffer)
-          .resize(800, 800, {
-            fit: 'inside',
-            withoutEnlargement: true
-          })
-          .webp({ 
-            quality: 75,
-            effort: 6
-          })
-          .toBuffer();
+      console.log('SharpPipe - Environment detection:', {
+        isVercel,
+        hasBlobToken,
+        filename
+      });
 
-        // Retourner l'image en base64
-        const base64Image = processedBuffer.toString('base64');
-        const dataUrl = `data:image/webp;base64,${base64Image}`;
+      // Traitement de l'image en mémoire
+      const processedBuffer = await sharp(image.buffer)
+        .resize(800, 800, {
+          fit: 'inside',
+          withoutEnlargement: true
+        })
+        .webp({ 
+          quality: 75,
+          effort: 6
+        })
+        .toBuffer();
+
+      console.log('SharpPipe - Image processed, size:', processedBuffer.length);
+
+      // Vercel avec Blob configuré
+      if (isVercel && hasBlobToken) {
+        console.log('SharpPipe - Using Vercel Blob storage');
         
-        console.log('SharpPipe - Image processed to base64 successfully:', filename);
-        return dataUrl;
+        try {
+          // Import dynamique pour éviter les erreurs en local
+          const { put } = await import('@vercel/blob');
+          
+          const blob = await put(filename, processedBuffer, {
+            access: 'public',
+            token: process.env.BLOB_READ_WRITE_TOKEN,
+          });
+
+          console.log('SharpPipe - Vercel Blob upload successful:', blob.url);
+          return blob.url;
+        } catch (blobError) {
+          console.error('SharpPipe - Vercel Blob failed, falling back to base64:', blobError);
+          
+          // Fallback: base64 si Vercel Blob échoue
+          const base64Image = processedBuffer.toString('base64');
+          const dataUrl = `data:image/webp;base64,${base64Image}`;
+          return dataUrl;
+        }
       }
       
-      // Pour les autres environnements (développement, Render)
+      // Vercel sans Blob ou autres environnements: stockage local
       const isProduction = process.env.NODE_ENV === 'production';
       const outputPath = isProduction 
-        ? path.join('/tmp', 'uploads', 'compressed', filename)  // En production: /tmp/uploads/compressed (accessible en écriture)
+        ? path.join('/tmp', 'uploads', 'compressed', filename)  // En production: /tmp/uploads/compressed
         : path.join(__dirname, '..', 'uploads', 'compressed', filename); // En développement: projet/uploads/compressed
       const outputDir = path.dirname(outputPath);
 
-      console.log('SharpPipe - Processing:', {
-        originalName,
-        filename,
+      console.log('SharpPipe - Using local storage:', {
         outputPath,
         outputDir,
         isProduction,
@@ -97,26 +118,17 @@ export class SharpPipe implements PipeTransform<Express.Multer.File, Promise<str
       }
 
       // Validation avec Sharp avant traitement
-      const metadata = await sharp(image.buffer).metadata();
-      console.log('SharpPipe - Image metadata:', metadata);
+      const metadata = await sharp(processedBuffer).metadata();
+      console.log('SharpPipe - Processed image metadata:', metadata);
       
       if (!metadata.width || !metadata.height) {
         throw new BadRequestException('L\'image n\'a pas de dimensions valides');
       }
 
-      // Traitement de l'image
-      await sharp(image.buffer)
-        .resize(800, 800, {
-          fit: 'inside',
-          withoutEnlargement: true
-        })
-        .webp({ 
-          quality: 75,
-          effort: 6
-        })
-        .toFile(outputPath);
+      // Sauvegarder le fichier traité
+      await sharp(processedBuffer).toFile(outputPath);
 
-      console.log('SharpPipe - Image processed successfully:', filename);
+      console.log('SharpPipe - Local storage successful:', filename);
       return filename;
     } catch (error) {
       if (error instanceof BadRequestException) {
