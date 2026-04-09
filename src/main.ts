@@ -4,6 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { Request, Response } from 'express';
+import { existsSync, mkdirSync } from 'fs';
 import { AppModule } from './app.module';
 
 import sharp from 'sharp';
@@ -38,6 +39,12 @@ async function bootstrap() {
     const staticPath = process.env.NODE_ENV === 'production' 
       ? join('/tmp', 'uploads', 'compressed')     // En production: /tmp/uploads/compressed (accessible en écriture)
       : join(__dirname, '..', 'uploads', 'compressed'); // En développement: projet/uploads/compressed
+    
+    // Créer le dossier s'il n'existe pas
+    if (!existsSync(staticPath)) {
+      console.log('📁 Creating uploads directory:', staticPath);
+      mkdirSync(staticPath, { recursive: true });
+    }
     
     app.useStaticAssets(staticPath, {
       prefix: '/uploads',
