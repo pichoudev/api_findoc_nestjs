@@ -55,6 +55,7 @@ export class SharpPipe implements PipeTransform<Express.Multer.File, Promise<str
       console.log('SharpPipe - Environment detection:', {
         isVercel,
         hasBlobToken,
+        blobToken: process.env.BLOB_READ_WRITE_TOKEN ? 'configured' : 'missing',
         filename
       });
 
@@ -80,15 +81,30 @@ export class SharpPipe implements PipeTransform<Express.Multer.File, Promise<str
           // Import dynamique pour éviter les erreurs en local
           const { put } = await import('@vercel/blob');
           
+          console.log('SharpPipe - Uploading to Vercel Blob:', {
+            filename,
+            bufferSize: processedBuffer.length,
+            token: process.env.BLOB_READ_WRITE_TOKEN?.substring(0, 20) + '...'
+          });
+          
           const blob = await put(filename, processedBuffer, {
             access: 'public',
             token: process.env.BLOB_READ_WRITE_TOKEN,
           });
 
-          console.log('SharpPipe - Vercel Blob upload successful:', blob.url);
+          console.log('SharpPipe - Vercel Blob upload successful:', {
+            url: blob.url,
+            uploadedAt: blob.uploadedAt,
+            contentType: blob.contentType,
+            size: blob.size
+          });
+          
           return blob.url;
         } catch (blobError) {
-          console.error('SharpPipe - Vercel Blob failed, falling back to base64:', blobError);
+          console.error('SharpPipe - Vercel Blob failed, falling back to base64:', {
+            error: blobError.message,
+            stack: blobError.stack
+          });
           
           // Fallback: base64 si Vercel Blob échoue
           const base64Image = processedBuffer.toString('base64');
