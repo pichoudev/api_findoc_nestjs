@@ -15,8 +15,8 @@ export class UploadsController {
         throw new NotFoundException('Format de fichier non supporté');
       }
 
-      // Essayer d'abord Vercel Blob
-      const blobUrl = `https://blob.vercel-storage.com/${filename}`;
+      // Essayer d'abord Vercel Blob avec le bon domaine
+      const blobUrl = `https://api-backend-cleaner-nestjs-blob.vercel.app/${filename}`;
       
       console.log('UploadsController - Trying Vercel Blob:', blobUrl);
       
@@ -37,7 +37,7 @@ export class UploadsController {
     // Informations de debugging
     return {
       filename,
-      expectedBlobUrl: `https://blob.vercel-storage.com/${filename}`,
+      expectedBlobUrl: `https://api-backend-cleaner-nestjs-blob.vercel.app/${filename}`,
       message: 'Vérifiez que BLOB_READ_WRITE_TOKEN est configuré dans Vercel',
       troubleshooting: {
         step1: 'Allez dans Vercel Dashboard > Project > Settings > Environment Variables',
