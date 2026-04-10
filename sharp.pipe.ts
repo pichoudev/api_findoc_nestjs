@@ -94,9 +94,8 @@ export class SharpPipe implements PipeTransform<Express.Multer.File, Promise<str
 
           console.log('SharpPipe - Vercel Blob upload successful:', {
             url: blob.url,
-            uploadedAt: blob.uploadedAt,
             contentType: blob.contentType,
-            size: blob.size
+            pathname: blob.pathname
           });
           
           return blob.url;
