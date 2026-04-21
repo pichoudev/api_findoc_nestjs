@@ -38,7 +38,7 @@ export class AuditInterceptor implements NestInterceptor {
             statusCode: response?.statusCode || 200,
             details: {
               responseTime: Date.now() - timestamp.getTime(),
-              dataSize: JSON.stringify(response).length
+              dataSize: response ? JSON.stringify(response).length : 0
             }
           });
         },

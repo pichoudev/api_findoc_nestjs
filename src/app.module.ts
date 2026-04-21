@@ -17,6 +17,7 @@ import { InterventionsModule } from './interventions/interventions.module';
 import { NotificationModule } from './notifications/notification.module';
 import { LoggerModule } from './common/logger.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { QrModule } from './bins/qr.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { UploadsModule } from './uploads/uploads.module';
     InterventionsModule,
     NotificationModule,
     UploadsModule,
+    QrModule,
   ],
   controllers: [AppController],
   providers: [

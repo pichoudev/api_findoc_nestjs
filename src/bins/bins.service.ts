@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ConflictException, BadRequestException }
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBinDto, UpdateBinDto, FilterBinsDto } from './dto/bin.dto';
 import { BacType, BacStatus, ReportStatus } from '@prisma/client';
+import * as QRCode from 'qrcode';
 
 @Injectable()
 export class BinsService {
@@ -163,6 +164,44 @@ export class BinsService {
       }
     });
 
+    // Générer le QR code pour le bac
+    const qrUrl = `https://ton-app-frontend.com/scan?code=${bin.refCode}`;
+    const qrCodeDataUrl = await QRCode.toDataURL(qrUrl);
+
+    // Mettre à jour le bac avec le QR code
+    const binWithQrCode = await this.prisma.bin.update({
+      where: { id: bin.id },
+      data: { qrCode: qrCodeDataUrl },
+      include: {
+        neighborhood: {
+          include: {
+            city: true
+          }
+        },
+        reports: {
+          include: {
+            reporter: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          },
+          take: 5
+        },
+        _count: {
+          select: {
+            reports: true
+          }
+        }
+      }
+    });
+
     // Mettre à jour la localisation avec une requête SQL brute si latitude/longitude fournies
     if (latitude && longitude) {
       await this.prisma.$executeRaw`
@@ -207,7 +246,7 @@ export class BinsService {
       return updatedBin;
     }
 
-    return bin;
+    return binWithQrCode;
   }
 
   async findAll(filters: FilterBinsDto) {
@@ -735,5 +774,43 @@ export class BinsService {
       byType: typeStats,
       byStatus: statusStats
     };
+  }
+
+  async getBinForScan(id: string) {
+    const bin = await this.prisma.bin.findUnique({
+      where: { id },
+      include: {
+        neighborhood: { include: { city: true } },
+        reports: {
+          where: { status: { not: 'ANNULE' } },
+          orderBy: { createdAt: 'desc' },
+          take: 3,
+        },
+        _count: { select: { reports: true } },
+      },
+    });
+
+    if (!bin) throw new NotFoundException('Bac introuvable');
+
+    return bin;
+  }
+
+  async getBinForScanByRefCode(refCode: string) {
+    const bin = await this.prisma.bin.findUnique({
+      where: { refCode },
+      include: {
+        neighborhood: { include: { city: true } },
+        reports: {
+          where: { status: { not: 'ANNULE' } },
+          orderBy: { createdAt: 'desc' },
+          take: 3,
+        },
+        _count: { select: { reports: true } },
+      },
+    });
+
+    if (!bin) throw new NotFoundException('Bac introuvable');
+
+    return bin;
   }
 }

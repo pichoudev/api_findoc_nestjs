@@ -1,0 +1,29 @@
+### Récupérer les statistiques des QR codes
+GET http://localhost:3000/qr-codes/stats
+Content-Type: application/json
+Authorization: Bearer YOUR_ADMIN_TOKEN
+
+### Générer tous les QR codes
+POST http://localhost:3000/qr-codes/generate-all
+Content-Type: application/json
+Authorization: Bearer YOUR_ADMIN_TOKEN
+
+{
+  "outputDir": "./qr-codes"
+}
+
+### Générer un QR code pour un bac spécifique
+POST http://localhost:3000/qr-codes/generate/BIN_ID_HERE
+Content-Type: application/json
+Authorization: Bearer YOUR_ADMIN_TOKEN
+
+{
+  "outputDir": "./qr-codes"
+}
+
+### Télécharger un QR code spécifique
+GET http://localhost:3000/qr-codes/download/BAC_001.png
+Authorization: Bearer YOUR_ADMIN_TOKEN
+
+### Script pour générer et imprimer des QR codes en masse
+# Utiliser avec: node generate-qr-batch.js
