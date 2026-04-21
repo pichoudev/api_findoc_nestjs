@@ -190,6 +190,8 @@ model Bin {
   status         BacStatus                              @default(ACTIF)
   statusReport   ReportStatus                           @default(RECU) @map("status_report")
   reportType     ReportType                             @default(NORMAL) @map("report_type")
+  /// QR code encodé en base64 pour le scan du bac
+  qrCode         String?                                @map("qr_code") @db.Text
   isActive       Boolean                                @default(true) @map("is_active")
   createdAt      DateTime                               @default(now()) @map("created_at")
   updatedAt      DateTime                               @updatedAt @map("updated_at")
