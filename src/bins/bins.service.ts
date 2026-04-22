@@ -260,7 +260,7 @@ export class BinsService {
       fillLevelAbove,
       search,
       page = '1',
-      limit = '10'
+      limit = '100'
     } = filters;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
