@@ -259,8 +259,8 @@ export class BinsService {
   //     cityId,
   //     fillLevelAbove,
   //     search,
-  //     page = '1',
-  //     limit = '10'
+  //     page = '1
+  //     limit = '100'
   //   } = filters;
 
   //   const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -368,7 +368,7 @@ export class BinsService {
   //   };
   // }
 
-  async findAll(filters: FilterBinsDto) {
+async findAll(filters: FilterBinsDto) {
     const {
       type,
       status,

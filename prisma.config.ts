@@ -14,3 +14,6 @@ export default defineConfig({
     url: env('DIRECT_URL'),
   },
 })
+
+// prisma.config.js
+
