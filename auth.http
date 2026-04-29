@@ -1,8 +1,8 @@
 ### Cleaner App - API Auth Tests
 ### Fichier de test pour les endpoints d'authentification
-#  @baseUrl= http://localhost:3000/api/v1
+ @baseUrl= http://localhost:3000/api/v1
 # 
-@baseUrl = https://api-backend-cleaner-nestjs-omega.vercel.app//api/v1
+# @baseUrl = https://api-backend-cleaner-nestjs-omega.vercel.app//api/v1
 @contentType = application/json
 
 ### ==================== AUTHENTIFICATION ====================
@@ -26,12 +26,12 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "agent@hysacam.cm",
-  "phone": "+237612345678",
-  "password": "agentpass123",
-  "confirmPassword": "agentpass123",
-  "firstName": "Paul",
-  "lastName": "Tchouante",
+  "email": "steph@gmail.com",
+  "phone": "+237612345348",
+  "password": "pass123",
+  "confirmPassword": "pass123",
+  "firstName": "steph",
+  "lastName": "pichou",
   "role": "AGENT"
 }
 
@@ -190,8 +190,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "citoyen@cleaner.cm",
-  "password": "wrongpassword"
+  "email": "steph@gmail.com",
+  "password": "pass123"
 }
 
 ### 20. Test OTP invalide
@@ -202,4 +202,15 @@ Content-Type: {{contentType}}
   "emailOrPhone": "citoyen@cleaner.cm",
   "code": "000000",
   "purpose": "VERIFY_EMAIL"
+}
+
+### 1. Créer une intervention (supervisor/admin)
+POST {{baseUrl}}/interventions
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3Nzc0Nzg3MTAsImV4cCI6MTc3OTI5MzExMH0.orNbodFWVQxl-_wmy-8oe8B4OHQ9J6U6Nyhwotc82GQ
+
+{
+  "reportId": "1f2e2709-9252-42b8-af26-e41668700575",
+  "agentId": "8365c674-5c92-4228-b03e-9fadacb69b8b",
+  "comment": "Intervention planifiée pour demain matin"
 }

@@ -10,7 +10,9 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Req,
+  NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { InterventionsService } from './interventions.service';
@@ -77,6 +79,28 @@ export class InterventionsController {
   @ApiResponse({ status: 200, description: 'Statistiques récupérées avec succès' })
   async getStats() {
     return this.interventionsService.getStats();
+  }
+
+  @Get('/:agentId/stats')
+  @Roles('SUPERVISOR', 'ADMIN', 'AGENT')
+  @ApiOperation({ 
+    summary: 'Statistiques d\'interventions d\'un agent',
+    description: 'Récupère les statistiques d\'interventions pour un agent spécifique'
+  })
+  @ApiParam({ name: 'agentId', description: 'ID de l\'agent' })
+  @ApiResponse({ status: 200, description: 'Stats récupérées avec succès' })
+  @ApiResponse({ status: 404, description: 'Agent non trouvé' })
+  async getAgentStats(@Param('agentId', ParseUUIDPipe) agentId: string, @Req() req: any) {
+    // Vérifier si l'agent demande ses propres stats ou si c'est un superviseur/admin
+    const userId = req.user?.sub || req.user?.userId || req.user?.id;
+    const userRole = req.user?.role;
+    
+    // Un agent ne peut voir que ses propres stats
+    if (userRole === 'AGENT' && userId !== agentId) {
+      throw new ForbiddenException('Un agent ne peut voir que ses propres statistiques');
+    }
+    
+    return this.interventionsService.getAgentStats(agentId);
   }
 
   @Get('report/:reportId')
@@ -185,3 +209,18 @@ export class InterventionsController {
     return this.interventionsService.remove(id);
   }
 }
+
+
+// route pour avoir les stats d'interventions d'un agent
+// @Get('agent/:agentId/stats')
+// @Roles('SUPERVISOR', 'ADMIN')
+// @ApiOperation({ 
+//   summary: 'Stats d\'interventions d\'un agent',
+//   description: 'Récupère les statistiques d\'interventions pour un agent spécifique'
+// })
+// @ApiParam({ name: 'agentId', description: 'ID de l\'agent' })
+// @ApiResponse({ status: 200, description: 'Stats récupérées avec succès' })
+// @ApiResponse({ status: 404, description: 'Agent non trouvé' })
+// async getAgentStats(@Param('agentId', ParseUUIDPipe) agentId: string) {
+//   return this.interventionsService.getAgentStats(agentId);
+// }

@@ -1,0 +1,93 @@
+### Debug User OneSignal Status
+### Vérification du statut OneSignal de l'utilisateur
+
+@baseUrl = http://localhost:3000/api/v1
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3Nzc0NzU3NDMsImV4cCI6MTc3OTI5MDE0M30.CDXXieUVbmX7ugFVr6fncCmHLeKtm2HRAY-BAiLrkA0
+
+### 1. Vérifier si l'utilisateur a un App ID OneSignal
+GET {{baseUrl}}/notifications/user/e487b5cc-1df4-4650-a1f7-a799859be221/has-onesignal
+Authorization: Bearer {{token}}
+
+### 2. Vérifier le statut complet des tokens de l'utilisateur
+GET {{baseUrl}}/device-tokens/status
+Authorization: Bearer {{token}}
+
+### 3. Enregistrer un App ID OneSignal pour le test
+POST {{baseUrl}}/device-tokens/onesignal
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "appId": "12345678-1234-1234-1234-123456789012"
+}
+
+### 4. Revérifier après enregistrement
+GET {{baseUrl}}/notifications/user/e487b5cc-1df4-4650-a1f7-a799859be221/has-onesignal
+Authorization: Bearer {{token}}
+
+### 5. Envoyer une notification de test après enregistrement
+POST {{baseUrl}}/notifications/send
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userId": "e487b5cc-1df4-4650-a1f7-a799859be221",
+  "title": "🧪 Test après enregistrement",
+  "body": "Test de notification après avoir enregistré un App ID",
+  "data": {
+    "type": "POST_REGISTRATION_TEST",
+    "timestamp": "2026-04-29T16:25:00Z"
+  },
+  "priority": "normal"
+}
+
+### 6. Test avec un App ID réel OneSignal (si disponible)
+POST {{baseUrl}}/device-tokens/onesignal
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "appId": "e487b5cc-1df4-4650-a1f7-a799859be221"
+}
+
+### 7. Test de notification avec App ID réel
+POST {{baseUrl}}/notifications/send
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userId": "e487b5cc-1df4-4650-a1f7-a799859be221",
+  "title": "✅ Test avec App ID réel",
+  "body": "Test avec l'App ID OneSignal de l'utilisateur",
+  "data": {
+    "type": "REAL_APP_ID_TEST"
+  }
+}
+
+### 8. Test de notification bulk (pour voir si OneSignal API fonctionne)
+POST {{baseUrl}}/notifications/send-bulk
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userIds": ["e487b5cc-1df4-4650-a1f7-a799859be221"],
+  "title": "📢 Test Bulk",
+  "body": "Test d'envoi en masse",
+  "data": {
+    "type": "BULK_TEST"
+  }
+}
+
+### 9. Test de notification par segment
+POST {{baseUrl}}/notifications/send-segment
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "segment": "agents",
+  "title": "📋 Test Segment",
+  "body": "Test d'envoi par segment agents",
+  "data": {
+    "type": "SEGMENT_TEST"
+  }
+}

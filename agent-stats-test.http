@@ -1,0 +1,32 @@
+### Test des statistiques d'interventions d'un agent
+### Nouvelle route /api/v1/interventions/agent/:agentId/stats
+### Retourne les stats détaillées: total, terminées(RESOLU), en attente(EN_ATTENTE), en cours(EN_COURS), annulées(ANNULE)
+
+@baseUrl = http://localhost:3000/api/v1
+
+### 1. Stats d'un agent en tant qu'ADMIN/SUPERVISOR
+GET {{baseUrl}}/interventions/agent/8365c674-5c92-4228-b03e-9fadacb69b8b/stats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3Nzc0Nzg3MTAsImV4cCI6MTc3OTI5MzExMH0.orNbodFWVQxl-_wmy-8oe8B4OHQ9J6U6Nyhwotc82GQ
+
+### 2. Stats d'un agent (l'agent lui-même)
+GET {{baseUrl}}/interventions/agent/8365c674-5c92-4228-b03e-9fadacb69b8b/stats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4MzY1YzY3NC01YzkyLTQyMjgtYjAzZS05ZmFkYWNiNjliOGIiLCJlbWFpbCI6InN0ZXBoQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzYxMjM0NTM0OCIsInJvbGUiOiJBR0VOVCIsImlhdCI6MTc3NzQ3ODk2NiwiZXhwIjoxNzc5MjkzMzY2fQ.-hEOWP-EEgyD06aKevt9gHMzIFBUSrzFViF3vHu_wCc
+
+### 3. Stats d'un autre agent (devrait échouer - accès refusé)
+GET {{baseUrl}}/interventions/agent/e487b5cc-1df4-4650-a1f7-a799859be221/stats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4MzY1YzY3NC01YzkyLTQyMjgtYjAzZS05ZmFkYWNiNjliOGIiLCJlbWFpbCI6InN0ZXBoQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzYxMjM0NTM0OCIsInJvbGUiOiJBR0VOVCIsImlhdCI6MTc3NzQ3ODk2NiwiZXhwIjoxNzc5MjkzMzY2fQ.-hEOWP-EEgyD06aKevt9gHMzIFBUSrzFViF3vHu_wCc
+
+### 4. Stats d'un agent qui n'existe pas (devrait échouer - 404)
+GET {{baseUrl}}/interventions/agent/00000000-0000-0000-0000-000000000000/stats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3Nzc0Nzg3MTAsImV4cCI6MTc3OTI5MzExMH0.orNbodFWVQxl-_wmy-8oe8B4OHQ9J6U6Nyhwotc82GQ
+
+### 5. Stats d'un utilisateur qui n'est pas un agent (devrait échouer - 400)
+GET {{baseUrl}}/interventions/agent/e487b5cc-1df4-4650-a1f7-a799859be221/stats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3Nzc0Nzg3MTAsImV4cCI6MTc3OTI5MzExMH0.orNbodFWVQxl-_wmy-8oe8B4OHQ9J6U6Nyhwotc82GQ
+
+### 6. Stats sans authentification (devrait échouer - 401)
+GET {{baseUrl}}/interventions/agent/8365c674-5c92-4228-b03e-9fadacb69b8b/stats
+
+### 7. Stats avec un token invalide (devrait échouer - 401)
+GET {{baseUrl}}/interventions/agent/8365c674-5c92-4228-b03e-9fadacb69b8b/stats
+Authorization: Bearer token_invalide_ici

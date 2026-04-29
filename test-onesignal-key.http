@@ -1,0 +1,22 @@
+### Test de la clé API OneSignal
+### Remplacez VOTRE_REST_API_KEY par votre vraie clé
+
+### 1. Test avec curl (dans votre terminal)
+# curl -X GET "https://onesignal.com/api/v1/apps/e8693c4c-fb87-4960-be83-12285324163c" \
+#   -H "Authorization: Key VOTRE_REST_API_KEY_ICI" \
+#   -H "Content-Type: application/json"
+
+### 2. Test de notification via l'API backend
+POST http://localhost:3000/api/v1/notifications/send
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3Nzc0Nzg3MTAsImV4cCI6MTc3OTI5MzExMH0.orNbodFWVQxl-_wmy-8oe8B4OHQ9J6U6Nyhwotc82GQ
+
+{
+  "userId": "3d6db572-ea52-4547-bf57-f02bc86a6ee1",
+  "title": "🔧 Test clé API",
+  "body": "Test avec la nouvelle clé REST API",
+  "data": {
+    "type": "API_KEY_TEST",
+    "timestamp": "2026-04-29T22:00:00Z"
+  }
+}

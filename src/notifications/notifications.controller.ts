@@ -14,7 +14,8 @@ import { RolesGuard } from '../users/guards/roles.guard';
 import { Roles } from '../users/decorators/roles.decorator';
 import { FirebaseService } from './firebase.service';
 import { OneSignalService } from './onesignal.service';
-import { UserRole } from '@prisma/client';
+import { SimpleNotificationService } from './simple-notification.service';
+import { UserRole, NotificationType } from '@prisma/client';
 
 @ApiTags('notifications')
 @Controller('notifications')
@@ -23,6 +24,7 @@ export class NotificationsController {
   constructor(
     private readonly firebaseService: FirebaseService,
     private readonly oneSignalService: OneSignalService,
+    private readonly simpleNotificationService: SimpleNotificationService,
   ) {}
 
   @Post('send/firebase')
@@ -443,5 +445,319 @@ export class NotificationsController {
       results: testResults,
       timestamp: new Date().toISOString(),
     };
+  }
+
+  // ========================================
+  // 📱 NOUVEAUX ENDPOINTS SIMPLE NOTIFICATION
+  // ========================================
+
+  @Post('send')
+  @Roles('ADMIN', 'SUPERVISOR', 'AGENT')
+  @ApiOperation({ 
+    summary: 'Envoyer une notification (OneSignal)',
+    description: 'Envoie une notification push à un utilisateur spécifique via OneSignal'
+  })
+  @ApiBody({ 
+    schema: {
+      type: 'object',
+      properties: {
+        userId: {
+          type: 'string',
+          description: 'ID de l\'utilisateur destinataire',
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        },
+        title: {
+          type: 'string',
+          description: 'Titre de la notification',
+          example: '🗑️ Nouveau signalement'
+        },
+        body: {
+          type: 'string',
+          description: 'Contenu de la notification',
+          example: 'Un nouveau signalement a été créé'
+        },
+        data: {
+          type: 'object',
+          description: 'Données supplémentaires',
+          example: {
+            type: 'REPORT_CREATED',
+            reportId: 'report_123'
+          }
+        },
+        imageUrl: {
+          type: 'string',
+          description: 'URL de l\'image (optionnel)',
+          example: 'https://example.com/image.jpg'
+        },
+        url: {
+          type: 'string',
+          description: 'URL à ouvrir au clic (optionnel)',
+          example: '/reports/report_123'
+        },
+        priority: {
+          type: 'string',
+          enum: ['normal', 'high'],
+          description: 'Priorité de la notification',
+          example: 'normal'
+        },
+        sound: {
+          type: 'string',
+          description: 'Son personnalisé (optionnel)',
+          example: 'default'
+        },
+        badge: {
+          type: 'number',
+          description: 'Numéro de badge (optionnel)',
+          example: 1
+        }
+      },
+      required: ['userId', 'title', 'body']
+    }
+  })
+  @ApiResponse({ status: 200, description: 'Notification envoyée avec succès' })
+  @ApiResponse({ status: 404, description: 'Utilisateur non trouvé' })
+  async sendNotification(@Body() body: {
+    userId: string;
+    title: string;
+    body: string;
+    data?: Record<string, any>;
+    imageUrl?: string;
+    url?: string;
+    priority?: 'normal' | 'high';
+    sound?: string;
+    badge?: number;
+  }) {
+    try {
+      const result = await this.simpleNotificationService.createAndSendNotification(
+        {
+          userId: body.userId,
+          title: body.title,
+          body: body.body,
+          data: body.data,
+          imageUrl: body.imageUrl,
+          url: body.url,
+          priority: body.priority,
+          sound: body.sound,
+          badge: body.badge,
+        },
+        NotificationType.REPORT_RECEIVED,
+        'notification',
+        body.userId,
+      );
+
+      return {
+        success: result.success,
+        notificationId: result.notificationId,
+        oneSignalResult: result.oneSignalResult,
+        errors: result.errors,
+        timestamp: result.timestamp,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Erreur lors de l\'envoi de la notification',
+        error: error.message,
+        timestamp: new Date(),
+      };
+    }
+  }
+
+  @Post('send-bulk')
+  @Roles('ADMIN', 'SUPERVISOR')
+  @ApiOperation({ 
+    summary: 'Envoyer des notifications en masse',
+    description: 'Envoie une notification push à plusieurs utilisateurs simultanément'
+  })
+  @ApiBody({ 
+    schema: {
+      type: 'object',
+      properties: {
+        userIds: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Liste des IDs utilisateurs',
+          example: ['123e4567-e89b-12d3-a456-426614174000', '456e7890-e89b-12d3-a456-426614174001']
+        },
+        title: {
+          type: 'string',
+          description: 'Titre de la notification',
+          example: '📢 Maintenance système'
+        },
+        body: {
+          type: 'string',
+          description: 'Contenu de la notification',
+          example: 'Le système sera en maintenance ce soir'
+        },
+        data: {
+          type: 'object',
+          description: 'Données supplémentaires',
+          example: {
+            type: 'SYSTEM_MAINTENANCE',
+            startTime: '2026-04-29T23:00:00Z'
+          }
+        },
+        priority: {
+          type: 'string',
+          enum: ['normal', 'high'],
+          description: 'Priorité de la notification',
+          example: 'normal'
+        }
+      },
+      required: ['userIds', 'title', 'body']
+    }
+  })
+  async sendBulkNotifications(@Body() body: {
+    userIds: string[];
+    title: string;
+    body: string;
+    data?: Record<string, any>;
+    priority?: 'normal' | 'high';
+  }) {
+    try {
+      const results = await this.simpleNotificationService.sendBulkNotification(
+        body.userIds,
+        {
+          title: body.title,
+          body: body.body,
+          data: body.data,
+          priority: body.priority,
+        },
+        NotificationType.REPORT_RECEIVED,
+        'bulk_notification',
+      );
+
+      return {
+        success: true,
+        message: 'Notifications envoyées en masse',
+        results: results,
+        totalSent: results.length,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Erreur lors de l\'envoi des notifications',
+        error: error.message,
+        timestamp: new Date(),
+      };
+    }
+  }
+
+  @Post('send-segment')
+  @Roles('ADMIN', 'SUPERVISOR')
+  @ApiOperation({ 
+    summary: 'Envoyer à un segment d\'utilisateurs',
+    description: 'Envoie une notification à un segment spécifique (agents, citoyens, etc.)'
+  })
+  @ApiBody({ 
+    schema: {
+      type: 'object',
+      properties: {
+        segment: {
+          type: 'string',
+          description: 'Nom du segment (agents, citizens, supervisors, agents_quartierX)',
+          example: 'agents'
+        },
+        title: {
+          type: 'string',
+          description: 'Titre de la notification',
+          example: '📋 Nouvelle directive'
+        },
+        body: {
+          type: 'string',
+          description: 'Contenu de la notification',
+          example: 'Une nouvelle directive HYSACAM est disponible'
+        },
+        data: {
+          type: 'object',
+          description: 'Données supplémentaires',
+          example: {
+            type: 'NEW_DIRECTIVE',
+            directiveId: 'directive_2026_04'
+          }
+        },
+        url: {
+          type: 'string',
+          description: 'URL à ouvrir au clic (optionnel)',
+          example: '/directives/directive_2026_04'
+        },
+        priority: {
+          type: 'string',
+          enum: ['normal', 'high'],
+          description: 'Priorité de la notification',
+          example: 'high'
+        }
+      },
+      required: ['segment', 'title', 'body']
+    }
+  })
+  async sendSegmentNotification(@Body() body: {
+    segment: string;
+    title: string;
+    body: string;
+    data?: Record<string, any>;
+    url?: string;
+    priority?: 'normal' | 'high';
+  }) {
+    try {
+      const result = await this.simpleNotificationService.sendNotificationToSegment(
+        body.segment,
+        {
+          title: body.title,
+          body: body.body,
+          data: body.data,
+          url: body.url,
+          priority: body.priority,
+        },
+        NotificationType.REPORT_RECEIVED,
+        'segment_notification',
+      );
+
+      return {
+        success: result.success,
+        message: `Notification envoyée au segment ${body.segment}`,
+        segment: body.segment,
+        notificationId: result.notificationId,
+        oneSignalResult: result.oneSignalResult,
+        errors: result.errors,
+        timestamp: result.timestamp,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Erreur lors de l\'envoi au segment',
+        error: error.message,
+        timestamp: new Date(),
+      };
+    }
+  }
+
+  @Get('user/:userId/has-onesignal')
+  @Roles('ADMIN', 'SUPERVISOR')
+  @ApiOperation({ 
+    summary: 'Vérifier si un utilisateur a un App ID OneSignal',
+    description: 'Retourne true si l\'utilisateur a un App ID OneSignal enregistré'
+  })
+  @ApiParam({ name: 'userId', description: 'ID de l\'utilisateur' })
+  async checkUserOneSignal(@Param('userId') userId: string) {
+    try {
+      const hasAppId = await this.simpleNotificationService.hasOneSignalPlayerId(userId);
+      
+      return {
+        userId: userId,
+        hasOneSignalAppId: hasAppId,
+        message: hasAppId 
+          ? 'L\'utilisateur a un App ID OneSignal enregistré'
+          : 'L\'utilisateur n\'a pas de App ID OneSignal',
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Erreur lors de la vérification',
+        error: error.message,
+        timestamp: new Date(),
+      };
+    }
   }
 }

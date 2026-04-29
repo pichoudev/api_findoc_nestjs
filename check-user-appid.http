@@ -1,0 +1,39 @@
+### Vérifier l'App ID OneSignal de l'utilisateur
+### Pour voir quel App ID est réellement enregistré
+
+@baseUrl = http://localhost:3000/api/v1
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3Nzc0NzU3NDMsImV4cCI6MTc3OTI5MDE0M30.CDXXieUVbmX7ugFVr6fncCmHLeKtm2HRAY-BAiLrkA0
+
+### 1. Vérifier si l'utilisateur a un App ID
+GET {{baseUrl}}/notifications/user/3d6db572-ea52-4547-bf57-f02bc86a6ee1/has-onesignal
+Authorization: Bearer {{token}}
+
+
+### 2. Vérifier le statut complet des tokens
+GET {{baseUrl}}/device-tokens/status
+Authorization: Bearer {{token}}
+
+### 3. Mettre à jour avec le vrai App ID de OneSignal
+### (Vous devez obtenir le vrai player_id depuis votre app mobile)
+POST {{baseUrl}}/device-tokens/onesignal
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "appId": "PLAYER_ID_DE_VOTRE_TELEPHONE"
+}
+
+### 4. Test de notification après mise à jour
+POST {{baseUrl}}/notifications/send
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userId": "3d6db572-ea52-4547-bf57-f02bc86a6ee1",
+  "title": "📱 Test direct",
+  "body": "Test avec vraie clé API OneSignal",
+  "data": {
+    "type": "DIRECT_TEST",
+    "timestamp": "2026-04-29T16:55:00Z"
+  }
+}

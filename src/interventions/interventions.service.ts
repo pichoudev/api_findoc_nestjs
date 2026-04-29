@@ -506,4 +506,171 @@ export class InterventionsService {
       recent: recentInterventions,
     };
   }
+
+  /**
+   * Récupère les statistiques d'interventions pour un agent spécifique
+   */
+  async getAgentStats(agentId: string) {
+    // Vérifier si l'agent existe
+    const agent = await this.prisma.user.findUnique({
+      where: { id: agentId },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+        isActive: true,
+      }
+    });
+
+    if (!agent) {
+      throw new NotFoundException('Agent non trouvé');
+    }
+
+    if (agent.role !== 'AGENT') {
+      throw new BadRequestException('L\'utilisateur spécifié n\'est pas un agent');
+    }
+
+    // Statistiques des interventions
+    const [
+      totalInterventions,
+      completedInterventions,
+      pendingInterventions,
+      inProgressInterventions,
+      cancelledInterventions,
+      interventionsThisMonth,
+      interventionsThisWeek,
+      avgCompletionTime,
+      recentInterventions
+    ] = await Promise.all([
+      // Total des interventions
+      this.prisma.intervention.count({
+        where: { agentId }
+      }),
+      
+      // Interventions terminées (RESOLU)
+      this.prisma.intervention.count({
+        where: { 
+          agentId,
+          status: 'RESOLU'
+        }
+      }),
+      
+      // Interventions en attente (EN_ATTENTE)
+      this.prisma.intervention.count({
+        where: { 
+          agentId,
+          status: 'EN_ATTENTE'
+        }
+      }),
+      
+      // Interventions en cours (EN_COURS)
+      this.prisma.intervention.count({
+        where: { 
+          agentId,
+          status: 'EN_COURS'
+        }
+      }),
+      
+      // Interventions annulées (ANNULE)
+      this.prisma.intervention.count({
+        where: { 
+          agentId,
+          status: 'ANNULE'
+        }
+      }),
+      
+      // Interventions ce mois
+      this.prisma.intervention.count({
+        where: {
+          agentId,
+          assignedAt: {
+            gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+          }
+        }
+      }),
+      
+      // Interventions cette semaine
+      (() => {
+        const weekStart = new Date();
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+        weekStart.setHours(0, 0, 0, 0);
+        
+        return this.prisma.intervention.count({
+          where: {
+            agentId,
+            assignedAt: {
+              gte: weekStart
+            }
+          }
+        });
+      })(),
+      
+      // Temps moyen de complétion (en heures)
+      this.prisma.$queryRaw`
+        SELECT AVG(
+          EXTRACT(EPOCH FROM (completed_at - assigned_at)) / 3600
+        ) as avg_completion_time
+        FROM interventions 
+        WHERE agent_id = ${agentId} 
+        AND status = 'RESOLU'
+        AND completed_at IS NOT NULL
+      ` as Promise<{ avg_completion_time: number }[]>,
+      
+      // Interventions récentes (dernières 5)
+      this.prisma.intervention.findMany({
+        where: { agentId },
+        take: 5,
+        orderBy: { assignedAt: 'desc' },
+        include: {
+          report: {
+            select: {
+              id: true,
+              reportType: true,
+              status: true,
+              locationUser: true,
+              createdAt: true
+            }
+          }
+        }
+      })
+    ]);
+
+    // Calculer le temps moyen de complétion
+    const avgTime = avgCompletionTime[0]?.avg_completion_time || 0;
+
+    // Calculer le taux de complétion
+    const completionRate = totalInterventions > 0 
+      ? (completedInterventions / totalInterventions) * 100 
+      : 0;
+
+    return {
+      agent: {
+        id: agent.id,
+        firstName: agent.firstName,
+        lastName: agent.lastName,
+        email: agent.email,
+        isActive: agent.isActive
+      },
+      statistics: {
+        total: totalInterventions,
+        completed: completedInterventions,
+        pending: pendingInterventions,
+        inProgress: inProgressInterventions,
+        cancelled: cancelledInterventions,
+        thisMonth: interventionsThisMonth,
+        thisWeek: interventionsThisWeek,
+        completionRate: Math.round(completionRate * 100) / 100, // 2 décimales
+        avgCompletionTime: Math.round(avgTime * 100) / 100 // 2 décimales
+      },
+      recentInterventions: recentInterventions.map(intervention => ({
+        id: intervention.id,
+        status: intervention.status,
+        assignedAt: intervention.assignedAt,
+        completedAt: intervention.completedAt,
+        report: intervention.report
+      }))
+    };
+  }
 }

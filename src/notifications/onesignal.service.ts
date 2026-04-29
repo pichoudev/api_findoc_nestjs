@@ -18,6 +18,7 @@ export class OneSignalService {
     if (!this.appId || !this.apiKey) {
       this.logger.warn('⚠️ Configuration OneSignal manquante');
     }
+    
   }
 
   /**
@@ -48,6 +49,7 @@ export class OneSignalService {
     }>;
   }) {
     try {
+
       const payload: any = {
         app_id: this.appId,
         contents: {
@@ -100,7 +102,8 @@ export class OneSignalService {
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Basic ${Buffer.from(`${this.apiKey}:`).toString('base64')}`,
+            'Authorization': `Key ${this.apiKey}`,
+            'Accept': 'application/json',
           },
         }
       ).toPromise();
