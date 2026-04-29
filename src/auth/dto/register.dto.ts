@@ -45,4 +45,9 @@ export class RegisterDto {
   @IsString()
   @IsOptional()
   neighborhood?: string;
+
+  @ApiPropertyOptional({ description: 'App ID OneSignal pour les notifications push' })
+  @IsString()
+  @IsOptional()
+  oneSignalAppId?: string;
 }

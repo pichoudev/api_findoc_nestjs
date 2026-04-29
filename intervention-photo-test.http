@@ -1,0 +1,87 @@
+### Mettre à jour le statut d'une intervention AVEC photo
+PATCH http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/status
+Content-Type: application/json
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+{
+  "status": "EN_COURS",
+  "photoUrl": "https://example.com/photos/intervention-123.jpg",
+  "comment": "Intervention commencée, photo du bac avant intervention"
+}
+
+### Mettre à jour le statut d'une intervention SANS photo
+PATCH http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/status
+Content-Type: application/json
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+{
+  "status": "RESOLU",
+  "comment": "Intervention terminée avec succès"
+}
+
+### Mettre à jour le statut AVEC photo et commentaire
+PATCH http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/status
+Content-Type: application/json
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+{
+  "status": "RESOLU",
+  "photoUrl": "https://example.com/photos/intervention-apres.jpg",
+  "comment": "Bac vidé et nettoyé. Photo après intervention."
+}
+
+### Mettre à jour le statut avec photo depuis un service de stockage
+PATCH http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/status
+Content-Type: application/json
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+{
+  "status": "EN_COURS",
+  "photoUrl": "https://storage.googleapis.com/cleaner-app-bucket/interventions/2026-04-29_agent123_before.jpg",
+  "comment": "Photo avant intervention depuis Google Cloud Storage"
+}
+
+### Mettre à jour le statut avec photo depuis Supabase Storage
+PATCH http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/status
+Content-Type: application/json
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+{
+  "status": "RESOLU",
+  "photoUrl": "https://your-project.supabase.co/storage/v1/object/public/interventions/2026-04-29_intervention123_after.jpg",
+  "comment": "Photo après intervention depuis Supabase Storage"
+}
+
+### Mettre à jour une intervention complète (avec photo dans le DTO)
+PATCH http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000
+Content-Type: application/json
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+{
+  "status": "RESOLU",
+  "photoUrl": "https://example.com/photos/final-intervention.jpg",
+  "comment": "Mise à jour complète de l'intervention avec photo"
+}
+
+### Créer une intervention avec photo (si supporté)
+POST http://localhost:3000/api/v1/interventions/report/456e7890-e12b-34d5-a678-426614174111/assign
+Content-Type: application/json
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+{
+  "agentId": "789e0123-f45c-56d7-a890-426614174222",
+  "photoUrl": "https://example.com/photos/assignment-photo.jpg",
+  "comment": "Assignation avec photo initiale"
+}
+
+### Vérifier l'intervention mise à jour
+GET http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+### Lister toutes les interventions avec photos
+GET http://localhost:3000/api/v1/interventions
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+### Filtrer les interventions par statut
+GET http://localhost:3000/api/v1/interventions?status=RESOLU
+Authorization: Bearer VOTRE_TOKEN_ICI

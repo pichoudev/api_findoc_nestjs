@@ -149,9 +149,10 @@ export class InterventionsController {
   async updateStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body('status') status: InterventionStatus,
+    @Body('photoUrl') photoUrl?: string,
     @Body('comment') comment?: string,
   ) {
-    return this.interventionsService.updateStatus(id, status, comment);
+    return this.interventionsService.updateStatus(id, status, photoUrl, comment);
   }
 
   @Post('report/:reportId/assign')

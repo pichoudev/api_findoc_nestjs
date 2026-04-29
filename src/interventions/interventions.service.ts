@@ -140,7 +140,7 @@ export class InterventionsService {
       dateTo,
       search,
       page = '1',
-      limit = '10',
+      limit = '100',
     } = filters;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -375,7 +375,7 @@ export class InterventionsService {
   }
 
   // ─── UPDATE STATUS ─────────────────────────────────────────────────────────
-  async updateStatus(id: string, status: InterventionStatus, comment?: string) {
+  async updateStatus(id: string, status: InterventionStatus, photoUrl?: string, comment?: string) {
     const intervention = await this.prisma.intervention.findUnique({
       where: { id },
     });
@@ -386,6 +386,9 @@ export class InterventionsService {
     const updateData: any = { status };
     if (comment !== undefined) {
       updateData.comment = comment;
+    }
+    if (photoUrl !== undefined) {
+      updateData.photoUrl = photoUrl;
     }
 
     // Mettre à jour les dates selon le statut

@@ -11,3 +11,4 @@ import { AuthModule } from '../auth/auth.module';
   exports: [BinsService],
 })
 export class BinsModule {}
+

@@ -131,7 +131,9 @@ export class AuthController {
     if (!user) {
       throw new UnauthorizedException('Identifiants invalides');
     }
-    return this.authService.login(user);
+    return this.authService.login(user, {
+      oneSignalAppId: loginDto.oneSignalAppId,
+    });
   }
 
   @Public()

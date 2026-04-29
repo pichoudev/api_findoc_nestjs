@@ -1,8 +1,8 @@
 ### Cleaner App - API Auth Tests
 ### Fichier de test pour les endpoints d'authentification
- @baseUrl= http://localhost:3000/api/v1
+#  @baseUrl= http://localhost:3000/api/v1
 # 
-# @baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
+@baseUrl = https://api-backend-cleaner-nestjs-omega.vercel.app//api/v1
 @contentType = application/json
 
 ### ==================== AUTHENTIFICATION ====================
@@ -12,13 +12,13 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "loona7757@gmail.com",
-  "phone": "+237698765432",
-  "password": "password123",
-  "confirmPassword": "password123",
-  "firstName": "loona",
-  "lastName": "Pichou",
-  "role": "CITIZEN"
+  "email": "ingriddjidie@gmail.com",
+  "phone": "+237698765402",
+  "password": "VLTN2005",
+  "confirmPassword": "VLTN2005",
+  "firstName": "DJIDIE DAHMOUE",
+  "lastName": "Ingride valdese",
+  "role": "ADMIN"
 }
 
 ### 2. Inscription d'un agent HYSACAM

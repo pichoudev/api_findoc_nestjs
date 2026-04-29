@@ -1,5 +1,5 @@
-import { IsString, IsNotEmpty, IsEmail } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNotEmpty, IsEmail, IsOptional } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class LoginDto {
   @ApiProperty()
@@ -11,4 +11,9 @@ export class LoginDto {
   @IsString()
   @IsNotEmpty()
   password: string;
+
+  @ApiPropertyOptional({ description: 'App ID OneSignal pour les notifications push' })
+  @IsString()
+  @IsOptional()
+  oneSignalAppId?: string;
 }

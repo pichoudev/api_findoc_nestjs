@@ -15,6 +15,7 @@ import { AuditModule } from './audit/audit.module';
 import { ReportsModule } from './reports/reports.module';
 import { InterventionsModule } from './interventions/interventions.module';
 import { NotificationModule } from './notifications/notification.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { LoggerModule } from './common/logger.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { QrModule } from './bins/qr.module';
@@ -36,6 +37,7 @@ import { QrModule } from './bins/qr.module';
     ReportsModule,
     InterventionsModule,
     NotificationModule,
+    NotificationsModule,
     UploadsModule,
     QrModule,
   ],

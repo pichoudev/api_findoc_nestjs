@@ -1,5 +1,5 @@
 ### Variables
-@baseUrl = https://backend-cleaner-nestjs.onrender.com/api/v1
+@baseUrl = https://api-backend-cleaner-nestjs-omega.vercel.app//api/v1
 @contentType = application/json
 
 ### ========================================
@@ -58,7 +58,7 @@ Authorization: Bearer votre_token_agent_ici
 
 ### 4. Lister tous les bacs avec pagination
 GET {{baseUrl}}/bins
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQ0lUSVpFTiIsImlhdCI6MTc3NTE1MjAzMiwiZXhwIjoxNzc2OTY2NDMyfQ.GYvjivWe67Uv7KnRZXSMFDQXxQO2dec5g-orlew0FGo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NzY4NTM4MDgsImV4cCI6MTc3ODY2ODIwOH0.GLWEFm2DM-az3yUa7x67_Fi0QPGcwAMFscfoi3mA17w
 
 ### 5. Obtenir les statistiques des bacs
 GET {{baseUrl}}/bins/stats

@@ -32,7 +32,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any) {
+  async login(user: any, loginData?: { oneSignalAppId?: string }) {
     console.log('🔐 LOGIN - Configuration JWT:');
     console.log('JWT_EXPIRATION from env:', this.configService.get<string>('JWT_EXPIRATION'));
     
@@ -57,10 +57,19 @@ export class AuthService {
     console.log(`🔄 Tentative de sauvegarde du refresh token pour l'utilisateur ${user.id}`);
     console.log(`📝 Refresh token généré: ${refresh_token.substring(0, 10)}...`);
     
-    // Sauvegarder le refresh token dans le modèle User
+    // Préparer les données de mise à jour
+    const updateData: any = { refreshToken: refresh_token };
+    
+    // Ajouter l'App ID OneSignal si fourni
+    if (loginData?.oneSignalAppId) {
+      updateData.oneSignalAppId = loginData.oneSignalAppId;
+      console.log('📢 OneSignal App ID mis à jour lors de la connexion');
+    }
+    
+    // Sauvegarder le refresh token et les tokens de notification dans le modèle User
     const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
-      data: { refreshToken: refresh_token }
+      data: updateData
     });
     
     console.log(`✅ Refresh token sauvegardé: ${updatedUser.refreshToken ? 'OUI' : 'NON'}`);
@@ -253,6 +262,7 @@ export class AuthService {
         isVerified: false,
         neighborhoodId: neighborhoodId,
         neighborhood: neighborhoodName,
+        oneSignalAppId: userData.oneSignalAppId || null, // Ajouter OneSignal App ID si fourni
       },
     });
 

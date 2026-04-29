@@ -165,7 +165,7 @@ export class BinsService {
     });
 
     // Générer le QR code pour le bac
-    const qrUrl = `https://ton-app-frontend.com/scan?code=${bin.refCode}`;
+    const qrUrl = `https://backend-cleaner-nestjs.onrender.com/api/v1/scan?code=${bin.refCode}`;
     const qrCodeDataUrl = await QRCode.toDataURL(qrUrl);
 
     // Mettre à jour le bac avec le QR code
@@ -249,6 +249,125 @@ export class BinsService {
     return binWithQrCode;
   }
 
+  // async findAll(filters: FilterBinsDto) {
+  //   const {
+  //     type,
+  //     status,
+  //     statusReport,
+  //     reportType,
+  //     neighborhoodId,
+  //     cityId,
+  //     fillLevelAbove,
+  //     search,
+  //     page = '1',
+  //     limit = '10'
+  //   } = filters;
+
+  //   const skip = (parseInt(page) - 1) * parseInt(limit);
+  //   const take = parseInt(limit);
+
+  //   const where: any = {};
+
+  //   if (type) where.binType = type;
+  //   if (status) where.status = status;
+  //   if (statusReport) where.statusReport = statusReport;
+  //   if (reportType) where.reportType = reportType;
+  //   if (neighborhoodId) where.neighborhoodId = neighborhoodId;
+    
+  //   if (cityId) {
+  //     where.neighborhood = {
+  //       cityId
+  //     };
+  //   }
+
+  //   // Note: fillLevel n'existe pas dans le schéma, on l'ignore pour l'instant
+
+  //   if (search) {
+  //     where.OR = [
+  //       { refCode: { contains: search, mode: 'insensitive' } }
+  //     ];
+  //   }
+
+  //   const [bins, total] = await Promise.all([
+  //     this.prisma.$queryRaw`
+  //       SELECT 
+  //         id,
+  //         ref_code as "refCode",
+  //         bin_type as "binType",
+  //         status,
+  //         status_report as "statusReport",
+  //         report_type as "reportType",
+  //         capacity_m3 as "capacityM3",
+  //         ST_AsText(localisation) as "localisationText",
+  //         neighborhood_id as "neighborhoodId",
+  //         is_active as "isActive",
+  //         created_at as "createdAt",
+  //         updated_at as "updatedAt"
+  //       FROM bins 
+  //       WHERE ${Object.keys(where).length > 0 ? this.buildWhereClause(where) : 'TRUE'}
+  //       ORDER BY ref_code ASC
+  //       LIMIT ${take} OFFSET ${skip}
+  //     `,
+  //     this.prisma.$queryRaw`
+  //       SELECT COUNT(*) as count FROM bins 
+  //       WHERE ${Object.keys(where).length > 0 ? this.buildWhereClause(where) : 'TRUE'}
+  //     `
+  //   ]);
+
+  //   // Récupérer les relations séparément
+  //   const binsWithRelations = await Promise.all(
+  //     (bins as any[]).map(async (bin: any) => {
+  //       const neighborhood = bin.neighborhoodId ? 
+  //         await this.prisma.neighborhood.findUnique({
+  //           where: { id: bin.neighborhoodId },
+  //           include: { city: true }
+  //         }) : null;
+
+  //       const reports = await this.prisma.report.findMany({
+  //         where: { bacId: bin.id },
+  //         include: {
+  //           reporter: {
+  //             select: {
+  //               id: true,
+  //               firstName: true,
+  //               lastName: true,
+  //               email: true
+  //             }
+  //           }
+  //         },
+  //         orderBy: { createdAt: 'desc' },
+  //         take: 3
+  //       });
+
+  //       const reportsCount = await this.prisma.report.count({
+  //         where: { bacId: bin.id }
+  //       });
+
+  //       // Extraire les coordonnées du texte WKT
+  //       const coordinates = this.extractCoordinates(bin.localisationText);
+        
+  //       return {
+  //         ...bin,
+  //         neighborhood,
+  //         reports,
+  //         _count: { reports: reportsCount },
+  //         latitude: coordinates?.latitude || null,
+  //         longitude: coordinates?.longitude || null
+  //       };
+  //     })
+  //   );
+
+  //   return {
+  //     data: binsWithRelations,
+  //     meta: {
+  //       total: Number((total as any)[0]?.count || 0),
+  //       page: parseInt(page),
+  //       limit: parseInt(limit),
+  //       totalPages: Math.ceil(Number((total as any)[0]?.count || 0) / parseInt(limit))
+  //     }
+  //   };
+  // }
+
   async findAll(filters: FilterBinsDto) {
     const {
       type,
@@ -257,17 +376,10 @@ export class BinsService {
       reportType,
       neighborhoodId,
       cityId,
-      fillLevelAbove,
       search,
-      page = '1',
-      limit = '10'
     } = filters;
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    const take = parseInt(limit);
-
     const where: any = {};
-
     if (type) where.binType = type;
     if (status) where.status = status;
     if (statusReport) where.statusReport = statusReport;
@@ -275,12 +387,8 @@ export class BinsService {
     if (neighborhoodId) where.neighborhoodId = neighborhoodId;
     
     if (cityId) {
-      where.neighborhood = {
-        cityId
-      };
+      where.neighborhood = { cityId };
     }
-
-    // Note: fillLevel n'existe pas dans le schéma, on l'ignore pour l'instant
 
     if (search) {
       where.OR = [
@@ -288,33 +396,25 @@ export class BinsService {
       ];
     }
 
-    const [bins, total] = await Promise.all([
-      this.prisma.$queryRaw`
-        SELECT 
-          id,
-          ref_code as "refCode",
-          bin_type as "binType",
-          status,
-          status_report as "statusReport",
-          report_type as "reportType",
-          capacity_m3 as "capacityM3",
-          ST_AsText(localisation) as "localisationText",
-          neighborhood_id as "neighborhoodId",
-          is_active as "isActive",
-          created_at as "createdAt",
-          updated_at as "updatedAt"
-        FROM bins 
-        WHERE ${Object.keys(where).length > 0 ? this.buildWhereClause(where) : 'TRUE'}
-        ORDER BY ref_code ASC
-        LIMIT ${take} OFFSET ${skip}
-      `,
-      this.prisma.$queryRaw`
-        SELECT COUNT(*) as count FROM bins 
-        WHERE ${Object.keys(where).length > 0 ? this.buildWhereClause(where) : 'TRUE'}
-      `
-    ]);
+    const bins = await this.prisma.$queryRaw`
+      SELECT 
+        id,
+        ref_code as "refCode",
+        bin_type as "binType",
+        status,
+        status_report as "statusReport",
+        report_type as "reportType",
+        capacity_m3 as "capacityM3",
+        ST_AsText(localisation) as "localisationText",
+        neighborhood_id as "neighborhoodId",
+        is_active as "isActive",
+        created_at as "createdAt",
+        updated_at as "updatedAt"
+      FROM bins 
+      WHERE ${Object.keys(where).length > 0 ? this.buildWhereClause(where) : 'TRUE'}
+      ORDER BY ref_code ASC
+    `;
 
-    // Récupérer les relations séparément
     const binsWithRelations = await Promise.all(
       (bins as any[]).map(async (bin: any) => {
         const neighborhood = bin.neighborhoodId ? 
@@ -343,7 +443,6 @@ export class BinsService {
           where: { bacId: bin.id }
         });
 
-        // Extraire les coordonnées du texte WKT
         const coordinates = this.extractCoordinates(bin.localisationText);
         
         return {
@@ -359,12 +458,7 @@ export class BinsService {
 
     return {
       data: binsWithRelations,
-      meta: {
-        total: Number((total as any)[0]?.count || 0),
-        page: parseInt(page),
-        limit: parseInt(limit),
-        totalPages: Math.ceil(Number((total as any)[0]?.count || 0) / parseInt(limit))
-      }
+      total: binsWithRelations.length
     };
   }
 

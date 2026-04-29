@@ -39,6 +39,13 @@ export class UpdateInterventionDto {
   @IsOptional()
   status?: InterventionStatus;
 
+  // photo intervention 
+  @ApiPropertyOptional({ 
+    description: 'phto de l\'intervention',
+  })
+  @IsOptional()
+  photoUrl?: string;
+
   @ApiPropertyOptional({ 
     description: 'Commentaire sur l\'intervention',
     example: 'Le bac a été vidé et nettoyé'

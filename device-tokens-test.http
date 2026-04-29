@@ -1,0 +1,74 @@
+### Enregistrer le token FCM
+POST http://localhost:3000/api/v1/device-tokens/fcm
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "token": "fcm_token_here_1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+}
+
+### Enregistrer l'App ID OneSignal
+POST http://localhost:3000/api/v1/device-tokens/onesignal
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "appId": "12345678-1234-1234-1234-123456789012"
+}
+
+### Enregistrer les deux tokens simultanément
+POST http://localhost:3000/api/v1/device-tokens/both
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "fcmToken": "fcm_token_here_1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  "oneSignalAppId": "12345678-1234-1234-1234-123456789012"
+}
+
+### Vérifier le statut des tokens
+GET http://localhost:3000/api/v1/device-tokens/status
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Envoyer une notification de test
+POST http://localhost:3000/api/v1/device-tokens/test
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "title": "🧪 Test personnalisé",
+  "body": "Ceci est mon test de notification personnalisé"
+}
+
+### Supprimer tous les tokens (déconnexion)
+POST http://localhost:3000/api/v1/device-tokens/clear
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Test avec token FCM invalide (doit échouer)
+POST http://localhost:3000/api/v1/device-tokens/fcm
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "token": "invalid_token"
+}
+
+### Test avec Player ID OneSignal invalide (doit échouer)
+POST http://localhost:3000/api/v1/device-tokens/onesignal
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "playerId": "invalid_player_id"
+}
+
+### Test avec tokens vides (doit échouer)
+POST http://localhost:3000/api/v1/device-tokens/both
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "fcmToken": "",
+  "oneSignalPlayerId": ""
+}

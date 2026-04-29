@@ -1,0 +1,139 @@
+### Uploader une photo pour une intervention (avec traitement Sharp et Vercel Blob)
+POST http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/upload-photo
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="photo"; filename="intervention-photo.jpg"
+Content-Type: image/jpeg
+
+[Contenu binaire de l'image JPEG - remplacer avec une vraie image]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="comment"
+
+Photo avant intervention - bac plein
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Mettre à jour la photo d'une intervention
+PATCH http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/photo
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="photo"; filename="intervention-apres.jpg"
+Content-Type: image/jpeg
+
+[Contenu binaire de l'image JPEG - remplacer avec une vraie image]
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="comment"
+
+Photo après intervention - bac vidé
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Ajouter une photo par URL (service externe)
+POST http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/upload-photo-url
+Content-Type: application/json
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+{
+  "photoUrl": "https://storage.googleapis.com/cleaner-app-bucket/interventions/2026-04-29_agent123_before.jpg",
+  "comment": "Photo depuis Google Cloud Storage"
+}
+
+### Ajouter une photo depuis Supabase Storage
+POST http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/upload-photo-url
+Content-Type: application/json
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+{
+  "photoUrl": "https://your-project.supabase.co/storage/v1/object/public/interventions/2026-04-29_intervention123_after.jpg",
+  "comment": "Photo depuis Supabase Storage"
+}
+
+### Ajouter une photo avec base64 (fallback si Vercel Blob échoue)
+POST http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/upload-photo-url
+Content-Type: application/json
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+{
+  "photoUrl": "data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAQAcJaQAA3AA/v3AgAA=",
+  "comment": "Photo en base64 (fallback)"
+}
+
+### Obtenir les informations sur les photos d'une intervention
+GET http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/photos
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+### Supprimer la photo d'une intervention
+PATCH http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/remove-photo
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+### Mettre à jour le statut AVEC photo (endpoint classique)
+PATCH http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/status
+Content-Type: application/json
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+{
+  "status": "EN_COURS",
+  "photoUrl": "https://example.com/photos/intervention-123.jpg",
+  "comment": "Intervention commencée, photo du bac avant intervention"
+}
+
+### Mettre à jour le statut SANS photo
+PATCH http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/status
+Content-Type: application/json
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+{
+  "status": "RESOLU",
+  "comment": "Intervention terminée avec succès"
+}
+
+### Mettre à jour le statut avec photo Vercel Blob
+PATCH http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/status
+Content-Type: application/json
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+{
+  "status": "RESOLU",
+  "photoUrl": "https://blob.vercel-storage.com/cleaner-app/intervention-2026-04-29-abc123.webp",
+  "comment": "Photo uploadée via Vercel Blob storage"
+}
+
+### Mettre à jour une intervention complète (avec photo dans le DTO)
+PATCH http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000
+Content-Type: application/json
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+{
+  "status": "RESOLU",
+  "photoUrl": "https://example.com/photos/final-intervention.jpg",
+  "comment": "Mise à jour complète de l'intervention avec photo"
+}
+
+### Vérifier l'intervention mise à jour
+GET http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+### Lister toutes les interventions avec photos
+GET http://localhost:3000/api/v1/interventions
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+### Filtrer les interventions par statut
+GET http://localhost:3000/api/v1/interventions?status=RESOLU
+Authorization: Bearer VOTRE_TOKEN_ICI
+
+### Test avec curl (upload de fichier réel)
+curl -X POST http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/upload-photo \
+  -H "Authorization: Bearer VOTRE_TOKEN_ICI" \
+  -F "photo=@/path/to/your/image.jpg" \
+  -F "comment=Photo uploadée avec curl"
+
+### Test avec curl (URL)
+curl -X POST http://localhost:3000/api/v1/interventions/123e4567-e89b-12d3-a456-426614174000/upload-photo-url \
+  -H "Authorization: Bearer VOTRE_TOKEN_ICI" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "photoUrl": "https://example.com/photo.jpg",
+    "comment": "Photo via URL"
+  }'
