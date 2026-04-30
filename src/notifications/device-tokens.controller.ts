@@ -137,7 +137,7 @@ export class DeviceTokensController {
     @Request() req,
     @Body(new ValidationPipe()) body: { appId: string },
   ) {
-    const userId = req.user.id;
+    const userId = req.user?.sub || req.user?.userId || req.user?.id;
     const { appId } = body;
 
     try {

@@ -1,0 +1,33 @@
+### Test de notification à tous les abonnés OneSignal
+
+@baseUrl = http://localhost:3000/api/v1
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMzc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3Nzc0NzU3NDMsImV4cCI6MTc3OTI5MDE0M30.CDXXieUVbmX7ugFVr6fncCmHLeKtm2HRAY-BAiLrkA0
+
+### Test notification à tous les segments (pour voir dans dashboard)
+POST {{baseUrl}}/notifications/send-segment
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "segments": ["All"],
+  "title": "📢 Test Dashboard",
+  "body": "Notification pour vérifier le dashboard OneSignal",
+  "data": {
+    "type": "DASHBOARD_TEST",
+    "timestamp": "2026-04-30T07:01:00Z"
+  }
+}
+
+### Test notification à un segment spécifique
+POST {{baseUrl}}/notifications/send-segment
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "segments": ["Subscribed Users"],
+  "title": "🎯 Test Segment",
+  "body": "Notification pour les utilisateurs abonnés",
+  "data": {
+    "type": "SEGMENT_TEST"
+  }
+}

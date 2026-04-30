@@ -741,12 +741,13 @@ export class NotificationsController {
   @ApiParam({ name: 'userId', description: 'ID de l\'utilisateur' })
   async checkUserOneSignal(@Param('userId') userId: string) {
     try {
-      const hasAppId = await this.simpleNotificationService.hasOneSignalPlayerId(userId);
+      const result = await this.simpleNotificationService.hasOneSignalPlayerId(userId);
       
       return {
         userId: userId,
-        hasOneSignalAppId: hasAppId,
-        message: hasAppId 
+        hasOneSignalAppId: result.hasAppId,
+        oneSignalAppId: result.appId,
+        message: result.hasAppId 
           ? 'L\'utilisateur a un App ID OneSignal enregistré'
           : 'L\'utilisateur n\'a pas de App ID OneSignal',
         timestamp: new Date(),

@@ -1,4 +1,4 @@
-### Vérifier l'App ID OneSignal de l'utilisateur
+### Vérifier l'App ID de l'utilisateur
 ### Pour voir quel App ID est réellement enregistré
 
 @baseUrl = http://localhost:3000/api/v1
@@ -6,6 +6,10 @@
 
 ### 1. Vérifier si l'utilisateur a un App ID
 GET {{baseUrl}}/notifications/user/3d6db572-ea52-4547-bf57-f02bc86a6ee1/has-onesignal
+Authorization: Bearer {{token}}
+
+### 1b. Vérifier l'App ID de l'utilisateur connecté (e487b5cc-1df4-4650-a1f7-a799859be221)
+GET {{baseUrl}}/notifications/user/e487b5cc-1df4-4650-a1f7-a799859be221/has-onesignal
 Authorization: Bearer {{token}}
 
 
@@ -21,6 +25,15 @@ Authorization: Bearer {{token}}
 
 {
   "appId": "PLAYER_ID_DE_VOTRE_TELEPHONE"
+}
+
+### 3b. Mettre à jour avec un App ID valide (ex: depuis votre téléphone)
+POST {{baseUrl}}/device-tokens/onesignal
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "appId": "VRAI_PLAYER_ID_DE_VOTRE_TELEPHONE"
 }
 
 ### 4. Test de notification après mise à jour

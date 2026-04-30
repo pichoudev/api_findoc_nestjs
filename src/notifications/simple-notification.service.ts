@@ -320,19 +320,22 @@ export class SimpleNotificationService {
   }
 
   /**
-   * Vérifie si un utilisateur a un Player ID OneSignal
+   * Vérifie si un utilisateur a un Player ID OneSignal et retourne l'App ID
    */
-  async hasOneSignalPlayerId(userId: string): Promise<boolean> {
+  async hasOneSignalPlayerId(userId: string): Promise<{ hasAppId: boolean; appId: string | null }> {
     try {
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
         select: { oneSignalAppId: true },
       });
 
-      return !!user?.oneSignalAppId;
+      return {
+        hasAppId: !!user?.oneSignalAppId,
+        appId: user?.oneSignalAppId || null,
+      };
     } catch (error) {
       this.logger.error(`❌ Erreur lors de la vérification du Player ID:`, error);
-      return false;
+      return { hasAppId: false, appId: null };
     }
   }
 
