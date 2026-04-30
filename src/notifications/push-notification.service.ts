@@ -1,6 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, forwardRef, Inject } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { FirebaseService } from './firebase.service';
 import { OneSignalService } from './onesignal.service';
 import { NotificationService } from './notification.service';
 import { NotificationType } from '@prisma/client';
@@ -20,11 +19,10 @@ export interface PushNotificationPayload {
 export interface PushNotificationResult {
   success: boolean;
   notificationId?: string;
-  pushResults?: {
-    firebase?: any;
+  pushResults: {
     oneSignal?: any;
   };
-  errors?: string[];
+  errors: string[];
   timestamp: Date;
 }
 
@@ -34,14 +32,14 @@ export class PushNotificationService {
 
   constructor(
     private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => NotificationService))
     private readonly notificationService: NotificationService,
-    private readonly firebaseService: FirebaseService,
     private readonly oneSignalService: OneSignalService,
   ) {}
 
   /**
-   * Crée une notification en base et l'envoie via push
-   * Flux complet : Base de données → Firebase → OneSignal (fallback)
+   * Crée une notification en base et l'envoie via OneSignal
+   * Flux : Base de données → OneSignal
    */
   async createAndSendPushNotification(
     payload: PushNotificationPayload,
@@ -95,46 +93,10 @@ export class PushNotificationService {
         throw new Error(`Utilisateur ${payload.userId} n'est pas actif`);
       }
 
-      // ÉTAPE 3: Envoyer via Firebase (priorité)
-      if (user.fcmToken) {
-        this.logger.log(`🔥 Envoi via Firebase pour l'utilisateur ${payload.userId}`);
-        
-        const firebaseResult = await this.firebaseService.sendNotificationToUser(
-          user.fcmToken,
-          payload.title,
-          payload.body,
-          payload.data,
-          payload.imageUrl,
-        );
-
-        if (result.pushResults) {
-        result.pushResults.firebase = firebaseResult;
-      }
-
-        if (firebaseResult.success) {
-          this.logger.log(`✅ Firebase: Notification envoyée avec succès`);
-        } else {
-          this.logger.warn(`⚠️ Firebase: Échec d'envoi - ${firebaseResult.error}`);
-          if (result.errors) {
-            result.errors.push(`Firebase: ${firebaseResult.error}`);
-          }
-          
-          // Si le token est invalide, le nettoyer
-          if (firebaseResult.errorCode === 'messaging/registration-token-not-registered') {
-            await this.cleanupInvalidToken(payload.userId, 'fcm');
-          }
-        }
-      } else {
-        this.logger.warn(`⚠️ Firebase: Pas de token FCM pour l'utilisateur ${payload.userId}`);
-        if (result.errors) {
-          result.errors.push('Firebase: Pas de token FCM');
-        }
-      }
-
-      // ÉTAPE 4: Envoyer via OneSignal (fallback ou complément)
+      // ÉTAPE 3 : Envoyer via OneSignal uniquement
       if (user.oneSignalAppId) {
-        this.logger.log(`📢 Envoi via OneSignal pour l'utilisateur ${payload.userId}`);
-        
+        this.logger.log(`📢 Envoi OneSignal pour ${payload.userId}`);
+
         const oneSignalResult = await this.oneSignalService.sendNotificationToUser(
           user.oneSignalAppId,
           payload.title,
@@ -144,37 +106,33 @@ export class PushNotificationService {
           payload.url,
         );
 
-        if (result.pushResults) {
         result.pushResults.oneSignal = oneSignalResult;
-      }
 
         if (oneSignalResult.success) {
-          this.logger.log(`✅ OneSignal: Notification envoyée avec succès`);
+          this.logger.log(`✅ OneSignal: envoi réussi`);
         } else {
-          this.logger.warn(`⚠️ OneSignal: Échec d'envoi - ${oneSignalResult.error}`);
-          if (result.errors) {
-            result.errors.push(`OneSignal: ${oneSignalResult.error}`);
-          }
+          this.logger.warn(`⚠️ OneSignal: échec - ${oneSignalResult.error}`);
+          result.errors.push(`OneSignal: ${oneSignalResult.error}`);
+
+          // Nettoyer l'App ID invalide
+          await this.cleanupInvalidToken(payload.userId, 'onesignal');
         }
       } else {
-        this.logger.warn(`⚠️ OneSignal: Pas de Player ID pour l'utilisateur ${payload.userId}`);
-        if (result.errors) {
-          result.errors.push('OneSignal: Pas de Player ID');
-        }
+        this.logger.warn(`⚠️ OneSignal: pas d'App ID pour ${payload.userId}`);
+        result.errors.push('OneSignal: Pas d\'App ID');
       }
 
-      // ÉTAPE 5: Évaluer le succès global
-      const firebaseSuccess = result.pushResults?.firebase?.success || false;
-      const oneSignalSuccess = result.pushResults?.oneSignal?.success || false;
-      
-      if (!firebaseSuccess && !oneSignalSuccess) {
+      // ÉTAPE 4 : Évaluer le succès global
+      const oneSignalOk = result.pushResults?.oneSignal?.success || false;
+
+      if (!oneSignalOk) {
         result.success = false;
-        this.logger.error(`❌ Échec total de l'envoi pour l'utilisateur ${payload.userId}`);
+        this.logger.error(`❌ Échec OneSignal pour ${payload.userId}`);
       } else {
-        this.logger.log(`🎉 Notification envoyée avec succès pour l'utilisateur ${payload.userId}`);
+        this.logger.log(`🎉 Notification OneSignal envoyée avec succès pour ${payload.userId}`);
       }
 
-      // ÉTAPE 6: Mettre à jour les métadonnées de la notification
+      // ÉTAPE 5 : Mettre à jour les métadonnées de la notification
       await this.updateNotificationMetadata(dbNotification.id, result);
 
       const duration = Date.now() - startTime;
@@ -185,9 +143,7 @@ export class PushNotificationService {
     } catch (error) {
       this.logger.error(`❌ Erreur lors de l'envoi de la notification:`, error);
       result.success = false;
-      if (result.errors) {
-        result.errors.push(error.message);
-      }
+      result.errors.push(error.message);
       return result;
     }
   }
@@ -228,6 +184,7 @@ export class PushNotificationService {
         } else {
           results.push({
             success: false,
+            pushResults: {},
             errors: [result.reason.message],
             timestamp: new Date(),
           });
@@ -265,6 +222,7 @@ export class PushNotificationService {
       if (users.length === 0) {
         return {
           success: false,
+          pushResults: {},
           errors: [`Aucun utilisateur trouvé dans le segment ${segment}`],
           timestamp: new Date(),
         };
@@ -294,6 +252,7 @@ export class PushNotificationService {
         success: oneSignalResult.success,
         notificationId: `segment_${segment}_${Date.now()}`,
         pushResults: { oneSignal: oneSignalResult },
+        errors: oneSignalResult.success ? [] : [oneSignalResult.error || 'Erreur OneSignal'],
         timestamp: new Date(),
       };
 
@@ -301,6 +260,7 @@ export class PushNotificationService {
       this.logger.error(`❌ Erreur lors de l'envoi au segment ${segment}:`, error);
       return {
         success: false,
+        pushResults: {},
         errors: [error.message],
         timestamp: new Date(),
       };
@@ -310,21 +270,15 @@ export class PushNotificationService {
   /**
    * Nettoie les tokens invalides
    */
-  private async cleanupInvalidToken(userId: string, tokenType: 'fcm' | 'onesignal') {
-    try {
-      const updateData = tokenType === 'fcm' 
-        ? { fcmToken: null }
-        : { oneSignalAppId: null };
+  private async cleanupInvalidToken(userId: string, tokenType: 'onesignal') {
+    const updateData = { oneSignalAppId: null };
 
-      await this.prisma.user.update({
-        where: { id: userId },
-        data: updateData,
-      });
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
 
-      this.logger.log(`🧹 Token ${tokenType} invalide nettoyé pour l'utilisateur ${userId}`);
-    } catch (error) {
-      this.logger.error(`❌ Erreur lors du nettoyage du token ${tokenType}:`, error);
-    }
+    this.logger.log(`🧹 Token ${tokenType} invalide nettoyé pour l'utilisateur ${userId}`);
   }
 
   /**
@@ -403,7 +357,6 @@ export class PushNotificationService {
         where: whereClause,
         select: {
           id: true,
-          fcmToken: true,
           oneSignalAppId: true,
           role: true,
         },

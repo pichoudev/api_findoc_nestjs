@@ -255,6 +255,10 @@ export class SimpleNotificationService {
       let whereClause: any = { isActive: true };
 
       switch (segment) {
+        case 'All':
+          // Tous les utilisateurs actifs avec App ID
+          whereClause.oneSignalAppId = { not: null };
+          break;
         case 'agents':
           whereClause.role = 'AGENT';
           break;

@@ -761,4 +761,67 @@ export class NotificationsController {
       };
     }
   }
+
+  @Get('device/:appId/status')
+  @Roles('ADMIN', 'SUPERVISOR')
+  @ApiOperation({ 
+    summary: 'Vérifier si un appareil OneSignal est actif',
+    description: 'Vérifie l\'état d\'un appareil via l\'API OneSignal'
+  })
+  @ApiParam({ name: 'appId', description: 'App ID de l\'appareil OneSignal' })
+  async checkDeviceStatus(@Param('appId') appId: string) {
+    try {
+      // Utiliser l'API OneSignal pour vérifier l'appareil
+      const result = await this.oneSignalService.getDeviceStatus(appId);
+      
+      return {
+        appId: appId,
+        isActive: result.success,
+        deviceInfo: result.success ? result.data : null,
+        message: result.success 
+          ? 'Appareil actif et abonné'
+          : 'Appareil non trouvé ou inactif',
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        appId: appId,
+        message: 'Erreur lors de la vérification de l\'appareil',
+        error: error.message,
+        timestamp: new Date(),
+      };
+    }
+  }
+
+  @Get('devices')
+  @Roles('ADMIN', 'SUPERVISOR')
+  @ApiOperation({ 
+    summary: 'Lister tous les appareils OneSignal',
+    description: 'Récupère la liste de tous les appareils depuis OneSignal'
+  })
+  async listAllDevices() {
+    try {
+      const result = await this.oneSignalService.getAllDevices();
+      
+      return {
+        success: result.success,
+        devices: result.success ? result.data : [],
+        count: result.success ? (result.data?.players?.length || 0) : 0,
+        message: result.success 
+          ? `${result.data?.players?.length || 0} appareils trouvés`
+          : 'Erreur lors de la récupération',
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        devices: [],
+        count: 0,
+        message: 'Erreur lors de la récupération des appareils',
+        error: error.message,
+        timestamp: new Date(),
+      };
+    }
+  }
 }

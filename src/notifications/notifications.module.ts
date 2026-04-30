@@ -7,6 +7,7 @@ import { OneSignalService } from './onesignal.service';
 import { NotificationService } from './notification.service';
 import { PushNotificationService } from './push-notification.service';
 import { SimpleNotificationService } from './simple-notification.service';
+import { NotificationEventsService } from './notification-events.service';
 import { NotificationsController } from './notifications.controller';
 import { DeviceTokensController } from './device-tokens.controller';
 
@@ -23,9 +24,10 @@ import { DeviceTokensController } from './device-tokens.controller';
   providers: [
     FirebaseService,
     OneSignalService,
-    NotificationService,
-    PushNotificationService,
     SimpleNotificationService,
+    NotificationService,
+    NotificationEventsService,
+    PushNotificationService,
   ],
   exports: [
     FirebaseService,

@@ -9,7 +9,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "segments": ["All"],
+  "segment": "All",
   "title": "📢 Test Dashboard",
   "body": "Notification pour vérifier le dashboard OneSignal",
   "data": {
@@ -17,6 +17,7 @@ Authorization: Bearer {{token}}
     "timestamp": "2026-04-30T07:01:00Z"
   }
 }
+
 
 ### Test notification à un segment spécifique
 POST {{baseUrl}}/notifications/send-segment

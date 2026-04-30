@@ -6,11 +6,14 @@ import { EventEmitter } from 'events';
 
 @Injectable()
 export class NotificationService extends EventEmitter {
-  private readonly logger = new Logger(NotificationService.name);
+  private readonly appLogger: Logger;
   private templates: Map<NotificationEventType, NotificationTemplate> = new Map();
 
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+  ) {
     super();
+    this.appLogger = new Logger(NotificationService.name);
     this.initializeTemplates();
     this.setupEventListeners();
   }
@@ -148,7 +151,7 @@ export class NotificationService extends EventEmitter {
       timestamp: new Date(),
     };
     
-    this.logger.log(`Emitting event: ${type}`, data);
+    this.appLogger.log(`Emitting event: ${type}`, data);
     this.emit(type, event);
   }
 
@@ -202,7 +205,7 @@ export class NotificationService extends EventEmitter {
     try {
       const template = this.templates.get(event.type);
       if (!template) {
-        this.logger.warn(`No template found for event type: ${event.type}`);
+        this.appLogger.warn(`No template found for event type: ${event.type}`);
         return;
       }
 
@@ -215,9 +218,9 @@ export class NotificationService extends EventEmitter {
         await this.createNotification(payload);
       }
 
-      this.logger.log(`Processed ${recipients.length} notifications for event: ${event.type}`);
+      this.appLogger.log(`Processed ${recipients.length} notifications for event: ${event.type}`);
     } catch (error) {
-      this.logger.error(`Error processing notification for event ${event.type}:`, error);
+      this.appLogger.error(`Error processing notification for event ${event.type}:`, error);
     }
   }
 
@@ -288,10 +291,21 @@ export class NotificationService extends EventEmitter {
         },
       });
 
-      this.logger.log(`Created notification for user ${payload.userId}: ${payload.title}`);
+      this.appLogger.log(`Created notification for user ${payload.userId}: ${payload.title}`);
+
+      // Émettre un événement pour l'envoi automatique de la notification push
+      this.emit('notification.created', {
+        userId: payload.userId,
+        title: payload.title,
+        body: payload.body,
+        type: notificationType,
+        entityType: payload.entityType,
+        entityId: payload.entityId,
+      });
+
       return notification;
     } catch (error) {
-      this.logger.error(`Failed to create notification:`, error);
+      this.appLogger.error(`Failed to create notification:`, error);
       throw error;
     }
   }

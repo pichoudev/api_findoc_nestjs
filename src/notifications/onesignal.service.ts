@@ -283,4 +283,86 @@ export class OneSignalService {
       };
     }
   }
+
+  /**
+   * Vérifie si un appareil OneSignal est actif
+   */
+  async getDeviceStatus(playerId: string) {
+    try {
+      this.logger.log(`🔍 Vérification de l'appareil: ${playerId}`);
+
+      // Essayer deux endpoints différents
+      let response;
+      
+      try {
+        // Endpoint 1: /players/{playerId}
+        response = await this.httpService.get(
+          `https://onesignal.com/api/v1/players/${playerId}?app_id=${this.appId}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Key ${this.apiKey}`,
+              'Accept': 'application/json',
+            },
+          }
+        ).toPromise();
+      } catch (error1) {
+        this.logger.warn(`⚠️ Endpoint /players échoué, essai /devices...`);
+        
+        // Endpoint 2: /devices/{playerId}
+        response = await this.httpService.get(
+          `https://onesignal.com/api/v1/devices/${playerId}?app_id=${this.appId}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Key ${this.apiKey}`,
+              'Accept': 'application/json',
+            },
+          }
+        ).toPromise();
+      }
+
+      return {
+        success: true,
+        data: response?.data,
+      };
+    } catch (error) {
+      this.logger.error(`❌ Erreur vérification appareil OneSignal:`, error.response?.data || error.message);
+      return {
+        success: false,
+        error: error.response?.data || error.message,
+      };
+    }
+  }
+
+  /**
+   * Récupère tous les appareils OneSignal
+   */
+  async getAllDevices() {
+    try {
+      this.logger.log(`📱 Récupération de tous les appareils OneSignal`);
+
+      const response = await this.httpService.get(
+        `https://onesignal.com/api/v1/players?app_id=${this.appId}&limit=300`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Key ${this.apiKey}`,
+            'Accept': 'application/json',
+          },
+        }
+      ).toPromise();
+
+      return {
+        success: true,
+        data: response?.data,
+      };
+    } catch (error) {
+      this.logger.error(`❌ Erreur récupération appareils OneSignal:`, error.response?.data || error.message);
+      return {
+        success: false,
+        error: error.response?.data || error.message,
+      };
+    }
+  }
 }
