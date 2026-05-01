@@ -414,6 +414,16 @@ export class InterventionsService {
         referenceCode: updatedIntervention.report.referenceCode,
         reporterId: updatedIntervention.report.userId,
       });
+    } else {
+      // Pour tous les autres changements de statut (sauf EN_COURS qui a son propre événement)
+      this.notificationService.emitEvent(NotificationEventType.INTERVENTION_STATUS_CHANGED, {
+        interventionId: updatedIntervention.id,
+        agentId: updatedIntervention.agentId,
+        reportId: updatedIntervention.reportId,
+        referenceCode: updatedIntervention.report.referenceCode,
+        reporterId: updatedIntervention.report.userId,
+        status: status,
+      });
     }
 
     if (status === InterventionStatus.RESOLU) {

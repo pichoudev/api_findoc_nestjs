@@ -23,8 +23,8 @@ export class NotificationService extends EventEmitter {
     // Report templates
     this.templates.set(NotificationEventType.REPORT_CREATED, {
       type: NotificationEventType.REPORT_CREATED,
-      title: 'Nouveau signalement créé',
-      body: 'Votre signalement {{referenceCode}} a été créé avec succès et est en cours de traitement.',
+      title: '🗑️ Signalement enregistré',
+      body: 'Votre signalement {{referenceCode}} pour un bac {{reportType}} a été reçu. Priorité: {{priority}}. Nous traitons votre demande.',
       getRecipients: (data) => [data.reporterId],
       getEntityInfo: (data) => ({ entityType: 'report', entityId: data.reportId }),
     });
@@ -67,6 +67,14 @@ export class NotificationService extends EventEmitter {
       title: 'Intervention démarrée',
       body: 'L\'agent a démarré l\'intervention pour votre signalement {{referenceCode}}.',
       getRecipients: (data) => [data.reporterId],
+      getEntityInfo: (data) => ({ entityType: 'intervention', entityId: data.interventionId }),
+    });
+
+    this.templates.set(NotificationEventType.INTERVENTION_STATUS_CHANGED, {
+      type: NotificationEventType.INTERVENTION_STATUS_CHANGED,
+      title: 'Statut d\'intervention mis à jour',
+      body: 'Le statut de votre intervention {{referenceCode}} est maintenant : {{status}}.',
+      getRecipients: (data) => [data.reporterId, data.agentId],
       getEntityInfo: (data) => ({ entityType: 'intervention', entityId: data.interventionId }),
     });
 
@@ -136,6 +144,7 @@ export class NotificationService extends EventEmitter {
     this.on(NotificationEventType.REPORT_COMPLETED, this.handleReportCompleted.bind(this));
     this.on(NotificationEventType.INTERVENTION_ASSIGNED, this.handleInterventionAssigned.bind(this));
     this.on(NotificationEventType.INTERVENTION_STARTED, this.handleInterventionStarted.bind(this));
+    this.on(NotificationEventType.INTERVENTION_STATUS_CHANGED, this.handleInterventionStatusChanged.bind(this));
     this.on(NotificationEventType.INTERVENTION_COMPLETED, this.handleInterventionCompleted.bind(this));
     this.on(NotificationEventType.USER_PROFILE_UPDATED, this.handleUserProfileUpdated.bind(this));
     this.on(NotificationEventType.USER_PASSWORD_CHANGED, this.handleUserPasswordChanged.bind(this));
@@ -177,6 +186,10 @@ export class NotificationService extends EventEmitter {
   }
 
   private async handleInterventionStarted(event: NotificationEvent) {
+    await this.processNotification(event);
+  }
+
+  private async handleInterventionStatusChanged(event: NotificationEvent) {
     await this.processNotification(event);
   }
 

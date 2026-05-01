@@ -1,0 +1,94 @@
+### Test de notifications pour citoyen qui signale un bac
+
+@baseUrl = http://localhost:3000/api/v1
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMjc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3Nzc0Nzg3MTAsImV4cCI6MTc3OTI5MzExMH0.orNbodFWVQxl-_wmy-8oe8B4OHQ9J6U6Nyhwotc82GQ
+@citizenUserId = CITIZEN_USER_ID_HERE
+
+### 1. Créer un signalement (citoyen) - Doit envoyer REPORT_CREATED
+POST {{baseUrl}}/reports
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "bacId": "f8e12345-0000-4c1d-9e2f-abc123000010",
+  "reportType": "PLEIN",
+  "description": "Test signalement citoyen avec notification push",
+  "priority": "HIGH",
+  "locationUser": "Douala, Cameroun"
+}
+
+### 2. Vérifier les notifications du citoyen après signalement
+GET {{baseUrl}}/notifications/user/{{citizenUserId}}
+Authorization: Bearer {{token}}
+
+### 3. Mettre à jour le statut du signalement - Doit envoyer REPORT_STATUS_CHANGED
+PATCH {{baseUrl}}/reports/REPORT_ID_HERE/status
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "EN_COURS",
+  "comment": "Signalement en cours de traitement"
+}
+
+### 4. Assigner un agent - Doit envoyer REPORT_ASSIGNED à l'agent
+POST {{baseUrl}}/interventions
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "reportId": "REPORT_ID_HERE",
+  "agentId": "AGENT_ID_HERE"
+}
+
+### 5. Marquer comme terminé - Doit envoyer REPORT_COMPLETED
+PATCH {{baseUrl}}/reports/REPORT_ID_HERE/status
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "TERMINE",
+  "comment": "Signalement traité avec succès"
+}
+
+### 6. Vérifier l'historique complet des notifications du citoyen
+GET {{baseUrl}}/notifications/user/{{citizenUserId}}?unreadOnly=false
+Authorization: Bearer {{token}}
+
+### 7. Compter les notifications non lues du citoyen
+GET {{baseUrl}}/notifications/user/{{citizenUserId}}/unread-count
+Authorization: Bearer {{token}}
+
+### 8. Marquer les notifications comme lues
+PATCH {{baseUrl}}/notifications/mark-all-read
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userId": "{{citizenUserId}}"
+}
+
+### 9. Test direct de notification REPORT_CREATED
+POST {{baseUrl}}/notifications/test
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userId": "{{citizenUserId}}",
+  "event": "REPORT_CREATED",
+  "data": {
+    "reportId": "test_report_123",
+    "referenceCode": "REP-001",
+    "reportType": "PLEIN",
+    "priority": "HIGH",
+    "reporterId": "{{citizenUserId}}"
+  }
+}
+
+### 10. Lister tous les signalements pour trouver un ID
+GET {{baseUrl}}/reports
+Authorization: Bearer {{token}}
+
+### 11. Vérifier si le citoyen a un App ID OneSignal
+GET {{baseUrl}}/notifications/user/{{citizenUserId}}/has-onesignal
+Authorization: Bearer {{token}}

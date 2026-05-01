@@ -1,0 +1,74 @@
+### Test de notifications de changement de statut d'intervention
+
+@baseUrl = http://localhost:3000/api/v1
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNDg3YjVjYy0xZGY0LTQ2NTAtYTFmNy1hNzk5ODU5YmUyMjEiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJwaG9uZSI6IisyMjc2OTg3NjU0MzIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3Nzc0Nzg3MTAsImV4cCI6MTc3OTI5MzExMH0.orNbodFWVQxl-_wmy-8oe8B4OHQ9J6U6Nyhwotc82GQ
+@interventionId = INTERVENTION_ID_HERE
+
+### 1. Mettre à jour le statut vers EN_COURS (doit envoyer INTERVENTION_STARTED)
+PATCH {{baseUrl}}/interventions/{{interventionId}}/status
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "EN_COURS",
+  "comment": "Intervention démarrée"
+}
+
+### 2. Mettre à jour le statut vers EN_ATTENTE (doit envoyer INTERVENTION_STATUS_CHANGED)
+PATCH {{baseUrl}}/interventions/{{interventionId}}/status
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "EN_ATTENTE",
+  "comment": "Intervention mise en attente"
+}
+
+### 3. Mettre à jour le statut vers RESOLU (doit envoyer INTERVENTION_STATUS_CHANGED + INTERVENTION_COMPLETED)
+PATCH {{baseUrl}}/interventions/{{interventionId}}/status
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "RESOLU",
+  "comment": "Intervention terminée avec succès"
+}
+
+### 4. Mettre à jour le statut vers ANNULE (doit envoyer INTERVENTION_STATUS_CHANGED)
+PATCH {{baseUrl}}/interventions/{{interventionId}}/status
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "ANNULE",
+  "comment": "Intervention annulée"
+}
+
+### 5. Lister les interventions pour trouver un ID
+GET {{baseUrl}}/interventions
+Authorization: Bearer {{token}}
+
+### 6. Vérifier les notifications de l'utilisateur (citoyen)
+GET {{baseUrl}}/notifications/user/USER_ID_HERE
+Authorization: Bearer {{token}}
+
+### 7. Vérifier les notifications de l'agent
+GET {{baseUrl}}/notifications/user/AGENT_ID_HERE
+Authorization: Bearer {{token}}
+
+### 8. Test direct d'événement de notification
+POST {{baseUrl}}/notifications/test
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userId": "USER_ID_HERE",
+  "event": "INTERVENTION_STATUS_CHANGED",
+  "data": {
+    "interventionId": "test_intervention_123",
+    "referenceCode": "REP-001",
+    "status": "EN_COURS",
+    "reporterId": "USER_ID_HERE",
+    "agentId": "AGENT_ID_HERE"
+  }
+}
