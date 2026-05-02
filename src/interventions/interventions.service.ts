@@ -371,6 +371,15 @@ export class InterventionsService {
       data: { status: ReportStatus.EN_COURS },
     });
 
+    // Émettre un événement de notification pour l'assignation d'intervention
+    this.notificationService.emitEvent(NotificationEventType.INTERVENTION_ASSIGNED, {
+      interventionId: intervention.id,
+      agentId: agentId,
+      reportId: reportId,
+      referenceCode: intervention.report.referenceCode,
+      reporterId: intervention.report.userId,
+    });
+
     return intervention;
   }
 

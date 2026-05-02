@@ -23,9 +23,9 @@ export class NotificationEventsService {
   @OnEvent('notification.created')
   async handleNotificationCreated(event: NotificationCreatedEvent) {
     try {
-      this.logger.log(`📱 Envoi automatique push notification pour ${event.userId}: ${event.title}`);
+      this.logger.log(`🎯 NotificationEventsService: Événement notification.created reçu pour ${event.userId}: ${event.title}`);
       
-      await this.simpleNotificationService.createAndSendNotification(
+      const result = await this.simpleNotificationService.createAndSendNotification(
         {
           userId: event.userId,
           title: event.title,
@@ -42,9 +42,14 @@ export class NotificationEventsService {
         event.entityId,
       );
       
-      this.logger.log(`✅ Push notification envoyée à ${event.userId}`);
+      if (result.success) {
+        this.logger.log(`✅ NotificationEventsService: Push notification envoyée avec succès à ${event.userId}`);
+        this.logger.log(`📊 NotificationEventsService: Résultat OneSignal:`, result.oneSignalResult);
+      } else {
+        this.logger.warn(`⚠️ NotificationEventsService: Échec envoi push notification pour ${event.userId}:`, result.errors);
+      }
     } catch (error) {
-      this.logger.warn(`⚠️ Échec envoi push notification pour ${event.userId}:`, error);
+      this.logger.error(`❌ NotificationEventsService: Erreur critique envoi push notification pour ${event.userId}:`, error);
       // Ne pas bloquer le flux principal
     }
   }

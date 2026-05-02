@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
-import { ConfigModule } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PrismaModule } from '../prisma/prisma.module';
+import { PrismaService } from '../prisma/prisma.service';
 import { FirebaseService } from './firebase.service';
 import { OneSignalService } from './onesignal.service';
 import { NotificationService } from './notification.service';
@@ -14,7 +15,7 @@ import { DeviceTokensController } from './device-tokens.controller';
 @Module({
   imports: [
     HttpModule,
-    ConfigModule,
+    EventEmitterModule.forRoot(),
     PrismaModule,
   ],
   controllers: [
@@ -25,9 +26,9 @@ import { DeviceTokensController } from './device-tokens.controller';
     FirebaseService,
     OneSignalService,
     SimpleNotificationService,
-    NotificationService,
     NotificationEventsService,
     PushNotificationService,
+    NotificationService,
   ],
   exports: [
     FirebaseService,

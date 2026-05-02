@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { NotificationEvent, NotificationEventType, NotificationPayload, NotificationTemplate } from './types/notification.types';
 import { NotificationType } from '@prisma/client';
 import { EventEmitter } from 'events';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class NotificationService extends EventEmitter {
@@ -11,6 +12,7 @@ export class NotificationService extends EventEmitter {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
   ) {
     super();
     this.appLogger = new Logger(NotificationService.name);
@@ -56,8 +58,8 @@ export class NotificationService extends EventEmitter {
     // Intervention templates
     this.templates.set(NotificationEventType.INTERVENTION_ASSIGNED, {
       type: NotificationEventType.INTERVENTION_ASSIGNED,
-      title: 'Nouvelle intervention assignée',
-      body: 'Une nouvelle intervention vous a été assignée pour le signalement {{referenceCode}}.',
+      title: '🔧 Nouvelle intervention assignée',
+      body: 'Une nouvelle intervention vous a été assignée pour le signalement {{referenceCode}}. Merci de traiter cette demande rapidement.',
       getRecipients: (data) => [data.agentId],
       getEntityInfo: (data) => ({ entityType: 'intervention', entityId: data.interventionId }),
     });
@@ -307,14 +309,18 @@ export class NotificationService extends EventEmitter {
       this.appLogger.log(`Created notification for user ${payload.userId}: ${payload.title}`);
 
       // Émettre un événement pour l'envoi automatique de la notification push
-      this.emit('notification.created', {
+      const eventData = {
         userId: payload.userId,
         title: payload.title,
         body: payload.body,
         type: notificationType,
         entityType: payload.entityType,
         entityId: payload.entityId,
-      });
+      };
+      
+      this.appLogger.log(`📢 NotificationService: Émission événement notification.created pour ${payload.userId}`);
+      this.eventEmitter.emit('notification.created', eventData);
+      this.appLogger.log(`📡 NotificationService: Événement notification.created émis avec EventEmitter2`);
 
       return notification;
     } catch (error) {
