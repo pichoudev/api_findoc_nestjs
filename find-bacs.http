@@ -1,9 +1,0 @@
-### Pour trouver des UUIDs de bacs valides
-
-@baseUrl = http://localhost:3000
-
-### Lister les bacs existants
-GET {{baseUrl}}/bins?page=1&limit=10
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDY5ZjA4MS04NmUwLTRmMDktODU4NS0yYjRhNzQyNmEzNGYiLCJlbWFpbCI6ImFwb2xsaW5lYmFuZW1iQGdtYWlsLmNvbSIsInBob25lIjoiKzIzNzY5ODc2NTQzMiIsInJvbGUiOiJDSVRJWkVOIiwiaWF0IjoxNzczOTkyODA4LCJleHAiOjE3NzU4MDcyMDh9.jlnbYyNPdjObt3eQk9WhsemxQ_bfonmEcfkBb1sudBA
-
-### Copiez un "id" de la réponse pour l'utiliser dans les signalements

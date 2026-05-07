@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { SimpleNotificationService } from './simple-notification.service';
-import { NotificationType } from '@prisma/client';
+import { Type_notification } from '@prisma/client';
 
 export interface NotificationCreatedEvent {
   userId: string;
   title: string;
   body: string;
-  type: NotificationType;
+  type: Type_notification;
   entityType?: string;
   entityId?: string;
 }
@@ -27,7 +27,7 @@ export class NotificationEventsService {
       
       const result = await this.simpleNotificationService.createAndSendNotification(
         {
-          userId: event.userId,
+          utilisateurId: event.userId,
           title: event.title,
           body: event.body,
           data: {

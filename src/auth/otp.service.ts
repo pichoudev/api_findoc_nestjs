@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class OtpService {
   private readonly transporter: nodemailer.Transporter;
   private readonly logger = new Logger(OtpService.name);
+  private otpStorage: Map<string, { code: string; expiresAt: Date; purpose: string }> = new Map();
 
   constructor(
     private configService: ConfigService,
@@ -49,22 +50,21 @@ export class OtpService {
       this.logger.log(`Envoi du code OTP ${code} à ${email} via Brevo SMTP`);
 
       const mailFrom = this.configService.get<string>('MAIL_FROM_ADDRESS');
-      const mailFromName = this.configService.get<string>('MAIL_FROM_NAME') || 'Cleaner App';
+      const mailFromName = this.configService.get<string>('MAIL_FROM_NAME') || 'Findoc App';
 
       const mailOptions = {
         from: `"${mailFromName}" <${mailFrom}>`,
         to: email,
-        subject: 'Code de vérification — Cleaner App',
+        subject: 'Code de vérification — Findoc App',
         html: `
           <!DOCTYPE html>
           <html lang="fr">
           <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Code de vérification — Cleaner App</title>
+            <title>Code de vérification — Findoc App</title>
             <style>
               * { margin: 0; padding: 0; box-sizing: border-box; }
-
               body {
                 background-color: #f4f4f4;
                 font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -72,13 +72,11 @@ export class OtpService {
                 color: #1a1a1a;
                 -webkit-font-smoothing: antialiased;
               }
-
               .wrapper {
                 width: 100%;
                 padding: 48px 16px;
                 background-color: #f4f4f4;
               }
-
               .container {
                 max-width: 560px;
                 margin: 0 auto;
@@ -86,239 +84,75 @@ export class OtpService {
                 border-radius: 4px;
                 overflow: hidden;
               }
-
-              /* ── Header ── */
               .header {
                 background-color: #0a3d62;
                 padding: 36px 40px;
               }
-
               .header-brand {
                 font-size: 13px;
                 font-weight: 600;
                 color: #ffffff;
-                letter-spacing: 2px;
-                text-transform: uppercase;
               }
-
-              .header-tagline {
-                font-size: 12px;
-                color: rgba(255, 255, 255, 0.55);
-                margin-top: 4px;
-                letter-spacing: 0.5px;
+              .content {
+                padding: 40px;
               }
-
-              /* ── Body ── */
-              .body {
-                padding: 44px 40px;
-              }
-
-              .greeting {
-                font-size: 22px;
+              .title {
+                font-size: 24px;
                 font-weight: 600;
-                color: #0a3d62;
-                margin-bottom: 14px;
-                line-height: 1.3;
+                margin-bottom: 16px;
+                color: #1a1a1a;
               }
-
-              .intro {
-                font-size: 14px;
-                color: #555555;
-                line-height: 1.75;
-                margin-bottom: 36px;
+              .text {
+                margin-bottom: 32px;
+                line-height: 1.6;
+                color: #666666;
               }
-
-              /* ── Code block ── */
-              .code-block {
-                border: 1px solid #e0e0e0;
-                border-radius: 4px;
-                padding: 32px 24px;
+              .code-container {
+                background-color: #f8f9fa;
+                border: 2px dashed #dee2e6;
+                border-radius: 8px;
+                padding: 24px;
                 text-align: center;
-                margin-bottom: 36px;
-                background-color: #fafafa;
-              }
-
-              .code-label {
-                font-size: 11px;
-                font-weight: 600;
-                color: #999999;
-                letter-spacing: 2px;
-                text-transform: uppercase;
-                margin-bottom: 18px;
-              }
-
-              .code-value {
-                font-size: 38px;
-                font-weight: 700;
-                color: #0a3d62;
-                letter-spacing: 10px;
-                font-family: 'Courier New', 'Lucida Console', monospace;
-                line-height: 1;
-              }
-
-              .code-expiry {
-                font-size: 12px;
-                color: #999999;
-                margin-top: 18px;
-              }
-
-              .code-expiry strong {
-                color: #c0392b;
-                font-weight: 600;
-              }
-
-              /* ── Divider ── */
-              .divider {
-                height: 1px;
-                background-color: #eeeeee;
                 margin: 32px 0;
               }
-
-              /* ── Security note ── */
-              .security {
-                border-left: 3px solid #0a3d62;
-                padding: 14px 18px;
-                background-color: #f0f5f9;
-                border-radius: 0 4px 4px 0;
-                margin-bottom: 32px;
-              }
-
-              .security-title {
-                font-size: 12px;
+              .code {
+                font-size: 32px;
                 font-weight: 700;
+                letter-spacing: 8px;
                 color: #0a3d62;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                margin-bottom: 8px;
+                font-family: 'Courier New', monospace;
               }
-
-              .security ul {
-                list-style: none;
-                padding: 0;
-              }
-
-              .security ul li {
-                font-size: 13px;
-                color: #555555;
-                line-height: 1.7;
-                padding-left: 14px;
-                position: relative;
-              }
-
-              .security ul li::before {
-                content: '—';
-                position: absolute;
-                left: 0;
-                color: #0a3d62;
-                font-weight: 700;
-              }
-
-              /* ── Disclaimer ── */
-              .disclaimer {
-                font-size: 13px;
-                color: #888888;
-                line-height: 1.7;
-              }
-
-              /* ── Footer ── */
               .footer {
-                background-color: #f9f9f9;
-                border-top: 1px solid #eeeeee;
-                padding: 28px 40px;
-              }
-
-              .footer-support {
+                background-color: #f8f9fa;
+                padding: 24px 40px;
+                text-align: center;
+                color: #666666;
                 font-size: 13px;
-                color: #777777;
-                line-height: 1.7;
-                margin-bottom: 16px;
-              }
-
-              .footer-support a {
-                color: #0a3d62;
-                text-decoration: none;
-                font-weight: 500;
-              }
-
-              .footer-copy {
-                font-size: 11px;
-                color: #bbbbbb;
-                letter-spacing: 0.3px;
-              }
-
-              .provider-info {
-                background-color: #e8f4f8;
-                border: 1px solid #d1e7f0;
-                border-radius: 4px;
-                padding: 12px 16px;
-                margin-bottom: 24px;
-                font-size: 12px;
-                color: #2c5282;
-              }
-
-              @media (max-width: 600px) {
-                .body { padding: 32px 24px; }
-                .footer { padding: 24px; }
-                .header { padding: 28px 24px; }
-                .code-value { font-size: 30px; letter-spacing: 6px; }
               }
             </style>
           </head>
           <body>
             <div class="wrapper">
               <div class="container">
-
                 <div class="header">
-                  <div class="header-brand">Cleaner App</div>
-                  <div class="header-tagline">Gestion des déchets — Douala</div>
+                  <div class="header-brand">Findoc App</div>
                 </div>
-
-                <div class="body">
-                  <div class="provider-info">
-                    📧 Email envoyé via Brevo SMTP (smtp-relay.brevo.com)
-                  </div>
-
-                  <p class="greeting">Code de vérification</p>
-                  <p class="intro">
-                    Bienvenue sur Cleaner App. Pour finaliser votre inscription et activer votre compte, veuillez saisir le code ci-dessous dans l'application.
+                <div class="content">
+                  <h1 class="title">Code de vérification</h1>
+                  <p class="text">
+                    Votre code de vérification temporaire est ci-dessous. 
+                    Ce code expirera dans 10 minutes pour des raisons de sécurité.
                   </p>
-
-                  <div class="code-block">
-                    <div class="code-label">Votre code</div>
-                    <div class="code-value">${code}</div>
-                    <div class="code-expiry">
-                      Expire dans <strong>10 minutes</strong>
-                    </div>
+                  <div class="code-container">
+                    <div class="code">${code}</div>
                   </div>
-
-                  <div class="security">
-                    <div class="security-title">Sécurité</div>
-                    <ul>
-                      <li>Ne communiquez jamais ce code à un tiers</li>
-                      <li>Notre équipe ne vous demandera jamais ce code par téléphone</li>
-                      <li>Ce code est à usage unique</li>
-                    </ul>
-                  </div>
-
-                  <div class="divider"></div>
-
-                  <p class="disclaimer">
-                    Si vous n'avez pas demandé ce code, vous pouvez ignorer cet email en toute sécurité. Aucune action ne sera effectuée sur votre compte.
+                  <p class="text">
+                    Si vous n'avez pas demandé ce code, vous pouvez ignorer cet email en toute sécurité.
                   </p>
                 </div>
-
                 <div class="footer">
-                  <p class="footer-support">
-                    Une question ? Contactez notre support à l'adresse
-                    <a href="mailto:support@cleaner.cm">support@cleaner.cm</a>
-                    ou au <a href="tel:+237123456789">+237 123 456 789</a>.
-                  </p>
-                  <p class="footer-copy">
-                    &copy; 2026 Cleaner App — Tous droits réservés.<br>
-                    Plateforme de gestion des déchets pour la ville de Douala.
-                  </p>
+                  <p>© 2024 Findoc App. Tous droits réservés.</p>
                 </div>
-
               </div>
             </div>
           </body>
@@ -326,189 +160,85 @@ export class OtpService {
         `,
       };
 
-      // Ajout d'un timeout pour éviter que l'envoi ne bloque trop longtemps
-      const emailPromise = this.transporter.sendMail(mailOptions);
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Timeout SMTP après 30 secondes')), 30000);
-      });
-
-      await Promise.race([emailPromise, timeoutPromise]);
-      this.logger.log(`Email OTP envoyé avec succès via Brevo à ${email}`);
-    } catch (error) {
-      this.logger.error(`Erreur lors de l'envoi de l'email OTP via Brevo: ${error.message}`, error.stack);
-      throw new Error(`Erreur lors de l'envoi de l'email OTP: ${error.message}`);
-    }
-  }
-
-  async verifyBrevoConnection(): Promise<void> {
-    try {
-      this.logger.log('Vérification de la connexion Brevo SMTP...');
+      const info = await this.transporter.sendMail(mailOptions);
+      this.logger.log(`Email OTP envoyé avec succès: ${info.messageId}`);
       
-      // Tenter de vérifier la connexion
-      await this.transporter.verify();
-      
-      this.logger.log('✅ Connexion Brevo SMTP vérifiée avec succès');
     } catch (error) {
-      this.logger.error(`❌ Erreur de connexion Brevo: ${error.message}`);
-      throw new Error(`Erreur de connexion Brevo: ${error.message}`);
+      this.logger.error('Erreur lors de l\'envoi de l\'email OTP:', error);
+      throw new Error('Impossible d\'envoyer l\'email de vérification');
     }
   }
 
-  async sendSimpleTestEmail(to: string, subject: string, message: string): Promise<void> {
-    try {
-      this.logger.log(`Envoi d'email test à ${to} via Brevo SMTP`);
-
-      const mailFrom = this.configService.get<string>('MAIL_FROM_ADDRESS');
-      const mailFromName = this.configService.get<string>('MAIL_FROM_NAME') || 'Cleaner App';
-
-      const mailOptions = {
-        from: `"${mailFromName}" <${mailFrom}>`,
-        to: to,
-        subject: subject,
-        html: `
-          <!DOCTYPE html>
-          <html lang="fr">
-          <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>${subject}</title>
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                line-height: 1.6;
-                color: #333;
-                max-width: 600px;
-                margin: 0 auto;
-                padding: 20px;
-                background-color: #f4f4f4;
-              }
-              .container {
-                background-color: #ffffff;
-                padding: 30px;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-              }
-              .header {
-                background-color: #0a3d62;
-                color: white;
-                padding: 20px;
-                border-radius: 8px 8px 0 0;
-                text-align: center;
-              }
-              .content {
-                padding: 20px;
-              }
-              .footer {
-                text-align: center;
-                color: #666;
-                font-size: 12px;
-                margin-top: 20px;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <div class="header">
-                <h2>🧪 Test Email - Cleaner App</h2>
-                <p>Powered by Brevo SMTP</p>
-              </div>
-              <div class="content">
-                <p>${message}</p>
-                <hr>
-                <p><strong>Détails de la configuration:</strong></p>
-                <ul>
-                  <li>Fournisseur: Brevo (smtp-relay.brevo.com)</li>
-                  <li>Port: 587</li>
-                  <li>Encryption: TLS</li>
-                  <li>Destinataire: ${to}</li>
-                </ul>
-              </div>
-              <div class="footer">
-                <p>&copy; 2026 Cleaner App - Plateforme de gestion des déchets</p>
-              </div>
-            </div>
-          </body>
-          </html>
-        `,
-      };
-
-      const result = await this.transporter.sendMail(mailOptions);
-      this.logger.log(`Email test envoyé avec succès via Brevo. ID: ${result.messageId}`);
-    } catch (error) {
-      this.logger.error(`Erreur lors de l'envoi de l'email test via Brevo: ${error.message}`, error.stack);
-      throw new Error(`Erreur lors de l'envoi de l'email test: ${error.message}`);
-    }
-  }
-
-  async generateOtp(): Promise<string> {
-    // Générer un code OTP à 6 chiffres
+  generateOtp(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  async saveOtp(userId: string, code: string, purpose: string = 'VERIFY_EMAIL'): Promise<void> {
+  async saveOtp(utilisateurId: string, code: string, purpose: string = 'VERIFY_EMAIL'): Promise<void> {
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 10); // Expire après 10 minutes
 
-    // Supprimer les anciens OTP pour cet utilisateur et ce but
-    await this.prisma.otpToken.deleteMany({
-      where: {
-        userId,
-        purpose,
-      },
+    // Stocker l'OTP en mémoire (car le modèle OtpToken n'existe plus)
+    const key = `${utilisateurId}_${purpose}`;
+    this.otpStorage.set(key, {
+      code,
+      expiresAt,
+      purpose,
     });
 
-    // Créer le nouvel OTP
-    await this.prisma.otpToken.create({
-      data: {
-        userId,
-        code,
-        purpose,
-        expiresAt,
-      },
-    });
-
-    this.logger.log(`OTP ${code} sauvegardé pour l'utilisateur ${userId}, but: ${purpose}`);
+    this.logger.log(`OTP ${code} sauvegardé pour l'utilisateur ${utilisateurId}, but: ${purpose}`);
   }
 
-  async verifyOtp(userId: string, code: string, purpose: string = 'VERIFY_EMAIL'): Promise<boolean> {
-    const otpRecord = await this.prisma.otpToken.findFirst({
-      where: {
-        userId,
-        code,
-        purpose,
-        usedAt: null,
-        expiresAt: {
-          gte: new Date(),
-        },
-      },
-    });
+  async verifyOtp(utilisateurId: string, code: string, purpose: string = 'VERIFY_EMAIL'): Promise<boolean> {
+    const key = `${utilisateurId}_${purpose}`;
+    const otpData = this.otpStorage.get(key);
 
-    if (!otpRecord) {
-      this.logger.warn(`OTP invalide ou expiré pour l'utilisateur ${userId}`);
+    if (!otpData) {
+      this.logger.warn(`OTP non trouvé pour l'utilisateur ${utilisateurId}`);
       return false;
     }
 
-    // Marquer l'OTP comme utilisé
-    await this.prisma.otpToken.update({
-      where: { id: otpRecord.id },
-      data: { usedAt: new Date() },
-    });
+    if (otpData.expiresAt < new Date()) {
+      this.logger.warn(`OTP expiré pour l'utilisateur ${utilisateurId}`);
+      this.otpStorage.delete(key);
+      return false;
+    }
 
-    this.logger.log(`OTP ${code} vérifié avec succès pour l'utilisateur ${userId}`);
+    if (otpData.code !== code) {
+      this.logger.warn(`OTP invalide pour l'utilisateur ${utilisateurId}`);
+      return false;
+    }
+
+    // Marquer l'OTP comme utilisé en le supprimant du stockage
+    this.otpStorage.delete(key);
+    this.logger.log(`OTP ${code} vérifié avec succès pour l'utilisateur ${utilisateurId}`);
     return true;
   }
 
-  async cleanupExpiredOtps(): Promise<void> {
-    const deleted = await this.prisma.otpToken.deleteMany({
-      where: {
-        expiresAt: {
-          lt: new Date(),
-        },
-      },
+  async sendOtpToUser(email: string, purpose: string = 'VERIFY_EMAIL'): Promise<void> {
+    // Vérifier si l'utilisateur existe
+    const utilisateur = await this.prisma.utilisateur.findUnique({
+      where: { email },
     });
 
-    if (deleted.count > 0) {
-      this.logger.log(`Nettoyage de ${deleted.count} OTP expirés`);
+    if (!utilisateur) {
+      throw new Error('Utilisateur non trouvé');
+    }
+
+    // Générer et sauvegarder l'OTP
+    const otpCode = this.generateOtp();
+    await this.saveOtp(utilisateur.id, otpCode, purpose);
+
+    // Envoyer l'OTP par email
+    await this.sendOtpEmail(email, otpCode);
+  }
+
+  // Nettoyer les OTP expirés (appel périodiquement)
+  cleanupExpiredOtps(): void {
+    const now = new Date();
+    for (const [key, otpData] of this.otpStorage.entries()) {
+      if (otpData.expiresAt < now) {
+        this.otpStorage.delete(key);
+      }
     }
   }
 }

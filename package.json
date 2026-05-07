@@ -1,5 +1,5 @@
 {
-  "name": "cleaner_backend_nestjs",
+  "name": "findoc_backend_nestjs",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -35,10 +35,10 @@
     "@nestjs/swagger": "^11.2.6",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.4.0",
+    "@sentry/nestjs": "^10.52.0",
+    "@sentry/profiling-node": "^10.52.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^7.0.10",
-    "@types/passport-google-oauth20": "^2.0.17",
-    "@types/qrcode": "^1.5.6",
     "@vercel/blob": "^2.3.3",
     "axios": "^1.15.2",
     "bcrypt": "^6.0.0",
@@ -54,11 +54,11 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.20.0",
-    "qrcode": "^1.5.4",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "sharp": "^0.34.5",
-    "speakeasy": "^2.0.0"
+    "speakeasy": "^2.0.0",
+    "treblle": "^2.0.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -71,6 +71,7 @@
     "@types/jest": "^30.0.0",
     "@types/multer": "^2.1.0",
     "@types/node": "^22.10.7",
+    "@types/passport-google-oauth20": "^2.0.17",
     "@types/passport-jwt": "^4.0.1",
     "@types/pg": "^8.18.0",
     "@types/sharp": "^0.31.1",

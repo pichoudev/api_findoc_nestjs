@@ -9,6 +9,7 @@ export class MatchPasswords implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return `Les mots de passe ne correspondent pas`;
+    const [relatedPropertyName] = args.constraints;
+    return `La confirmation ne correspond pas au champ ${relatedPropertyName}`;
   }
 }

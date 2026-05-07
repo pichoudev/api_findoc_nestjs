@@ -6,40 +6,27 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { UsersModule } from './users/users.module';
-import { CitiesModule } from './cities/cities.module';
-import { NeighborhoodsModule } from './neighborhoods/neighborhoods.module';
-import { BinsModule } from './bins/bins.module';
-import { GeoModule } from './geo/geo.module';
-import { AuditModule } from './audit/audit.module';
-import { ReportsModule } from './reports/reports.module';
-import { InterventionsModule } from './interventions/interventions.module';
-import { NotificationModule } from './notifications/notification.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { LoggerModule } from './common/logger.module';
-import { UploadsModule } from './uploads/uploads.module';
-import { QrModule } from './bins/qr.module';
+import { VercelBlobModule } from './vercel-blob/vercel-blob.module';
+import { UtilisateursModule } from './utilisateurs/utilisateurs.module';
+import { MeModule } from './me/me.module';
+
+import { SentryModule } from '@sentry/nestjs/setup';
 
 @Module({
   imports: [
+    SentryModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
     LoggerModule,
     PrismaModule,
     AuthModule,
-    UsersModule,
-    CitiesModule,
-    NeighborhoodsModule,
-    BinsModule,
-    GeoModule,
-    AuditModule,
-    ReportsModule,
-    InterventionsModule,
-    NotificationModule,
     NotificationsModule,
-    UploadsModule,
-    QrModule,
+    VercelBlobModule,
+    UtilisateursModule,
+    MeModule,
   ],
   controllers: [AppController],
   providers: [

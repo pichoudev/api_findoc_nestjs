@@ -7,6 +7,8 @@ import { Request, Response } from 'express';
 import { existsSync, mkdirSync } from 'fs';
 import { AppModule } from './app.module';
 
+import "./instrument";
+
 import sharp from 'sharp';
 sharp.cache(false);
 sharp.concurrency(1);

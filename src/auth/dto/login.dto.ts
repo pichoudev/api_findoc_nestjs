@@ -1,19 +1,14 @@
-import { IsString, IsNotEmpty, IsEmail, IsOptional } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsNotEmpty, IsEmail } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class LoginDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'Email de l\'utilisateur' })
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Mot de passe de l\'utilisateur' })
   @IsString()
   @IsNotEmpty()
-  password: string;
-
-  @ApiPropertyOptional({ description: 'App ID OneSignal pour les notifications push' })
-  @IsString()
-  @IsOptional()
-  oneSignalAppId?: string;
+  mot_de_passe: string;
 }

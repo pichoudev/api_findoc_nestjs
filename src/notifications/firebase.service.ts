@@ -34,6 +34,16 @@ export class FirebaseService {
   /**
    * Envoyer une notification push à un utilisateur spécifique
    */
+  async sendNotification(
+    token: string,
+    title: string,
+    body: string,
+    data?: Record<string, string>,
+    imageUrl?: string
+  ) {
+    return await this.sendNotificationToUser(token, title, body, data, imageUrl);
+  }
+
   async sendNotificationToUser(
     token: string,
     title: string,

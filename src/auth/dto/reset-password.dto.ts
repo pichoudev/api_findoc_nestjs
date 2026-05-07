@@ -1,33 +1,53 @@
-import { IsString, IsNotEmpty, MinLength, Validate, IsEmail } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsNotEmpty, MinLength, Validate, IsEmail, IsIn } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 import { MatchPasswords } from './match-passwords.decorator';
 
 export class RequestPasswordResetDto {
   @ApiProperty({ 
-    description: 'Email ou numéro de téléphone de l\'utilisateur',
-    example: 'user@example.com ou +237123456789'
+    description: 'Email de l\'utilisateur',
+    example: 'user@example.com'
+  })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty({ 
+    description: 'Purpose de la demande de réinitialisation',
+    example: 'RESET_PASSWORD',
+    enum: ['RESET_PASSWORD']
   })
   @IsString()
   @IsNotEmpty()
-  emailOrPhone: string;
+  @IsIn(['RESET_PASSWORD'])
+  purpose: string = 'RESET_PASSWORD';
 }
 
 export class ResetPasswordDto {
   @ApiProperty({ 
-    description: 'Email ou numéro de téléphone de l\'utilisateur',
-    example: 'user@example.com ou +237123456789'
+    description: 'Email de l\'utilisateur',
+    example: 'user@example.com'
   })
-  @IsString()
+  @IsEmail()
   @IsNotEmpty()
-  emailOrPhone: string;
+  email: string;
 
   @ApiProperty({ 
-    description: 'Code de réinitialisation reçu par email/SMS',
+    description: 'Code de réinitialisation reçu par email',
     example: '123456'
   })
   @IsString()
   @IsNotEmpty()
   code: string;
+
+  @ApiProperty({ 
+    description: 'Purpose de la réinitialisation',
+    example: 'RESET_PASSWORD',
+    enum: ['RESET_PASSWORD']
+  })
+  @IsString()
+  @IsNotEmpty()
+  @IsIn(['RESET_PASSWORD'])
+  purpose: string = 'RESET_PASSWORD';
 
   @ApiProperty({ 
     description: 'Nouveau mot de passe',
@@ -36,7 +56,7 @@ export class ResetPasswordDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(6)
-  newPassword: string;
+  nouveau_mot_de_passe: string;
 
   @ApiProperty({ 
     description: 'Confirmation du nouveau mot de passe',
@@ -44,6 +64,6 @@ export class ResetPasswordDto {
   })
   @IsString()
   @IsNotEmpty()
-  @Validate(MatchPasswords, ['newPassword'])
-  confirmPassword: string;
+  @Validate(MatchPasswords, ['nouveau_mot_de_passe'])
+  confirm_nouveau_mot_de_passe: string;
 }
