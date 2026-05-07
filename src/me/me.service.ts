@@ -45,8 +45,9 @@ export class MeService {
     nom?: string;
     telephone?: string;
     email?: string;
-    ville?: string,
-    region?:  Region,
+    one_signal_id?: string;
+    ville?: string;
+    region?: Region;
   }) {
     // Vérifier si l'utilisateur existe
     const existingUser = await this.getProfile(userId);

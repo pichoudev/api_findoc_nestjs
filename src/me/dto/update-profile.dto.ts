@@ -47,19 +47,27 @@ export class UpdateProfileDto {
   @Matches(/^[+]?[\d\s-()]+$/, { message: 'Le numéro de téléphone n\'est pas valide' })
   telephone?: string;
 
-   @ApiProperty({
-      description: 'Nom de la ville',
-      example: 'Dupont',
-    })
-    @IsString()
-    @IsNotEmpty()
-    ville: string;
-  
-      @ApiProperty({
-      description: 'Nom de la region',
-      example: 'LITTORAL',
-    })
-    @IsString()
-    @IsNotEmpty()
-    region: Region;
+  @ApiPropertyOptional({
+    description: 'ID OneSignal pour les notifications push',
+    example: 'b2f7f966-9e7d-412c-b30f-1728fed2d872'
+  })
+  @IsOptional()
+  @IsString()
+  one_signal_id?: string;
+
+  @ApiPropertyOptional({
+    description: 'Nom de la ville',
+    example: 'Douala',
+  })
+  @IsOptional()
+  @IsString()
+  ville?: string;
+
+  @ApiPropertyOptional({
+    description: 'Nom de la region',
+    example: 'LITTORAL',
+  })
+  @IsOptional()
+  @IsString()
+  region?: string;
 }

@@ -79,19 +79,27 @@ export class CreationUtilisateurDto {
   @IsNotEmpty()
   role: Type_utilisateur;
 
-  @ApiProperty({
-    description: 'Nom de la ville',
-    example: 'Dupont',
+  @ApiPropertyOptional({
+    description: 'ID OneSignal pour les notifications push',
+    example: 'b2f7f966-9e7d-412c-b30f-1728fed2d872'
   })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  ville: string;
+  one_signal_id?: string;
 
-    @ApiProperty({
+  @ApiPropertyOptional({
+    description: 'Nom de la ville',
+    example: 'Douala',
+  })
+  @IsOptional()
+  @IsString()
+  ville?: string;
+
+  @ApiPropertyOptional({
     description: 'Nom de la region',
     example: 'LITTORAL',
   })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  region: Region;
+  region?: Region;
 }

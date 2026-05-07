@@ -123,7 +123,8 @@ export class UtilisateursService {
             role: createUtilisateurDto.role,
             photo: createUtilisateurDto.photo,
             ville: createUtilisateurDto.ville,
-            region:createUtilisateurDto.region,
+            region: createUtilisateurDto.region,
+            one_signal_id: createUtilisateurDto.one_signal_id,
             est_actif: true, // Les utilisateurs créés par admin sont actifs par défaut
             est_verifie: true, // Les utilisateurs créés par admin sont vérifiés par défaut
         };
@@ -175,8 +176,9 @@ export class UtilisateursService {
             telephone: updateData.telephone,
             role: updateData.role,
             photo: updateData.photo,
-            ville:updateData.ville,
-            region:updateData.region,
+            one_signal_id: updateData.one_signal_id,
+            ville: updateData.ville,
+            region: updateData.region,
         };
 
         // Si le mot de passe est fourni, le hasher

@@ -2,10 +2,11 @@
 ### Base URL: http://localhost:3000
 
 @baseUrl = http://localhost:3000/api/v1
-@email = loona7757@gmail.com
+@email = loona7@gmail.com
 @password = password123
 @prenom = steph
 @nom = dev
+@ville
 
 ### 1. Inscription d'un nouvel utilisateur
 POST {{baseUrl}}/auth/register
@@ -17,7 +18,8 @@ Content-Type: application/json
   "email": "{{email}}",
   "mot_de_passe": "{{password}}",
   "confirm_mot_de_passe": "{{password}}",
-  "telephone": "+237123456789"
+  "telephone": "+237123456789",
+  "ville":
 }
 
 ### 2. Envoyer un OTP de vérification email

@@ -1,7 +1,7 @@
 import { IsString, IsNotEmpty, IsEmail, MinLength, Validate, IsOptional, IsEnum } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { MatchPasswords } from './match-passwords.decorator';
-import { Type_utilisateur } from '@prisma/client';
+import { Type_utilisateur,Region } from '@prisma/client';
 
 export class RegisterDto {
   @ApiPropertyOptional({ description: 'Rôle de l\'utilisateur: UTILISATEUR, ADMIN', enum: Type_utilisateur })
@@ -50,4 +50,14 @@ export class RegisterDto {
   @IsString()
   @IsOptional()
   ville?: string;
+
+  @ApiProperty({ description: 'Region de l\'utilisateur' })
+  @IsString()
+  @IsOptional()
+  region?: Region;
+
+   @ApiProperty({ description: 'one signal id de l\'utilisateur de l\'utilisateur' })
+  @IsString()
+  @IsOptional()
+  one_signal_id?: string;
 }

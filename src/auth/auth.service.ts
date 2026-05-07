@@ -157,6 +157,7 @@ export class AuthService {
     mot_de_passe: string;
     role?: Type_utilisateur;
     ville?: string;
+    one_signal_id?: string;
   }) {
     const hashedPassword = await bcrypt.hash(userData.mot_de_passe, 10);
     
@@ -168,7 +169,8 @@ export class AuthService {
         telephone: userData.telephone,
         mot_de_passe_hash: hashedPassword,
         role: userData.role || Type_utilisateur.UTILISATEUR,
-        ville:userData.ville,
+        ville: userData.ville,
+        one_signal_id: userData.one_signal_id,
         est_actif: false // Inactif jusqu'à vérification email
       },
     });
