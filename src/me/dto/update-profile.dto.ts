@@ -1,7 +1,6 @@
-import { IsString, IsOptional, IsEmail, MinLength, MaxLength, Matches,IsNotEmpty } from 'class-validator';
+import { IsString, IsOptional, IsEmail, MinLength, MaxLength, Matches, IsEnum } from 'class-validator';
+import { Region } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {Region} from '@prisma/client';
-
 
 export class UpdateProfileDto {
   @ApiPropertyOptional({
@@ -66,8 +65,9 @@ export class UpdateProfileDto {
   @ApiPropertyOptional({
     description: 'Nom de la region',
     example: 'LITTORAL',
+    enum: Region
   })
   @IsOptional()
-  @IsString()
-  region?: string;
+  @IsEnum(Region)
+  region?: Region;
 }

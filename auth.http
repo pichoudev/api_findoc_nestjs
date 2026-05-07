@@ -19,7 +19,9 @@ Content-Type: application/json
   "mot_de_passe": "{{password}}",
   "confirm_mot_de_passe": "{{password}}",
   "telephone": "+237123456789",
-  "ville":
+  "ville": "Douala",
+  "region": "LITTORAL",
+  "one_signal_id": "b2f7f966-9e7d-412c-b30f-1728fed2d872"
 }
 
 ### 2. Envoyer un OTP de vérification email
@@ -176,3 +178,90 @@ Content-Type: application/json
   "email": "nonexistent@example.com",
   "purpose": "RESET_PASSWORD"
 }
+
+### ===== MODULE ME (PROFIL UTILISATEUR) =====
+
+### 21. Obtenir mon profil
+GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### 22. Mettre à jour mon profil
+PATCH {{baseUrl}}/me
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "prenom": "Jean",
+  "nom": "Dupont",
+  "telephone": "+237123456789",
+  "ville": "Douala",
+  "region": "LITTORAL",
+  "one_signal_id": "b2f7f966-9e7d-412c-b30f-1728fed2d872"
+}
+
+### 23. Mettre à jour mon mot de passe
+POST {{baseUrl}}/me/password
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "currentPassword": "{{password}}",
+  "newPassword": "NewPassword123!"
+}
+
+### 24. Uploader ma photo de profil
+POST {{baseUrl}}/me/photo
+Content-Type: multipart/form-data
+Authorization: Bearer {{token}}
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="profile.jpg"
+Content-Type: image/jpeg
+
+< /path/to/profile.jpg >
+--boundary--
+
+### 25. Supprimer ma photo de profil
+DELETE {{baseUrl}}/me/photo
+Authorization: Bearer {{token}}
+
+### ===== MODULE UTILISATEURS (ADMIN) =====
+
+### 26. Créer un utilisateur (admin)
+POST {{baseUrl}}/utilisateurs
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "prenom": "Admin",
+  "nom": "User",
+  "email": "admin@example.com",
+  "mot_de_passe": "AdminPassword123!",
+  "role": "ADMIN",
+  "telephone": "+237123456789",
+  "ville": "Douala",
+  "region": "LITTORAL",
+  "one_signal_id": "admin-one-signal-id"
+}
+
+### 27. Uploader photo d'un utilisateur (admin)
+POST {{baseUrl}}/utilisateurs/{{userId}}/photo
+Content-Type: multipart/form-data
+Authorization: Bearer {{adminToken}}
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="user-profile.jpg"
+Content-Type: image/jpeg
+
+< /path/to/user-profile.jpg >
+--boundary--
+
+### 28. Supprimer photo d'un utilisateur (admin)
+DELETE {{baseUrl}}/utilisateurs/{{userId}}/photo
+Authorization: Bearer {{adminToken}}
+
+### ===== VARIABLES =====
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+@userId = 550e8400-e29b-41d4-a716-446655440000

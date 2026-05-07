@@ -1,6 +1,6 @@
 import { IsEnum, IsOptional, IsString, IsEmail, IsNotEmpty, MinLength, MaxLength, Matches } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type_utilisateur ,Region} from '@prisma/client';
+import { Type_utilisateur, Region } from '@prisma/client';
 
 export class CreationUtilisateurDto {
   @ApiProperty({
@@ -98,8 +98,9 @@ export class CreationUtilisateurDto {
   @ApiPropertyOptional({
     description: 'Nom de la region',
     example: 'LITTORAL',
+    enum: Region
   })
   @IsOptional()
-  @IsString()
+  @IsEnum(Region)
   region?: Region;
 }
