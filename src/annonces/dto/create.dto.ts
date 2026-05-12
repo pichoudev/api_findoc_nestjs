@@ -54,7 +54,7 @@ class CreateDocumentDto {
   })
   @IsArray()
   @IsString({ each: true })
-  photos_urls: string[];
+  photos_urls?: string[] =[];
 
   @ApiPropertyOptional({
     description: 'Indique si le document est lisible',

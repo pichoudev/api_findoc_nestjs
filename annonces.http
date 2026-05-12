@@ -78,7 +78,6 @@ Content-Disposition: form-data; name="createAnnonceDto"; type="application/json
   "nom_proprietaire": "Paul Martin",
   "lieu": "Douala, Bonanjo",
   "date_perte_ou_decouverte": "2026-05-11T09:00:00.000Z",
-  "recompense": 25000,
   "documents": [
     {
       "categories": ["PERMIS_CONDUIRE"],
@@ -140,3 +139,40 @@ Authorization: Bearer {{token}}
 ### ÉTAPE 5: Récupérer l'historique des annonces avec statistiques
 GET {{baseUrl}}/annonces/historique
 Authorization: Bearer {{token}}
+
+
+
+# route pour avoir l'historique avec stat de publication d'un utilisateur connecter 
+GET {{baseUrl}}/annonces/mes-annonces
+Authorization: Bearer {{token}}
+
+
+# route pour supprimer une annonce
+DELETE {{baseUrl}}/annonces/id_annonce
+Authorization: Bearer {{token}}
+
+# route pour modifier une annonce
+PATCH {{baseUrl}}/annonces/id_annonce
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "type": "PERDU",
+  "titre": "Passeport perdu",
+  "description": "Passeport camerounais perdu dans un taxi à Yaoundé",
+  "nom_proprietaire": "Inconnu",
+  "lieu": "Yaoundé, Bastos",
+  "date_perte_ou_decouverte": "2026-05-09T15:30:00.000Z",
+  "recompense": 0,
+  "documents": [
+    {
+      "categories": ["PASSEPORT"],
+      "reference": "PASS-2024-789012",
+      "photos_urls": [
+        "https://example.com/passeport-cover.jpg"
+      ],
+      "est_lisible": false
+    }
+  ]
+}
+
