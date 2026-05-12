@@ -43,7 +43,7 @@ export class AuthService {
     return result;
   }
 
-  async login(user: any, loginData?: { oneSignalAppId?: string }) {
+  async login(user: any, loginData?: { oneSignalId?: string }) {
     console.log('🔐 LOGIN - Configuration JWT:');
     console.log('JWT_EXPIRATION from env:', this.configService.get<string>('JWT_EXPIRATION'));
     
@@ -65,12 +65,15 @@ export class AuthService {
     const refresh_token = randomBytes(40).toString('hex');
     
     console.log(`🔄 Refresh token généré: ${refresh_token.substring(0, 10)}...`);
+
+  
     
     // Sauvegarder le refresh token dans la base de données
     await this.prisma.utilisateur.update({
       where: { id: user.id },
       data: { 
         refresh_token: refresh_token,
+        one_signal_id:loginData?.oneSignalId,
         est_actif: true
       }
     });

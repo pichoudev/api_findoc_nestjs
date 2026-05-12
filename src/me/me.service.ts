@@ -175,7 +175,6 @@ export class MeService {
       return {
         message: 'Photo de profil mise à jour avec succès',
         utilisateur,
-        photoUrl,
       };
     } catch (error) {
       throw new BadRequestException('Erreur lors de l\'upload de la photo: ' + error.message);

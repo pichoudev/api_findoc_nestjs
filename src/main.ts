@@ -59,7 +59,7 @@ async function bootstrap() {
     // Configuration Swagger
     const config = new DocumentBuilder()
       .setTitle('Cleaner App API')
-      .setDescription('API pour l\'application Cleaner App - Gestion des déchets à Douala')
+      .setDescription('API pour l\'application Findoc App - Signalisation des pieces perdues ou trouvees')
       .setVersion('1.0')
       .addBearerAuth()
       .build();
@@ -92,6 +92,10 @@ async function bootstrap() {
     
     console.log(`🌐 Starting server on ${host}:${port}...`);
     await app.listen(port, host);
+
+    // urlbase pour tester l'api en ligne
+
+    
     
     const serverUrl = await app.getUrl();
     console.log(`✅ Application is running on: ${serverUrl}`);

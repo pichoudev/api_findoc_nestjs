@@ -9,4 +9,19 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
+  @Get('health-check')
+  getHealthCheck() {
+    return {
+      status: 'OK',
+      message: 'Serveur fonctionne correctement',
+      timestamp: new Date(),
+      modules: {
+        annonces: 'Chargé',
+        auth: 'Chargé',
+        me: 'Chargé',
+        utilisateurs: 'Chargé'
+      }
+    };
+  }
 }

@@ -1,0 +1,60 @@
+### ME API - EXEMPLES DE REQUÊTES
+### Host: http://localhost:3000/api/v1
+
+### VARIABLES À CONFIGURER
+@baseUrl = http://localhost:3000/api/v1
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZjA2YWFmOS1jZGU0LTRjMmYtYWYyNi1kYWY0ZmE1YWRlZWYiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJyb2xlIjoiVVRJTElTQVRFVVIiLCJpYXQiOjE3Nzg0NDE0ODUsImV4cCI6MTc4MDI1NTg4NX0.gsH0Blyvu-KvqI2xT8KNiy1i3OUwpQgMsflAJpmhlxU
+
+### 1. Obtenir mon profil
+GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### 2. Mettre à jour mon profil
+PATCH {{baseUrl}}/me
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "prenom": "Jean",
+  "nom": "Dupont",
+  "telephone": "+237 123 456 789"
+}
+
+### 3. Changer mon mot de passe
+POST {{baseUrl}}/me/password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "ancien_mot_de_passe": "ancienPassword123",
+  "nouveau_mot_de_passe": "nouveauPassword456"
+}
+
+### 4. Uploader ma photo de profil (NÉCESSITE BLOB_READ_WRITE_TOKEN)
+POST {{baseUrl}}/me/photo
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="profile-photo.jpg"
+Content-Type: image/jpeg
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 5. Supprimer ma photo de profil
+DELETE {{baseUrl}}/me/photo
+Authorization: Bearer {{token}}
+
+### 6. Uploader photo de profil avec fichier réel
+POST {{baseUrl}}/me/photo
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="my-photo.jpg"
+Content-Type: image/jpeg
+
+
+< /path/to/your/my-photo.jpg >
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

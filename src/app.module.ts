@@ -13,6 +13,8 @@ import { UtilisateursModule } from './utilisateurs/utilisateurs.module';
 import { MeModule } from './me/me.module';
 
 import { SentryModule } from '@sentry/nestjs/setup';
+import { AnnoncesModule } from './annonces/annonces.module';
+import { PaiementsModule } from './paiements/paiements.module';
 
 @Module({
   imports: [
@@ -27,14 +29,16 @@ import { SentryModule } from '@sentry/nestjs/setup';
     VercelBlobModule,
     UtilisateursModule,
     MeModule,
+    AnnoncesModule,
+    PaiementsModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: JwtAuthGuard,
+    // },
   ],
 })
 export class AppModule {}

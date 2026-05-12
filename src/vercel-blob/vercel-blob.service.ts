@@ -9,7 +9,7 @@ export class VercelBlobService {
       
       const blob = await put(filename, buffer, {
         access: 'public',
-        token: process.env.BLOB_READ_WRITE_TOKEN,
+        token: process.env.findoc_READ_WRITE_TOKEN,
       });
 
       console.log('VercelBlobService - Upload successful:', blob.url);
@@ -21,6 +21,6 @@ export class VercelBlobService {
   }
 
   isConfigured(): boolean {
-    return !!process.env.BLOB_READ_WRITE_TOKEN;
+    return !!process.env.findoc_READ_WRITE_TOKEN;
   }
 }

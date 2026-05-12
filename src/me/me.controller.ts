@@ -10,7 +10,8 @@ import {
   UploadedFile,
   Req,
   HttpCode,
-  HttpStatus
+  HttpStatus,
+  BadRequestException
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse, ApiConsumes } from '@nestjs/swagger';
@@ -68,24 +69,35 @@ export class MeController {
   });
 }
 
-  @Post('photo')
-  @UseInterceptors(FileInterceptor('file'))
-  @ApiConsumes('multipart/form-data')
-  @ApiOperation({ 
-    summary: 'Uploader ma photo de profil',
-    description: 'Upload une nouvelle photo de profil pour l\'utilisateur connecté'
-  })
+@Post('photo')
+@UseInterceptors(FileInterceptor('file'))
+@ApiConsumes('multipart/form-data')
+@ApiOperation({ 
+  summary: 'Uploader ma photo de profil',
+  description: 'Upload une nouvelle photo de profil pour l\'utilisateur connecté'
+})
   async uploadPhoto(
     @Req() req: Request,
     @UploadedFile() file: Express.Multer.File
   ) {
-    const user = req.user as any;
+    console.log('Upload photo - req.user:', req.user);
+    console.log('Upload photo - req.headers:', req.headers);
     
     if (!file) {
-      throw new Error('Aucun fichier fourni');
+      throw new BadRequestException('Aucun fichier fourni');
     }
 
-    return this.meService.uploadProfilePhoto(user.sub, file);
+    const utilisateur = req.user as any;
+    console.log('Upload photo - utilisateur:', utilisateur);
+    
+     // ou req.user['sub'] selon ton JWT
+    if (!utilisateur.userId) {
+      console.log('Upload photo - utilisateur.sub est undefined');
+      throw new BadRequestException('ID utilisateur non trouvé');
+    }
+
+    console.log('Upload photo - utilisateur.sub:', utilisateur.userId);
+    return this.meService.uploadProfilePhoto(utilisateur.userId, file);
   }
 
   @Delete('photo')

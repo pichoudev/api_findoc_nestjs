@@ -16,9 +16,9 @@ enum Type_annonce {
 }
 
 enum Statut_annonce {
-  ACTIF
   ARCHIVE
-  RESOLU
+  EN_COURS
+  RENDU
 }
 
 enum Type_notification {
@@ -79,6 +79,7 @@ model Utilisateur {
   alerts           Alert[]
   notifications    Notification[]
   releves_contact  Releve_contact[]
+  paiements        paiement[]
 
   @@map("utilisateurs")
 }
@@ -89,7 +90,7 @@ model Annonce {
   type                   Type_annonce
   date_de_naissance      DateTime?      @db.Date
   nom_proprietaire       String
-  statut                 Statut_annonce @default(ACTIF)
+  statut                 Statut_annonce @default(EN_COURS)
   titre                  String
   recompense             Float?
   description            String
@@ -174,4 +175,18 @@ model Ville {
   cree_le DateTime @default(now())
 
   @@map("villes")
+}
+
+model paiement {
+  id            String        @id @default(uuid())
+  montant       Float
+  auteur_id     String
+  mode_paiement Mode_paiement
+  statut        String
+  cree_le       DateTime      @default(now())
+
+  // Relations
+  auteur Utilisateur @relation(fields: [auteur_id], references: [id], onDelete: Cascade)
+
+  @@map("paiements")
 }

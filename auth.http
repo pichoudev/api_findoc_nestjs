@@ -6,7 +6,7 @@
 @password = password123
 @prenom = steph
 @nom = dev
-@ville
+
 
 ### 1. Inscription d'un nouvel utilisateur
 POST {{baseUrl}}/auth/register
@@ -55,8 +55,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "{{email}}",
-  "mot_de_passe": "{{password}}"
+  "email": "loona7757@gmail.com",
+  "mot_de_passe": "password123"
 }
 
 ### 6. Demander réinitialisation mot de passe
