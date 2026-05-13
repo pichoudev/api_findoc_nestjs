@@ -117,8 +117,9 @@ export class CreateAnnonceDto {
     description: 'Lieu de perte ou découverte',
     example: 'Douala',
   })
+  @IsOptional()
   @IsString()
-  lieu: string;
+  lieu?: string;
 
   @ApiProperty({
     description: 'Date de perte ou découverte',

@@ -117,34 +117,20 @@ Content-Type: application/json
 ### ÉTAPE 5: Créer une annonce TROUVÉE (avec images)
 POST {{baseUrl}}/annonces
 Authorization: Bearer {{token}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="createAnnonceDto"; type="application/json
 
 {
-  "type": "TROUVE",
-  "titre": "Permis de conduire trouvé",
-  "description": "Permis de conduire trouvé dans un restaurant à Yaoundé",
+  "type": "PERDU",
+  "description": "Permis de conduire perdu dans un restaurant à Yaoundé",
   "nom_proprietaire": "Propriétaire inconnu",
-  "lieu": "Yaoundé, Quartier Mokolo",
   "date_perte_ou_decouverte": "2026-05-08T18:00:00.000Z",
   "recompense": 0,
   "documents": [
     {
-      "categories": ["PERMIS_CONDUIRE"],
-      "reference": "PC-2024-999888",
-      "photos_urls": [],
-      "est_lisible": true
+      "categories": ["PERMIS"]
     }
   ]
 }
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="permis-trouve.jpg"
-Content-Type: image/jpeg
 
-iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
 ### ÉTAPE 6: Créer une annonce TROUVÉE (plusieurs images)
 POST {{baseUrl}}/annonces

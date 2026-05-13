@@ -253,6 +253,7 @@ export class AnnoncesService {
         data: {
           ...annonceData,
           titre: annonceData.titre || 'Annonce sans titre',
+          lieu: annonceData.lieu || '',
           auteur: { connect: { id: utilisateurId } },
           documents: {
             create: processedDocuments,

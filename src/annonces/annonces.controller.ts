@@ -33,61 +33,134 @@ import { validate } from 'class-validator';
 export class AnnoncesController {
   constructor(private readonly annoncesService: AnnoncesService) {}
 
-  @Post()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @UseInterceptors(FilesInterceptor('files', 10)) // Maximum 10 fichiers
-  @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Créer une nouvelle annonce avec fichiers' })
-  @ApiResponse({ status: 201, description: 'Annonce créée avec succès' })
-  @ApiResponse({ status: 400, description: 'Données invalides' })
-  @ApiResponse({ status: 401, description: 'Non authentifié' })
-  async create(
-    @Body('createAnnonceDto') createAnnonceDtoRaw: string,
-    @UploadedFiles() files?: Express.Multer.File[],
-    @ReqDecorator() req?: any,
-  ) {
-    console.log('Annonces create - req.user:', req.user);
-    console.log('Annonces create - files:', files);
-    console.log('Annonces create - createAnnonceDtoRaw:', createAnnonceDtoRaw);
+  // @Post()
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  // @UseInterceptors(FilesInterceptor('files', 10)) // Maximum 10 fichiers
+  // @ApiConsumes('multipart/form-data')
+  // @ApiOperation({ summary: 'Créer une nouvelle annonce avec fichiers' })
+  // @ApiResponse({ status: 201, description: 'Annonce créée avec succès' })
+  // @ApiResponse({ status: 400, description: 'Données invalides' })
+  // @ApiResponse({ status: 401, description: 'Non authentifié' })
+  // async create(
+  //   @Body('createAnnonceDto') createAnnonceDtoRaw: string,
+  //   @UploadedFiles() files?: Express.Multer.File[],
+  //   @ReqDecorator() req?: any,
+  // ) {
+  //   console.log('Annonces create - req.user:', req.user);
+  //   console.log('Annonces create - files:', files);
+  //   console.log('Annonces create - createAnnonceDtoRaw:', createAnnonceDtoRaw);
     
-    const utilisateur = req.user as any;
-    console.log('Annonces create - utilisateur:', utilisateur);
+  //   const utilisateur = req.user as any;
+  //   console.log('Annonces create - utilisateur:', utilisateur);
     
-    // Parser manuellement le JSON
-    let createAnnonceDto: CreateAnnonceDto;
+  //   // Parser manuellement le JSON
+  //   let createAnnonceDto: CreateAnnonceDto;
+  //   try {
+  //     createAnnonceDto = JSON.parse(createAnnonceDtoRaw);
+  //   } catch (error) {
+  //     throw new BadRequestException('JSON invalide dans createAnnonceDto');
+  //   }
+
+  //   // Valider manuellement avec class-validator
+  //   const dtoInstance = plainToInstance(CreateAnnonceDto, createAnnonceDto);
+  //   const errors = await validate(dtoInstance);
+  //   if (errors.length > 0) {
+  //     throw new BadRequestException(errors);
+  //   }
+
+  //   if (!files || files.length === 0) {
+  //     throw new BadRequestException('Aucun fichier fourni');
+  //   }
+
+  //   // Validation des types de fichiers
+  //   for (const file of files) {
+  //     if (!file.mimetype.startsWith('image/')) {
+  //       throw new BadRequestException(`Le fichier ${file.originalname} n'est pas une image`);
+  //     }
+  //   }
+
+  //   if (!utilisateur || !utilisateur.userId) {
+  //     console.log('Annonces create - utilisateur.userId est undefined');
+  //     throw new BadRequestException('ID utilisateur non trouvé');
+  //   }
+
+  //   console.log('Annonces create - utilisateur.userId:', utilisateur.userId);
+  //   return this.annoncesService.createAnnonce(dtoInstance, files, utilisateur.userId);
+  // }
+
+@Post()
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+@UseInterceptors(FilesInterceptor('files', 10))
+@ApiConsumes('multipart/form-data', 'application/json')
+@ApiOperation({ summary: 'Créer une nouvelle annonce avec ou sans fichiers' })
+@ApiResponse({ status: 201, description: 'Annonce créée avec succès' })
+async create(
+  @Body() body: any,
+  @UploadedFiles() files?: Express.Multer.File[],
+  @ReqDecorator() req?: any,
+) {
+  const utilisateur = req.user as any;
+
+  if (!utilisateur?.userId) {
+    throw new BadRequestException('ID utilisateur non trouvé');
+  }
+
+  const contentType = req.headers['content-type'] ?? '';
+  let createAnnonceDto: CreateAnnonceDto;
+
+  if (contentType.includes('multipart/form-data')) {
+    // Cas multipart : DTO arrive comme champ JSON stringifié
+    const rawDto = body?.createAnnonceDto;
+    if (!rawDto) {
+      throw new BadRequestException('Champ createAnnonceDto manquant dans le formulaire');
+    }
     try {
-      createAnnonceDto = JSON.parse(createAnnonceDtoRaw);
-    } catch (error) {
+      createAnnonceDto = JSON.parse(rawDto);
+    } catch {
       throw new BadRequestException('JSON invalide dans createAnnonceDto');
     }
+  } else {
+    // Cas application/json : parser manuellement depuis req.body brut
+    const raw = await new Promise<string>((resolve, reject) => {
+      let data = '';
+      req.on('data', (chunk: Buffer) => (data += chunk.toString()));
+      req.on('end', () => resolve(data));
+      req.on('error', reject);
+    });
 
-    // Valider manuellement avec class-validator
-    const dtoInstance = plainToInstance(CreateAnnonceDto, createAnnonceDto);
-    const errors = await validate(dtoInstance);
-    if (errors.length > 0) {
-      throw new BadRequestException(errors);
+    try {
+      createAnnonceDto = JSON.parse(raw);
+    } catch {
+      throw new BadRequestException('JSON invalide dans le corps de la requête');
     }
+  }
 
-    if (!files || files.length === 0) {
-      throw new BadRequestException('Aucun fichier fourni');
-    }
+  if (!createAnnonceDto || typeof createAnnonceDto !== 'object') {
+    throw new BadRequestException('Corps de la requête manquant ou invalide');
+  }
 
-    // Validation des types de fichiers
+  // Validation
+  const dtoInstance = plainToInstance(CreateAnnonceDto, createAnnonceDto);
+  const errors = await validate(dtoInstance);
+  if (errors.length > 0) {
+    throw new BadRequestException(errors);
+  }
+
+  // Validation des fichiers uniquement s'il y en a
+  if (files && files.length > 0) {
     for (const file of files) {
       if (!file.mimetype.startsWith('image/')) {
-        throw new BadRequestException(`Le fichier ${file.originalname} n'est pas une image`);
+        throw new BadRequestException(
+          `Le fichier ${file.originalname} n'est pas une image`
+        );
       }
     }
-
-    if (!utilisateur || !utilisateur.userId) {
-      console.log('Annonces create - utilisateur.userId est undefined');
-      throw new BadRequestException('ID utilisateur non trouvé');
-    }
-
-    console.log('Annonces create - utilisateur.userId:', utilisateur.userId);
-    return this.annoncesService.createAnnonce(dtoInstance, files, utilisateur.userId);
   }
+
+  return this.annoncesService.createAnnonce(dtoInstance, files ?? [], utilisateur.userId);
+}
 
   @Get()
   @UseGuards(JwtAuthGuard)
