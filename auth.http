@@ -1,7 +1,7 @@
 ### Authentification API Tests
 ### Base URL: http://localhost:3000
 
-@baseUrl = http://localhost:3000/api/v1
+@baseUrl = https://api-findoc.vercel.app/api/v1
 @email = loona7@gmail.com
 @password = password123
 @prenom = steph
@@ -259,6 +259,10 @@ Content-Type: image/jpeg
 ### 28. Supprimer photo d'un utilisateur (admin)
 DELETE {{baseUrl}}/utilisateurs/{{userId}}/photo
 Authorization: Bearer {{adminToken}}
+
+### route pour avoir l'historique avec stat de publication d'un utilisateur connecter 
+GET {{baseUrl}}/annonces/historique
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZjA2YWFmOS1jZGU0LTRjMmYtYWYyNi1kYWY0ZmE1YWRlZWYiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJyb2xlIjoiVVRJTElTQVRFVVIiLCJpYXQiOjE3Nzg2ODMzMzcsImV4cCI6MTc4MDQ5NzczN30.8LVL2qhZjPtHYoaj-bO5ekuOl8Z086s_OF8EpUCMy5U
 
 ### ===== VARIABLES =====
 

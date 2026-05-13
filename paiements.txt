@@ -1,0 +1,35 @@
+## 1. route pour creer un paiement
+POST /api/v1/paiements
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "montant": 10000,
+  "mode_paiement": "OM",
+  "statut": "RECU",
+  "annonce_id": "68e9b0c2b0c2b0c2b0c2b0c2"
+}
+
+## 2. route pour supprimer un paiement
+DELETE /api/v1/paiements/:id
+Authorization: Bearer <token>
+
+## 3. route pour obtenir tous les paiements
+GET /api/v1/paiements
+Authorization: Bearer <token>
+
+## 4. route pour obtenir un paiement par son id
+GET /api/v1/paiements/:id
+Authorization: Bearer <token>
+
+## 5. route pour mettre a jour un paiement
+PUT /api/v1/paiements/:id
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "montant": 10000,
+  "mode_paiement": "MOMO",
+  "statut": "RECU",
+  "annonce_id": "68e9b0c2b0c2b0c2b0c2b0c2"
+}

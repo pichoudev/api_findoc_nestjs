@@ -98,7 +98,7 @@ export class AnnoncesController {
     return this.annoncesService.findAnnonces(query);
   }
 
-  @Get('mes-annonces')
+  @Get('historique')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Récupérer les annonces de l\'utilisateur connecté' })
@@ -109,7 +109,7 @@ export class AnnoncesController {
   }
 
 
-  @Get('historique')
+  @Get('mes-annonces')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Récupérer l\'historique des annonces de l\'utilisateur avec statistiques' })
