@@ -1,11 +1,10 @@
 ### ANNONCES API - EXEMPLES DE REQUÊTES
 ### Host: http://localhost:3000/api/v1
-
-### VARIABLES À CONFIGURER
+### Variables à configurer
 @baseUrl = http://localhost:3000/api/v1
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZjA2YWFmOS1jZGU0LTRjMmYtYWYyNi1kYWY0ZmE1YWRlZWYiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJyb2xlIjoiVVRJTElTQVRFVVIiLCJpYXQiOjE3Nzg0NDE0ODUsImV4cCI6MTc4MDI1NTg4NX0.gsH0Blyvu-KvqI2xT8KNiy1i3OUwpQgMsflAJpmhlxU
 
-### ÉTAPE 1: Créer une annonce SANS fichiers (test simple)
+### ÉTAPE 1: Créer une annonce PERDU (sans fichiers)
 POST {{baseUrl}}/annonces
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -16,54 +15,16 @@ Content-Type: application/json
   "description": "CNI perdue près du marché central de Douala, portant le nom de Jean Dupont",
   "nom_proprietaire": "Jean Dupont",
   "lieu": "Douala, Marché Central",
-  "auteur_id": "df06aaf9-cde4-4c2f-af26-daf4fa5adeef",
   "date_perte_ou_decouverte": "2026-05-10T10:00:00.000Z",
   "recompense": 50000,
   "documents": [
     {
       "categories": ["CNI"],
-      "reference": "CNI-2024-123456",
-      "photos_urls": [
-        "https://example.com/cni-front.jpg"
-      ],
-      "est_lisible": true
     }
   ]
 }
 
-### ÉTAPE 2: Créer une annonce AVEC UNE image (test upload)
-POST {{baseUrl}}/annonces
-Authorization: Bearer {{token}}
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="createAnnonceDto"; type="application/json
-
-{
-  "type": "PERDU",
-  "titre": "Carte nationale d'identité perdue",
-  "description": "CNI perdue près du marché central de Douala, portant le nom de Jean Dupont",
-  "nom_proprietaire": "Jean Dupont",
-  "lieu": "Douala, Marché Central",
-  "date_perte_ou_decouverte": "2026-05-10T10:00:00.000Z",
-  "recompense": 50000,
-  "documents": [
-    {
-      "categories": ["CNI"],
-      "reference": "CNI-2024-123456",
-      "photos_urls": [],
-      "est_lisible": true
-    }
-  ]
-}
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="cni-front.jpg"
-Content-Type: image/jpeg
-
-iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-### ÉTAPE 3: Créer une annonce AVEC PLUSIEURS images
+### ÉTAPE 2: Créer une annonce PERDU (avec une image)
 POST {{baseUrl}}/annonces
 Authorization: Bearer {{token}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
@@ -74,16 +35,13 @@ Content-Disposition: form-data; name="createAnnonceDto"; type="application/json
 {
   "type": "PERDU",
   "titre": "Permis de conduire perdu",
-  "description": "Permis de conduire camerounais perdu près de la mairie",
+  "description": "Permis de conduire camerounais perdu près de la mairie de Douala",
   "nom_proprietaire": "Paul Martin",
   "lieu": "Douala, Bonanjo",
   "date_perte_ou_decouverte": "2026-05-11T09:00:00.000Z",
   "documents": [
     {
       "categories": ["PERMIS_CONDUIRE"],
-      "reference": "PC-2024-456789",
-      "photos_urls": [],
-      "est_lisible": true
     }
   ]
 }
@@ -92,13 +50,40 @@ Content-Disposition: form-data; name="files"; filename="permis-front.jpg"
 Content-Type: image/jpeg
 
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### ÉTAPE 3: Créer une annonce PERDU (avec plusieurs images)
+POST {{baseUrl}}/annonces
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="permis-back.jpg"
+Content-Disposition: form-data; name="createAnnonceDto"; type="application/json
+
+{
+  "type": "PERDU",
+  "titre": "Carte de séjour perdue",
+  "description": "Carte de séjour française perdue dans l'aéroport de Douala",
+  "nom_proprietaire": "Marie Claire",
+  "lieu": "Douala, Aéroport International",
+  "date_perte_ou_decouverte": "2026-05-12T14:30:00.000Z",
+  "recompense": 75000,
+  "documents": [
+    {
+      "categories": ["CARTE_SEJOUR"],
+      "reference": "CS-2024-789012",
+      "photos_urls": [],
+      "est_lisible": true
+    }
+  ]
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="files"; filename="carte-sejour-front.jpg"
 Content-Type: image/jpeg
 
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="files"; filename="permis-detour.jpg"
+Content-Disposition: form-data; name="files"; filename="carte-sejour-back.jpg"
 Content-Type: image/jpeg
 
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
@@ -129,50 +114,99 @@ Content-Type: application/json
   ]
 }
 
-### TEST: Health check du serveur
-GET {{baseUrl}}/health-check
-
-### TEST: Endpoint ping (sans authentification)
-GET {{baseUrl}}/annonces/mes-annonces
+### ÉTAPE 5: Créer une annonce TROUVÉE (avec images)
+POST {{baseUrl}}/annonces
 Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
-### ÉTAPE 5: Récupérer l'historique des annonces avec statistiques
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="createAnnonceDto"; type="application/json
+
+{
+  "type": "TROUVE",
+  "titre": "Permis de conduire trouvé",
+  "description": "Permis de conduire trouvé dans un restaurant à Yaoundé",
+  "nom_proprietaire": "Propriétaire inconnu",
+  "lieu": "Yaoundé, Quartier Mokolo",
+  "date_perte_ou_decouverte": "2026-05-08T18:00:00.000Z",
+  "recompense": 0,
+  "documents": [
+    {
+      "categories": ["PERMIS_CONDUIRE"],
+      "reference": "PC-2024-999888",
+      "photos_urls": [],
+      "est_lisible": true
+    }
+  ]
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="files"; filename="permis-trouve.jpg"
+Content-Type: image/jpeg
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### ÉTAPE 6: Créer une annonce TROUVÉE (plusieurs images)
+POST {{baseUrl}}/annonces
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="createAnnonceDto"; type="application/json
+
+{
+  "type": "TROUVE",
+  "titre": "Portefeuille trouvé",
+  "description": "Portefeuille contenant des cartes bancaires trouvé dans un marché à Douala",
+  "nom_proprietaire": "Inconnu",
+  "lieu": "Douala, Marché Madagascar",
+  "date_perte_ou_decouverte": "2026-05-07T12:00:00.000Z",
+  "documents": [
+    {
+      "categories": ["CARTE_BANCAIRE"],
+    }
+  ]
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="files"; filename="portefeuille-devant.jpg"
+Content-Type: image/jpeg
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="files"; filename="portefeuille-interieur.jpg"
+Content-Type: image/jpeg
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="files"; filename="portefeuille-carte.jpg"
+Content-Type: image/jpeg
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### ÉTAPE 7: Récupérer l'historique des annonces avec statistiques
 GET {{baseUrl}}/annonces/historique
 Authorization: Bearer {{token}}
 
-
-
-# route pour avoir l'historique avec stat de publication d'un utilisateur connecter 
+### ÉTAPE 8: Récupérer les annonces de l'utilisateur connecté
 GET {{baseUrl}}/annonces/mes-annonces
 Authorization: Bearer {{token}}
 
+### ÉTAPE 9: Récupérer toutes les annonces (public)
+GET {{baseUrl}}/annonces/all
 
-# route pour supprimer une annonce
+### ÉTAPE 10: Supprimer une annonce (remplacer id_annonce par l'ID réel)
 DELETE {{baseUrl}}/annonces/id_annonce
 Authorization: Bearer {{token}}
 
-# route pour modifier une annonce
+### ÉTAPE 11: Modifier une annonce (remplacer id_annonce par l'ID réel)
 PATCH {{baseUrl}}/annonces/id_annonce
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "type": "PERDU",
-  "titre": "Passeport perdu",
-  "description": "Passeport camerounais perdu dans un taxi à Yaoundé",
-  "nom_proprietaire": "Inconnu",
-  "lieu": "Yaoundé, Bastos",
-  "date_perte_ou_decouverte": "2026-05-09T15:30:00.000Z",
-  "recompense": 0,
-  "documents": [
-    {
-      "categories": ["PASSEPORT"],
-      "reference": "PASS-2024-789012",
-      "photos_urls": [
-        "https://example.com/passeport-cover.jpg"
-      ],
-      "est_lisible": false
-    }
-  ]
+  "titre": "Titre modifié",
+  "description": "Description mise à jour",
+  "statut": "ARCHIVE",
+  "recompense": 25000
 }
-

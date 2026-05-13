@@ -104,6 +104,7 @@ model Annonce {
   documents       Document[]
   alerts          Alert[]
   releves_contact Releve_contact[]
+  paiements       paiement[]
 
   @@map("annonces")
 }
@@ -181,12 +182,14 @@ model paiement {
   id            String        @id @default(uuid())
   montant       Float
   auteur_id     String
+  annonce_id    String
   mode_paiement Mode_paiement
   statut        String
   cree_le       DateTime      @default(now())
 
   // Relations
-  auteur Utilisateur @relation(fields: [auteur_id], references: [id], onDelete: Cascade)
+  auteur  Utilisateur @relation(fields: [auteur_id], references: [id], onDelete: Cascade)
+  annonce Annonce @relation(fields: [annonce_id], references: [id], onDelete: Cascade)
 
   @@map("paiements")
 }

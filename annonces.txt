@@ -1,0 +1,73 @@
+# Créer une annonce PERDU (sans fichiers)
+POST {{baseUrl}}/annonces
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "type": "PERDU",
+  "titre": "Carte nationale d'identité perdue",
+  "description": "CNI perdue près du marché central de Douala, portant le nom de Jean Dupont",
+  "nom_proprietaire": "Jean Dupont",
+  "lieu": "Douala, Marché Central",
+  "date_perte_ou_decouverte": "2026-05-10T10:00:00.000Z",
+  "recompense": 50000,
+  "documents": [
+    {
+      "categories": ["CNI"],
+    }
+  ]
+}
+
+
+# Créer une annonce TROUVÉE (plusieurs images)
+POST {{baseUrl}}/annonces
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="createAnnonceDto"; type="application/json
+
+{
+  "type": "TROUVE",
+  "titre": "Portefeuille trouvé",
+  "description": "Portefeuille contenant des cartes bancaires trouvé dans un marché à Douala",
+  "nom_proprietaire": "Inconnu",
+  "lieu": "Douala, Marché Madagascar",
+  "date_perte_ou_decouverte": "2026-05-07T12:00:00.000Z",
+  "documents": [
+    {
+      "categories": ["CARTE_BANCAIRE"],
+    }
+  ]
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="files"; filename="portefeuille-devant.jpg"
+Content-Type: image/jpeg
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="files"; filename="portefeuille-interieur.jpg"
+Content-Type: image/jpeg
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="files"; filename="portefeuille-carte.jpg"
+Content-Type: image/jpeg
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+
+
+# route pour avoir l'historique avec stat de publication d'un utilisateur connecter 
+GET {{baseUrl}}/annonces/mes-annonces
+Authorization: Bearer {{token}}
+
+
+# route pour supprimer une annonce
+DELETE {{baseUrl}}/annonces/id_annonce
+Authorization: Bearer {{token}}
+
+# Récupérer l'historique des annonces avec statistiques
+GET {{baseUrl}}/annonces/historique
+Authorization: Bearer {{token}}

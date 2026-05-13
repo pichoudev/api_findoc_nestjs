@@ -15,6 +15,7 @@ import { MeModule } from './me/me.module';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { AnnoncesModule } from './annonces/annonces.module';
 import { PaiementsModule } from './paiements/paiements.module';
+import { VillesModule } from './villes/villes.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { PaiementsModule } from './paiements/paiements.module';
     MeModule,
     AnnoncesModule,
     PaiementsModule,
+    VillesModule,
   ],
   controllers: [AppController],
   providers: [

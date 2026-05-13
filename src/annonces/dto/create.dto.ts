@@ -93,8 +93,9 @@ export class CreateAnnonceDto {
     description: "Titre de l'annonce",
     example: 'Carte nationale perdue',
   })
+  @IsOptional()
   @IsString()
-  titre: string;
+  titre?: string;
 
   @ApiPropertyOptional({
     description: 'Récompense',

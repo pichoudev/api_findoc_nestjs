@@ -252,6 +252,7 @@ export class AnnoncesService {
       const annonce = await this.prisma.annonce.create({
         data: {
           ...annonceData,
+          titre: annonceData.titre || 'Annonce sans titre',
           auteur: { connect: { id: utilisateurId } },
           documents: {
             create: processedDocuments,
