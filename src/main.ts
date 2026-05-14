@@ -3,8 +3,9 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { existsSync, mkdirSync } from 'fs';
+import * as express from 'express';
 import { AppModule } from './app.module';
 
 import "./instrument";
@@ -22,11 +23,20 @@ async function bootstrap() {
       DATABASE_URL: process.env.DATABASE_URL ? '***SET***' : '***NOT SET***'
     });
 
-    const app = await NestFactory.create<NestExpressApplication>(AppModule ,{
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
       bufferLogs: true
     });
 
     console.log('✅ NestJS application created successfully');
+
+    // Parse JSON pour les routes non-multipart
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      if (req.headers['content-type']?.startsWith('application/json')) {
+        express.json()(req, res, next);
+      } else {
+        next();
+      }
+    });
 
     // Validation globale
     app.useGlobalPipes(new ValidationPipe({
@@ -37,23 +47,21 @@ async function bootstrap() {
 
     console.log('✅ Global validation pipe configured');
 
-    // Servir les fichiers statiques (uploads depuis la racine du projet)
-    const staticPath = process.env.NODE_ENV === 'production' 
-      ? join('/tmp', 'uploads', 'compressed')     // En production: /tmp/uploads/compressed (accessible en écriture)
-      : join(__dirname, '..', 'uploads', 'compressed'); // En développement: projet/uploads/compressed
-    
-    // Créer le dossier s'il n'existe pas
+    // Servir les fichiers statiques
+    const staticPath = process.env.NODE_ENV === 'production'
+      ? join('/tmp', 'uploads', 'compressed')
+      : join(__dirname, '..', 'uploads', 'compressed');
+
     if (!existsSync(staticPath)) {
       console.log('📁 Creating uploads directory:', staticPath);
       mkdirSync(staticPath, { recursive: true });
     }
-    
+
     app.useStaticAssets(staticPath, {
       prefix: '/uploads',
     });
-    
-    console.log('Static assets path:', staticPath);
 
+    console.log('Static assets path:', staticPath);
     console.log('✅ Static assets configured');
 
     // Configuration Swagger
@@ -68,41 +76,34 @@ async function bootstrap() {
 
     console.log('✅ Swagger documentation configured');
 
-    // CORS
     app.enableCors();
     console.log('✅ CORS enabled');
 
-    // Health check endpoint (avant le préfixe global)
     app.use('/health', (req: Request, res: Response) => {
       console.log('🏥 Health check accessed');
-      res.status(200).json({ 
-        status: 'ok', 
+      res.status(200).json({
+        status: 'ok',
         timestamp: new Date().toISOString(),
         uptime: process.uptime()
       });
     });
     console.log('✅ Health check endpoint configured');
 
-    // Préfixe global pour toutes les routes
     app.setGlobalPrefix('api/v1');
     console.log('✅ Global prefix set to /api/v1');
 
     const port = process.env.PORT ?? 3000;
     const host = '0.0.0.0';
-    
+
     console.log(`🌐 Starting server on ${host}:${port}...`);
     await app.listen(port, host);
 
-    // urlbase pour tester l'api en ligne
-
-    
-    
     const serverUrl = await app.getUrl();
     console.log(`✅ Application is running on: ${serverUrl}`);
     console.log(`📚 API endpoints available at: ${serverUrl}/api/v1/`);
     console.log(`📖 Swagger documentation available at: ${serverUrl}/api`);
     console.log(`🏥 Health check available at: ${serverUrl}/health`);
-    
+
   } catch (error) {
     console.error('❌ Failed to start application:', error);
     process.exit(1);
