@@ -202,6 +202,30 @@ async create(
     return this.annoncesService.getAllAnnonces();
   }
 
+
+  @Get('trouve')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Récupérer les annonces trouvées' })
+  @ApiResponse({ status: 200, description: 'Annonces trouvées récupérées' })
+  @ApiResponse({ status: 404, description: 'Annonces trouvées non trouvées' })
+  async findAnnoncesTrouve() {
+    return this.annoncesService.findAnnoncesTrouve();
+  }
+
+
+  @Get('perdu')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Récupérer les annonces perdues' })
+  @ApiResponse({ status: 200, description: 'Annonces perdues récupérées' })
+  @ApiResponse({ status: 404, description: 'Annonces perdues non trouvées' })
+  async findAnnoncesPerdu() {
+    console.log("=== DÉBUT findAnnoncesPerdu ===");
+    return this.annoncesService.findAnnoncesPerdu();
+  }
+
+
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -211,6 +235,8 @@ async create(
   async findOne(@Param('id') id: string) {
     return this.annoncesService.getAnnonceById(id);
   }
+
+
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
@@ -253,7 +279,9 @@ async create(
   @ApiResponse({ status: 403, description: 'Non autorisé' })
   @ApiResponse({ status: 404, description: 'Annonce non trouvée' })
   async remove(@Param('id') id: string, @ReqDecorator() req) {
-    return this.annoncesService.deleteAnnonce(id, req.user.id);
+    console.log('id', id);
+    console.log('req.user.id', req.user.userId);
+    return this.annoncesService.deleteAnnonce(id, req.user.userId);
   }
 
   @Post('upload/single')

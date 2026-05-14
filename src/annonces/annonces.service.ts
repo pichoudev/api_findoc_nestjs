@@ -10,7 +10,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { HistoriqueStatsDto, AnnonceHistoriqueDto } from './dto/historique.dto';
 import { UpdateAnnonceDto } from './dto/update.dto';
 import { QueryAnnonceDto } from './dto/query.dto';
-import { Statut_annonce } from '@prisma/client';
+import { Statut_annonce, Type_annonce } from '@prisma/client';
 import { VercelBlobService } from '../vercel-blob/vercel-blob.service';
 import { CreateAnnonceDto } from './dto/create.dto';
 
@@ -364,6 +364,8 @@ export class AnnoncesService {
     }
 
     if (annonce.auteur_id !== utilisateur_id) {
+      console.log('annonce.auteur_id', annonce.auteur_id);
+      console.log('utilisateur_id', utilisateur_id);
       throw new ForbiddenException('Vous n\'êtes pas autorisé à supprimer cette annonce');
     }
 
@@ -564,4 +566,49 @@ export class AnnoncesService {
 
     return updatedAnnonce;
   }
+
+
+
+
+  // fonction pour retourner les annonces de typer perdu
+  async findAnnoncesPerdu() {
+    
+    return this.prisma.annonce.findMany({
+      where: { type: Type_annonce.PERDU },
+      include: {
+        documents: true,
+        auteur: {
+          select: {
+            id: true,
+            prenom: true,
+            nom: true,
+            email: true,
+            telephone: true,
+          },
+        },
+      },
+    });
+  }
+
+
+
+  // fonction pour retourner les annonces de typer perdu
+  async findAnnoncesTrouve() {
+    return this.prisma.annonce.findMany({
+      where: { type: Type_annonce.TROUVE},
+      include: {
+        documents: true,
+        auteur: {
+          select: {
+            id: true,
+            prenom: true,
+            nom: true,
+            email: true,
+            telephone: true,
+          },
+        },
+      },
+    });
+  }
+
 }

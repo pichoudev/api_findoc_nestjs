@@ -179,10 +179,11 @@ GET {{baseUrl}}/annonces/mes-annonces
 Authorization: Bearer {{token}}
 
 ### ÉTAPE 9: Récupérer toutes les annonces (public)
-GET {{baseUrl}}/annonces/all
+GET {{baseUrl}}/annonces/trouve
+Authorization: Bearer {{token}}
 
 ### ÉTAPE 10: Supprimer une annonce (remplacer id_annonce par l'ID réel)
-DELETE {{baseUrl}}/annonces/id_annonce
+DELETE {{baseUrl}}/annonces/59d9b860-dcae-45a0-b7ca-e1b4a8356b1c
 Authorization: Bearer {{token}}
 
 ### ÉTAPE 11: Modifier une annonce (remplacer id_annonce par l'ID réel)
