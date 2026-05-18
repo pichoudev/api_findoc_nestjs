@@ -9,6 +9,7 @@ import { OtpService } from './otp.service';
 import { JwtStrategy } from './jwt.strategy';
 import { GoogleStrategy } from './google.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Module({
   imports: [
@@ -33,8 +34,9 @@ import { JwtAuthGuard } from './jwt-auth.guard';
     OtpService, 
     JwtStrategy, 
     GoogleStrategy, 
-    JwtAuthGuard
+    JwtAuthGuard,
+    NotificationService
   ],
-  exports: [AuthService, JwtModule, JwtAuthGuard],
+  exports: [AuthService, JwtModule, JwtAuthGuard, NotificationService],
 })
 export class AuthModule {}

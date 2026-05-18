@@ -10,16 +10,20 @@ import { PrismaService } from '../prisma/prisma.service';
 import { HistoriqueStatsDto, AnnonceHistoriqueDto } from './dto/historique.dto';
 import { UpdateAnnonceDto } from './dto/update.dto';
 import { QueryAnnonceDto } from './dto/query.dto';
-import { Statut_annonce, Type_annonce } from '@prisma/client';
+import { Statut_annonce, Type_annonce, Type_notification } from '@prisma/client';
 import { VercelBlobService } from '../vercel-blob/vercel-blob.service';
 import { CreateAnnonceDto } from './dto/create.dto';
+import { NotificationService } from 'src/notification/notification.service';
+import { CreateNotificationDto } from 'src/notification/dto/createdto';
+import { skip } from 'rxjs';
 
 @Injectable()
 export class AnnoncesService {
   private readonly logger = new Logger(AnnoncesService.name);
 
   constructor(private prisma: PrismaService,
-    private readonly vercelBlobService: VercelBlobService
+    private readonly vercelBlobService: VercelBlobService,
+    private readonly notification : NotificationService
   ) {}
 
   /** fonction genreale pour la 
@@ -280,6 +284,14 @@ export class AnnoncesService {
         `Annonce créée avec succès : ${annonce.id}`,
       );
 
+          //  enregistrer la notification 
+          const notif : CreateNotificationDto = {
+            utilisateur_id : utilisateur.id,
+            message : `votre annonce a ete publiee avec succes :, ${annonce.type}`,
+            type: Type_notification.SIGNALEMENT
+          }
+          
+          await this.notification.createNotification(utilisateur.id ,notif);  
       return {
         success: true,
         message:
@@ -301,7 +313,10 @@ export class AnnoncesService {
    * fonction pour Récupérer toutes les annonces
    *
    */
-  async getAllAnnonces() {
+  async getAllAnnonces( query: QueryAnnonceDto) {
+    const { limit = 10, page = 1 } = query;
+    const skip = (page - 1) * limit;
+    
     return this.prisma.annonce.findMany({
       include: {
         auteur: {
@@ -312,13 +327,14 @@ export class AnnoncesService {
             telephone: true,
           },
         },
-
-        documents: true,
+         documents: true,
       },
-
       orderBy: {
         cree_le: 'desc',
       },
+      skip,
+      take: limit,
+
     });
   }
 
@@ -375,6 +391,15 @@ export class AnnoncesService {
       },
     });
 
+      //  enregistrer la notification 
+       const notif : CreateNotificationDto = {
+        utilisateur_id : annonce.auteur_id,
+        message : `votre annonce a ete supprimer avec succes :, ${annonce.type}`,
+        type: Type_notification.SIGNALEMENT
+     }
+          
+       await this.notification.createNotification(annonce.auteur_id ,notif);  
+
     return {
       success: true,
       message:
@@ -393,7 +418,7 @@ export class AnnoncesService {
       lieu, 
       nom_proprietaire, 
       recherche,
-      limit = 100,
+      limit = 10,
       page = 1,
       orderBy = 'desc'
     } = query;
@@ -501,6 +526,15 @@ export class AnnoncesService {
       },
     });
 
+      //  enregistrer la notification 
+       const notif : CreateNotificationDto = {
+            utilisateur_id : annonce.auteur_id,
+            message : `votre annonce a ete mise a jour avec succes :, ${annonce.type}`,
+            type: Type_notification.SYSTEME
+          }
+          
+          await this.notification.createNotification(annonce.auteur_id ,notif);  
+
     return updatedAnnonce;
   }
 
@@ -508,7 +542,7 @@ export class AnnoncesService {
    * Récupérer les annonces d'un utilisateur
    */
   async findAnnoncesByUser(userId: string, query: QueryAnnonceDto) {
-    const { limit = 100, page = 1, orderBy = 'desc' } = query;
+    const { limit = 10, page = 1, orderBy = 'desc' } = query;
     const skip = (page - 1) * limit;
 
     const [annonces, total] = await Promise.all([

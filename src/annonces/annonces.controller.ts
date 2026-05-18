@@ -259,8 +259,8 @@ async create(
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Récupérer toutes les annonces sans filtre' })
   @ApiResponse({ status: 200, description: 'Toutes les annonces récupérées' })
-  async getAllAnnonces() {
-    return this.annoncesService.getAllAnnonces();
+  async getAllAnnonces(@Query() query: QueryAnnonceDto) {
+    return this.annoncesService.getAllAnnonces(query);
   }
 
 

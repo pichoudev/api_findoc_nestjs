@@ -1,8 +1,9 @@
 ### Authentification API Tests
 ### Base URL: http://localhost:3000
 
-@baseUrl = https://api-findoc.vercel.app/api/v1
-@email = loona7@gmail.com
+## @baseUrl = https://api-findoc.vercel.app/api/v1
+@baseUrl = http://localhost:3000/api/v1
+@email = loona7757@gmail.com
 @password = password123
 @prenom = steph
 @nom = dev
@@ -74,10 +75,10 @@ Content-Type: application/json
 
 {
   "email": "{{email}}",
-  "code": "123456",
+  "code": "668207",
   "purpose": "RESET_PASSWORD",
-  "nouveau_mot_de_passe": "newpassword123",
-  "confirm_nouveau_mot_de_passe": "newpassword123"
+  "nouveau_mot_de_passe": "password123",
+  "confirm_nouveau_mot_de_passe": "password123"
 }
 
 ### 8. Connexion (succès après vérification)

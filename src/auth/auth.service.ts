@@ -6,7 +6,9 @@ import { OtpService } from './otp.service';
 import * as bcrypt from 'bcryptjs';
 import { ProductionLogger } from '../common/logger';
 import { randomBytes } from 'crypto';
-import { Type_utilisateur } from '@prisma/client';
+import { Type_notification, Type_utilisateur } from '@prisma/client';
+import { NotificationService } from 'src/notification/notification.service';
+import { CreateNotificationDto } from 'src/notification/dto/createdto';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +19,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private otpService: OtpService,
+    private readonly notification : NotificationService
   ) {
     this.logger = new Logger('AuthService');
   }
@@ -180,9 +183,20 @@ export class AuthService {
 
     // Envoyer un OTP pour vérifier l'email
     await this.otpService.sendOtpToUser(userData.email, 'VERIFY_EMAIL');
+
+    //  enregistrer la notification 
+    const notif : CreateNotificationDto = {
+      utilisateur_id : utilisateur.id,
+      message : `votre compte a ete cree , un code otp a ete envoyer dans votre boite mail ${utilisateur.email}`,
+      type: Type_notification.SYSTEME
+    }
+
+    await this.notification.createNotification(utilisateur.id ,notif);
     
     return utilisateur;
   }
+
+
 
   async createGoogleUser(googleUser: {
     email: string;
@@ -218,6 +232,15 @@ export class AuthService {
     if (!isOtpValid) {
       throw new UnauthorizedException('Code OTP invalide ou expiré');
     }
+
+        //  enregistrer la notification 
+    const notif : CreateNotificationDto = {
+      utilisateur_id : utilisateur.id,
+      message : `votre compte a ete active ${utilisateur.nom}`,
+      type: Type_notification.SYSTEME
+    }
+    
+    await this.notification.createNotification(utilisateur.id ,notif);
 
     // Activer le compte et marquer comme vérifié
     return await this.prisma.utilisateur.update({
@@ -259,6 +282,16 @@ export class AuthService {
     if (!isOtpValid) {
       throw new UnauthorizedException('Code OTP invalide ou expiré');
     }
+
+
+        //  enregistrer la notification 
+    const notif : CreateNotificationDto = {
+      utilisateur_id : utilisateur.id,
+      message : `vous venez de reinitialiser votre mot de passe avec succes `,
+      type: Type_notification.SYSTEME
+    }
+    
+    await this.notification.createNotification(utilisateur.id ,notif);
 
     // Mettre à jour le mot de passe
     return await this.updatePassword(utilisateur.id, newPassword);
