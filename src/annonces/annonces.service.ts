@@ -314,7 +314,7 @@ export class AnnoncesService {
    *
    */
   async getAllAnnonces( query: QueryAnnonceDto) {
-    const { limit = 10, page = 1 } = query;
+    const { limit = 2, page = 1 } = query;
     const skip = (page - 1) * limit;
     
     return this.prisma.annonce.findMany({
@@ -418,7 +418,7 @@ export class AnnoncesService {
       lieu, 
       nom_proprietaire, 
       recherche,
-      limit = 10,
+      limit = 2,
       page = 1,
       orderBy = 'desc'
     } = query;
@@ -542,7 +542,7 @@ export class AnnoncesService {
    * Récupérer les annonces d'un utilisateur
    */
   async findAnnoncesByUser(userId: string, query: QueryAnnonceDto) {
-    const { limit = 10, page = 1, orderBy = 'desc' } = query;
+    const { limit = 2, page = 1, orderBy = 'desc' } = query;
     const skip = (page - 1) * limit;
 
     const [annonces, total] = await Promise.all([
@@ -603,11 +603,13 @@ export class AnnoncesService {
 
 
 
+// fonction pour retourner les annonces de type perdu
+async findAnnoncesPerdu(query: QueryAnnonceDto) {
+  const { limit = 2, page = 1, orderBy = 'desc' } = query;
+  const skip = (page - 1) * limit;
 
-  // fonction pour retourner les annonces de typer perdu
-  async findAnnoncesPerdu() {
-    
-    return this.prisma.annonce.findMany({
+  const [annonces, total] = await Promise.all([
+    this.prisma.annonce.findMany({
       where: { type: Type_annonce.PERDU },
       include: {
         documents: true,
@@ -621,15 +623,32 @@ export class AnnoncesService {
           },
         },
       },
-    });
-  }
+      orderBy: { cree_le: orderBy },
+      skip,
+      take: limit,
+    }),
+    this.prisma.annonce.count({ where: { type: Type_annonce.PERDU } }),
+  ]);
 
+  return {
+    data: annonces,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+}
 
+// fonction pour retourner les annonces de type trouvé
+async findAnnoncesTrouve(query: QueryAnnonceDto) {
+  const { limit = 2, page = 1, orderBy = 'desc' } = query;
+  const skip = (page - 1) * limit;
 
-  // fonction pour retourner les annonces de typer perdu
-  async findAnnoncesTrouve() {
-    return this.prisma.annonce.findMany({
-      where: { type: Type_annonce.TROUVE},
+  const [annonces, total] = await Promise.all([
+    this.prisma.annonce.findMany({
+      where: { type: Type_annonce.TROUVE },
       include: {
         documents: true,
         auteur: {
@@ -642,7 +661,22 @@ export class AnnoncesService {
           },
         },
       },
-    });
-  }
+      orderBy: { cree_le: orderBy },
+      skip,
+      take: limit,
+    }),
+    this.prisma.annonce.count({ where: { type: Type_annonce.TROUVE } }),
+  ]);
+
+  return {
+    data: annonces,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+}
 
 }

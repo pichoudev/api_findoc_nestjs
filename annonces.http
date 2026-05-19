@@ -2,7 +2,7 @@
 ### Host: http://localhost:3000/api/v1
 ### Variables à configurer
 @baseUrl = http://localhost:3000/api/v1
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZjA2YWFmOS1jZGU0LTRjMmYtYWYyNi1kYWY0ZmE1YWRlZWYiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJyb2xlIjoiVVRJTElTQVRFVVIiLCJpYXQiOjE3Nzg0NDE0ODUsImV4cCI6MTc4MDI1NTg4NX0.gsH0Blyvu-KvqI2xT8KNiy1i3OUwpQgMsflAJpmhlxU
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZjA2YWFmOS1jZGU0LTRjMmYtYWYyNi1kYWY0ZmE1YWRlZWYiLCJlbWFpbCI6Imxvb25hNzc1N0BnbWFpbC5jb20iLCJyb2xlIjoiVVRJTElTQVRFVVIiLCJpYXQiOjE3NzkxMTUxNzYsImV4cCI6MTc4MDkyOTU3Nn0.duyVj6JhO6YZbBU2SiSOOJTTGld09qez996nT3vfmLg
 
 ### ÉTAPE 1: Créer une annonce PERDU (sans fichiers)
 POST {{baseUrl}}/annonces

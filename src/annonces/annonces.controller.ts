@@ -270,8 +270,8 @@ async create(
   @ApiOperation({ summary: 'Récupérer les annonces trouvées' })
   @ApiResponse({ status: 200, description: 'Annonces trouvées récupérées' })
   @ApiResponse({ status: 404, description: 'Annonces trouvées non trouvées' })
-  async findAnnoncesTrouve() {
-    return this.annoncesService.findAnnoncesTrouve();
+  async findAnnoncesTrouve(@Query() query: QueryAnnonceDto) {
+    return this.annoncesService.findAnnoncesTrouve(query);
   }
 
 
@@ -281,9 +281,9 @@ async create(
   @ApiOperation({ summary: 'Récupérer les annonces perdues' })
   @ApiResponse({ status: 200, description: 'Annonces perdues récupérées' })
   @ApiResponse({ status: 404, description: 'Annonces perdues non trouvées' })
-  async findAnnoncesPerdu() {
+  async findAnnoncesPerdu(@Query() query: QueryAnnonceDto) {
     console.log("=== DÉBUT findAnnoncesPerdu ===");
-    return this.annoncesService.findAnnoncesPerdu();
+    return this.annoncesService.findAnnoncesPerdu(query);
   }
 
 
