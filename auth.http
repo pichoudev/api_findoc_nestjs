@@ -206,8 +206,8 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "currentPassword": "{{password}}",
-  "newPassword": "NewPassword123!"
+  "ancien_mot_de_passe": "{{password}}",
+  "nouveau_mot_de_passe": "password123"
 }
 
 ### 24. Uploader ma photo de profil
