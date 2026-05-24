@@ -48,7 +48,7 @@ export class MeController {
     @Body() updateProfileDto: UpdateProfileDto
   ) {
     const user = req.user as any;
-    return this.meService.updateProfile(user.sub, updateProfileDto);
+    return this.meService.updateProfile(user.userId, updateProfileDto);
   }
 
   @Post('password')
@@ -64,7 +64,7 @@ export class MeController {
 ) {
   const user = req.user as any;
 
-  return this.meService.updatePassword(user.sub, {
+  return this.meService.updatePassword(user.userId, {
     ancien_mot_de_passe: updatePasswordDto.ancien_mot_de_passe,
     nouveau_mot_de_passe: updatePasswordDto.nouveau_mot_de_passe,
   });
@@ -109,6 +109,6 @@ export class MeController {
   })
   async removePhoto(@Req() req: Request) {
     const user = req.user as any;
-    return this.meService.removeProfilePhoto(user.sub);
+    return this.meService.removeProfilePhoto(user.userId);
   }
 }
