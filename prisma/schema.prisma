@@ -185,6 +185,12 @@ model paiement {
   annonce_id    String
   mode_paiement Mode_paiement
   statut        String
+  email         String?  
+  phone         String?  
+  first_name    String?  
+  last_name     String? 
+  reference    String?  @unique
+  notchpay_url String? 
   cree_le       DateTime      @default(now())
 
   // Relations

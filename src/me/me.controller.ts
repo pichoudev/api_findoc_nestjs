@@ -34,7 +34,8 @@ export class MeController {
   })
   async getProfile(@Req() req: Request) {
     const user = req.user as any;
-    return this.meService.getProfile(user.sub);
+    console.log(user);
+    return this.meService.getProfile(user.userId);
   }
 
   @Patch()
